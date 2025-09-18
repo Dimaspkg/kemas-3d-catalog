@@ -7,7 +7,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 type CosmeticCanvasProps = Omit<CustomizationState, "brightness">;
 
@@ -60,6 +59,9 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
         if (!background) {
             scene.environment = environmentRef.current;
+        } else {
+            scene.background = new THREE.Color(background);
+            scene.environment = environmentRef.current;
         }
         texture.dispose();
         pmremGenerator.dispose();
@@ -76,9 +78,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.update();
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
-
     // Key Light
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
     keyLight.position.set(-5, 5, 5);
@@ -209,10 +208,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     if (background) {
       scene.background = new THREE.Color(background);
-      scene.environment = null;
-    } else if (environmentRef.current) {
+    } else {
       scene.background = null;
-      scene.environment = environmentRef.current;
+    }
+    
+    if (environmentRef.current) {
+        scene.environment = environmentRef.current;
     }
 
 
