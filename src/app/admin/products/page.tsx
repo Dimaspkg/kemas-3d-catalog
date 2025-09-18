@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Table,
@@ -15,6 +16,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import Image from 'next/image';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 interface Product {
@@ -31,12 +35,6 @@ interface Category {
   name: string;
 }
 
-const mockProducts: Product[] = [
-    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p1/100/100', material: 'Aluminum' },
-    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p2/100/100', material: 'Glass' },
-    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p3/100/100', material: 'Plastic' },
-];
-
 const mockCategories: Category[] = [
     { id: '1', name: 'Lipsticks' },
     { id: '2', name: 'Foundations' },
@@ -44,7 +42,32 @@ const mockCategories: Category[] = [
     { id: '4', name: 'Bottles' },
 ];
 
+function ProductRowSkeleton() {
+    return (
+        <TableRow>
+            <TableCell><Skeleton className="h-16 w-16 rounded-md" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+        </TableRow>
+    )
+}
+
 export default function ProductManagementPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      setProducts(productsData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -71,7 +94,24 @@ export default function ProductManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {mockProducts.length === 0 ? (
+                    {loading ? (
+                         <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Image</TableHead>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Categories</TableHead>
+                                <TableHead>Material</TableHead>
+                                <TableHead>File</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <ProductRowSkeleton />
+                                <ProductRowSkeleton />
+                                <ProductRowSkeleton />
+                            </TableBody>
+                        </Table>
+                    ) : products.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">No products uploaded yet.</p>
                         </div>
@@ -87,7 +127,7 @@ export default function ProductManagementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {mockProducts.map((product) => (
+                                {products.map((product) => (
                                 <TableRow key={product.id}>
                                     <TableCell>
                                         <Image 

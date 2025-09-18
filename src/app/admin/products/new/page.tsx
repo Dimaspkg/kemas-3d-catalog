@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Category {
   id: string;
@@ -89,19 +90,47 @@ export default function NewProductPage() {
         }
 
         try {
-            // NOTE: This uses mock data and will not persist.
-            // In a real app, you would upload to Supabase and save to Firestore.
-            console.log("Submitting with mock data:", {
-                ...data,
-                modelFileName: modelFile.name,
-                imageFileName: productImageFile.name,
-            });
+            // Upload product image
+            const imageFileName = `${uuidv4()}-${productImageFile.name}`;
+            const { error: imageError } = await supabase.storage
+                .from('product-images')
+                .upload(imageFileName, productImageFile);
 
-            // Simulate async operation
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (imageError) throw new Error(`Image upload failed: ${imageError.message}`);
+
+            const { data: { publicUrl: imageURL } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(imageFileName);
+
+            // Upload 3D model file
+            const modelFileName = `${uuidv4()}-${modelFile.name}`;
+            const { error: modelError } = await supabase.storage
+                .from('product-models')
+                .upload(modelFileName, modelFile);
+
+            if (modelError) throw new Error(`Model upload failed: ${modelError.message}`);
+
+            const { data: { publicUrl: modelURL } } = supabase.storage
+                .from('product-models')
+                .getPublicUrl(modelFileName);
+
+            // Save product data to Firestore
+            await addDoc(collection(db, "products"), {
+                name: data.name,
+                categories: data.categories,
+                imageURL,
+                modelURL,
+                dimensions: data.dimensions,
+                godetSize: data.godetSize,
+                mechanism: data.mechanism,
+                material: data.material,
+                specialFeatures: data.specialFeatures,
+                manufacturingLocation: data.manufacturingLocation,
+                createdAt: new Date(),
+            });
             
             toast({
-                title: "Success (Mock)",
+                title: "Success",
                 description: "Product added successfully.",
             });
             router.push('/admin/products');
