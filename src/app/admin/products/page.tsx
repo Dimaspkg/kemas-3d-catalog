@@ -23,6 +23,7 @@ interface Product {
   categories: string[];
   modelURL: string;
   imageURL: string;
+  material?: string;
 }
 
 interface Category {
@@ -31,9 +32,9 @@ interface Category {
 }
 
 const mockProducts: Product[] = [
-    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p1/100/100' },
-    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p2/100/100' },
-    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p3/100/100' },
+    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p1/100/100', material: 'Aluminum' },
+    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p2/100/100', material: 'Glass' },
+    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p3/100/100', material: 'Plastic' },
 ];
 
 const mockCategories: Category[] = [
@@ -81,6 +82,7 @@ export default function ProductManagementPage() {
                                 <TableHead>Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Categories</TableHead>
+                                <TableHead>Material</TableHead>
                                 <TableHead>File</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -98,6 +100,7 @@ export default function ProductManagementPage() {
                                     </TableCell>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell>{product.categories?.join(', ')}</TableCell>
+                                    <TableCell>{product.material || 'N/A'}</TableCell>
                                      <TableCell>
                                         <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                                             View

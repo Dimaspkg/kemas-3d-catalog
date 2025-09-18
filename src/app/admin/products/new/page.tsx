@@ -35,14 +35,20 @@ const productFormSchema = z.object({
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
-    modelFile: z.any().refine(
-        (files) => files?.length > 0,
-        "A model file is required."
-    ),
     productImage: z.any().refine(
         (files) => files?.length > 0,
         "A product image is required."
     ),
+    modelFile: z.any().refine(
+        (files) => files?.length > 0,
+        "A model file is required."
+    ),
+    dimensions: z.string().optional(),
+    godetSize: z.string().optional(),
+    mechanism: z.string().optional(),
+    material: z.string().optional(),
+    specialFeatures: z.string().optional(),
+    manufacturingLocation: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -56,21 +62,27 @@ export default function NewProductPage() {
         defaultValues: {
             name: "",
             categories: [],
-            modelFile: undefined,
             productImage: undefined,
+            modelFile: undefined,
+            dimensions: "",
+            godetSize: "",
+            mechanism: "",
+            material: "",
+            specialFeatures: "",
+            manufacturingLocation: "",
         },
     });
 
     const onSubmit = async (data: ProductFormValues) => {
         setIsSubmitting(true);
-        const modelFile = data.modelFile[0];
         const productImageFile = data.productImage[0];
+        const modelFile = data.modelFile[0];
 
-        if (!modelFile || !productImageFile) {
+        if (!productImageFile || !modelFile) {
              toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Model file and product image are required.",
+                description: "Product image and model file are required.",
             });
             setIsSubmitting(false);
             return;
@@ -80,8 +92,7 @@ export default function NewProductPage() {
             // NOTE: This uses mock data and will not persist.
             // In a real app, you would upload to Supabase and save to Firestore.
             console.log("Submitting with mock data:", {
-                name: data.name,
-                categories: data.categories,
+                ...data,
                 modelFileName: modelFile.name,
                 imageFileName: productImageFile.name,
             });
@@ -215,6 +226,94 @@ export default function NewProductPage() {
                                 </FormItem>
                             )}
                         />
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Specifications</CardTitle>
+                                <CardDescription>Provide detailed specifications for the product.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="dimensions"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Dimensions</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. 10cm x 3cm x 3cm" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="godetSize"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Godet/Cup Size</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. 12.1mm" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="mechanism"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mechanism</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Twist-up" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="material"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Material</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Aluminum, Plastic" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="specialFeatures"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Special Features</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Magnetic closure" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="manufacturingLocation"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Manufacturing Location</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Italy" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
+
                     </CardContent>
                     <CardFooter className="flex justify-end gap-2">
                         <Button variant="ghost" asChild>
