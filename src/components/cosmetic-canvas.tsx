@@ -79,7 +79,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Lighting
     // Key Light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 2048;
@@ -88,12 +88,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     scene.add(keyLight);
 
     // Fill Light
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
     fillLight.position.set(5, 2, 5);
     scene.add(fillLight);
 
     // Back Light
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
     backLight.position.set(0, 5, -8);
     scene.add(backLight);
 
@@ -208,12 +208,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     if (background) {
       scene.background = new THREE.Color(background);
+      scene.environment = null;
     } else {
       scene.background = null;
-    }
-    
-    if (environmentRef.current) {
-        scene.environment = environmentRef.current;
+      if (environmentRef.current) {
+          scene.environment = environmentRef.current;
+      }
     }
 
 
