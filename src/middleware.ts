@@ -1,36 +1,18 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { auth } from './lib/firebase/admin';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('session')?.value;
 
-  // If trying to access admin routes
-  if (pathname.startsWith('/admin')) {
-    if (!sessionCookie) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    try {
-      // Verify the session cookie. This throws an error if it's not valid.
-      await auth().verifySessionCookie(sessionCookie, true);
-    } catch (error) {
-      // Session cookie is invalid. Redirect to login page.
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      // Clear the invalid cookie
-      response.cookies.set('session', '', { maxAge: -1 });
-      return response;
-    }
+  // Redirect to login if trying to access admin routes without a session cookie
+  if (pathname.startsWith('/admin') && !sessionCookie) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
-
-  // If logged in, redirect from login page to admin
+  
+  // If logged in (cookie exists), redirect from login page to admin
   if (pathname === '/login' && sessionCookie) {
-     try {
-      await auth().verifySessionCookie(sessionCookie, true);
-      return NextResponse.redirect(new URL('/admin', request.url));
-    } catch (error) {
-       // Invalid cookie, let them stay on login
-    }
+     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   return NextResponse.next();
