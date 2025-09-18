@@ -323,7 +323,7 @@ export default function ProductManagementPage() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    const unsubscribeProducts = onSnapshot(collection(db, 'models'), (snapshot) => {
+    const unsubscribeProducts = onsnapshot(collection(db, 'models'), (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
       setProducts(productsData);
     });
@@ -421,7 +421,7 @@ export default function ProductManagementPage() {
                         </Table>
                      )}
                 </CardContent>
-            </card>
+            </Card>
         </div>
     </div>
   );
