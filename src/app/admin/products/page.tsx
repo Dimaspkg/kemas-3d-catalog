@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Table,
@@ -41,8 +40,6 @@ const mockCategories: Category[] = [
 ];
 
 export default function ProductManagementPage() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
 
   return (
     <div className="space-y-6">
@@ -53,7 +50,7 @@ export default function ProductManagementPage() {
                     Manage your 3D products and categories here.
                 </p>
             </div>
-            <AddProductDialog categories={categories} />
+            <AddProductDialog categories={mockCategories} />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
@@ -64,7 +61,7 @@ export default function ProductManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {products.length === 0 ? (
+                    {mockProducts.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">No products uploaded yet.</p>
                         </div>
@@ -78,7 +75,7 @@ export default function ProductManagementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {products.map((product) => (
+                                {mockProducts.map((product) => (
                                 <TableRow key={product.id}>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell>{product.categories?.join(', ')}</TableCell>
@@ -100,12 +97,12 @@ export default function ProductManagementPage() {
                         <CardTitle>Categories</CardTitle>
                         <CardDescription>
                             Group your products into categories.
-                        </Description>
+                        </CardDescription>
                     </div>
                     <AddCategoryDialog />
                 </CardHeader>
                 <CardContent>
-                     {categories.length === 0 ? (
+                     {mockCategories.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">No categories created yet.</p>
                         </div>
@@ -117,7 +114,7 @@ export default function ProductManagementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {categories.map((category) => (
+                                {mockCategories.map((category) => (
                                     <TableRow key={category.id}>
                                         <TableCell className="font-medium">{category.name}</TableCell>
                                     </TableRow>
