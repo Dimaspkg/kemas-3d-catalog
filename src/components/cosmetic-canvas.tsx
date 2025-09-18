@@ -55,21 +55,22 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.update();
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 2048;
     keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.radius = 5; // Add blur to shadows
     scene.add(keyLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
     fillLight.position.set(5, 2, 5);
     scene.add(fillLight);
     
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
     rimLight.position.set(0, 5, -5);
     scene.add(rimLight);
 
