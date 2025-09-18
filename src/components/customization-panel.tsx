@@ -17,9 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Button } from "./ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type CustomizationState = {
   colors: {
@@ -93,56 +93,79 @@ export default function CustomizationPanel({
   }
 
   const parts = Object.keys(state.colors);
+  const TABS_ID = React.useId();
+
+
+  if (parts.length === 0) {
+    return (
+      <div className="h-full w-full p-4 md:p-8">
+        <Card className="h-full shadow-lg rounded-lg border-0">
+          <CardHeader>
+              <CardTitle className="font-headline">Customize Your Product</CardTitle>
+              <CardDescription>
+                Load a product to start customizing.
+              </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">No customizable parts found.</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
-    <div className="h-full w-full py-4 md:py-8">
-        <Card className="h-full shadow-lg rounded-none border-0 border-l">
+    <div className="h-full w-full p-4 md:p-8">
+        <Card className="h-full shadow-lg rounded-lg border-0">
         <CardHeader>
             <CardTitle className="font-headline">Customize Your Product</CardTitle>
             <CardDescription>
-            Adjust colors and materials to create your perfect design.
+            Select a part and adjust colors and materials to create your perfect design.
             </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-            {parts.map((part, index) => (
-            <React.Fragment key={part}>
-                <div className="space-y-4">
-                <h3 className="text-lg font-semibold font-headline capitalize">{part}</h3>
-                <div className="grid grid-cols-2 gap-4 items-center">
+        <CardContent>
+          <Tabs defaultValue={parts[0]} className="w-full">
+            <TabsList>
+              {parts.map(part => (
+                <TabsTrigger key={`${TABS_ID}-${part}`} value={part} className="capitalize">{part}</TabsTrigger>
+              ))}
+               <TabsTrigger key={`${TABS_ID}-environment`} value="environment">Environment</TabsTrigger>
+            </TabsList>
+            
+            {parts.map((part) => (
+              <TabsContent key={`${TABS_ID}-${part}-content`} value={part}>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
                     <div className="space-y-2">
-                    <Label htmlFor={`${part}-color`}>Color</Label>
-                    <ColorPickerInput
-                        value={state.colors[part]}
-                        onChange={handleColorChange(part)}
-                    />
+                      <Label htmlFor={`${part}-color`}>Color</Label>
+                      <ColorPickerInput
+                          value={state.colors[part]}
+                          onChange={handleColorChange(part)}
+                      />
                     </div>
                     <div className="space-y-2">
-                    <Label htmlFor={`${part}-material`}>Material</Label>
-                    <Select
-                        value={state.materials[part]}
-                        onValueChange={handleMaterialChange(part)}
-                    >
-                        <SelectTrigger id={`${part}-material`}>
-                        <SelectValue placeholder="Select material" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        {materialOptions.map((option) => (
-                            <SelectItem key={option.key} value={option.key} className="capitalize">
-                            {option.name}
-                            </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
+                      <Label htmlFor={`${part}-material`}>Material</Label>
+                      <Select
+                          value={state.materials[part]}
+                          onValueChange={handleMaterialChange(part)}
+                      >
+                          <SelectTrigger id={`${part}-material`} className="max-w-xs">
+                            <SelectValue placeholder="Select material" />
+                          </SelectTrigger>
+                          <SelectContent>
+                          {materialOptions.map((option) => (
+                              <SelectItem key={option.key} value={option.key} className="capitalize">
+                              {option.name}
+                              </SelectItem>
+                          ))}
+                          </SelectContent>
+                      </Select>
                     </div>
                 </div>
-                </div>
-                {index < parts.length -1 && <Separator />}
-            </React.Fragment>
+              </TabsContent>
             ))}
-            <Separator />
-            <div className="space-y-4">
-                <h3 className="text-lg font-semibold font-headline">Environment</h3>
-                <div className="flex items-center gap-4">
+
+            <TabsContent key={`${TABS_ID}-environment-content`} value="environment">
+               <div className="flex items-center gap-6 pt-4">
                     <div className="space-y-2">
                         <Label htmlFor="bg-color">Background Color</Label>
                         <ColorPickerInput
@@ -154,7 +177,9 @@ export default function CustomizationPanel({
                         <Button variant="outline" onClick={handleUseEnvironment}>Use Environment</Button>
                     </div>
                 </div>
-            </div>
+            </TabsContent>
+
+          </Tabs>
         </CardContent>
         </Card>
     </div>

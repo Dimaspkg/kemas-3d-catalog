@@ -13,7 +13,7 @@ import type { Product } from "@/lib/types";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
-  loading: () => <Skeleton className="w-full h-[50vh] md:h-full rounded-lg" />,
+  loading: () => <Skeleton className="w-full aspect-video rounded-lg" />,
 });
 
 const CustomizationPanel = dynamic(
@@ -26,23 +26,12 @@ const CustomizationPanel = dynamic(
 
 function CustomizationPanelSkeleton() {
   return (
-    <div className="space-y-6 p-4 md:p-8">
+    <div className="p-4 md:p-8">
       <div className="h-full shadow-lg rounded-lg p-6 space-y-6 bg-card">
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-6 w-1/2" />
         <div className="space-y-4">
-          <Skeleton className="h-6 w-1/4" />
-          <div className="grid grid-cols-2 gap-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-1/4" />
-          <div className="grid grid-cols-2 gap-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
+          <Skeleton className="h-10 w-full" />
         </div>
       </div>
     </div>
@@ -106,8 +95,8 @@ export default function CanvasPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header />
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-3">
-        <div className="md:col-span-2 min-h-[50vh] md:min-h-0">
+      <main className="flex-1 flex flex-col">
+        <div className="w-full aspect-video">
           <Suspense fallback={<Skeleton className="w-full h-full" />}>
             <CosmeticCanvas 
               {...customization} 
@@ -116,7 +105,7 @@ export default function CanvasPage() {
             />
           </Suspense>
         </div>
-        <div className="md:col-span-1">
+        <div className="flex-grow">
            <Suspense fallback={<CustomizationPanelSkeleton />}>
             {loading ? (
                 <CustomizationPanelSkeleton />
