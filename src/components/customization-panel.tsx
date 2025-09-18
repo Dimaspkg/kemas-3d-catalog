@@ -95,8 +95,8 @@ export default function CustomizationPanel({
   const parts = Object.keys(state.colors);
 
   return (
-    <div className="h-full w-full p-4 md:p-8">
-        <Card className="h-full shadow-lg">
+    <div className="h-full w-full py-4 md:py-8">
+        <Card className="h-full shadow-lg rounded-none border-0 border-l">
         <CardHeader>
             <CardTitle className="font-headline">Customize Your Product</CardTitle>
             <CardDescription>
