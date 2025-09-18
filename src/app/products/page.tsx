@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
+import Link from 'next/link';
 
 function ProductCardSkeleton() {
     return (
@@ -48,22 +49,24 @@ export default function ProductsPage() {
       ) : products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
-            <Card key={product.id}>
-                <CardHeader className="p-0">
-                    <div className="relative aspect-square w-full">
-                        <Image 
-                            src={product.imageURL}
-                            alt={product.name}
-                            fill
-                            className="object-cover rounded-t-lg"
-                        />
-                    </div>
-                </CardHeader>
-              <CardContent className="pt-4">
-                <CardTitle className="text-lg">{product.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">{product.categories?.join(', ')}</p>
-              </CardContent>
-            </Card>
+            <Link href={`/products/${product.id}`} key={product.id} className="group">
+              <Card>
+                  <CardHeader className="p-0">
+                      <div className="relative aspect-square w-full">
+                          <Image 
+                              src={product.imageURL}
+                              alt={product.name}
+                              fill
+                              className="object-cover rounded-t-lg transition-transform group-hover:scale-105"
+                          />
+                      </div>
+                  </CardHeader>
+                <CardContent className="pt-4">
+                  <CardTitle className="text-lg group-hover:text-primary">{product.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">{product.categories?.join(', ')}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       ) : (
