@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 
@@ -43,6 +44,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
     currentMount.appendChild(renderer.domElement);
 
     // Controls
@@ -55,24 +58,22 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.update();
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 2048;
     keyLight.shadow.mapSize.height = 2048;
-    keyLight.shadow.radius = 5; // Add blur to shadows
+    keyLight.shadow.radius = 8;
     scene.add(keyLight);
     
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    fillLight.position.set(5, 2, 5);
-    scene.add(fillLight);
-    
-    const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    rimLight.position.set(0, 5, -5);
-    scene.add(rimLight);
+    // Environment
+    const rgbeLoader = new RGBELoader();
+    rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.environment = texture;
+        scene.background = null; // Use environment for background
+    });
+
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
@@ -177,7 +178,10 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const scene = sceneRef.current;
     if (!scene) return;
     
-    scene.background = new THREE.Color(background);
+    if (scene.environment === null) {
+        scene.background = new THREE.Color(background);
+    }
+
 
     const cap = scene.getObjectByName("cap") as THREE.Mesh;
     if (cap && cap.material instanceof THREE.MeshStandardMaterial) {
