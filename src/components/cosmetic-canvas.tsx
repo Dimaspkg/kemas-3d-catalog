@@ -148,13 +148,14 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         // Adjust camera to fit the model
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
-        const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+        cameraZ *= 0.5; // super zoom
         
         camera.position.set(0, size.y / 2, cameraZ);
         
         // Adjust controls target to the model's new center
         controls.target.copy(loadedModel.position);
-        controls.update();
+        
 
         // Adjust clipping planes
         camera.near = maxDim / 100;
@@ -168,6 +169,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         updateObject("cap", colors.cap, materialKeys.cap);
         updateObject("body", colors.body, materialKeys.body);
         updateObject("pump", colors.pump, materialKeys.pump);
+        
+        controls.update();
       });
     } else {
         // Fallback to default geometry if no modelURL
@@ -256,7 +259,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       rendererRef.current = null;
       sceneRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/ exhaustive-deps
   }, [modelURL]); 
 
   // Effect to update colors, materials, and background
@@ -302,6 +305,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+    
 
     
 
