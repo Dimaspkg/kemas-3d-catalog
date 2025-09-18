@@ -137,13 +137,15 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
           }
         });
         
-        // Center the model
+        // Center the model and place it on the floor
         const box = new THREE.Box3().setFromObject(loadedModel);
         const center = box.getCenter(new THREE.Vector3());
-        loadedModel.position.sub(center);
+        const size = box.getSize(new THREE.Vector3());
+        
+        loadedModel.position.sub(center); // Center the model at the origin
+        loadedModel.position.y += size.y / 2; // Move the model up so its base is on the floor
 
         // Adjust camera to fit the model
-        const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
@@ -152,7 +154,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         camera.position.set(0, 0, cameraZ);
         
         // Adjust controls target to the model's new center
-        controls.target.set(0, 0, 0);
+        controls.target.copy(loadedModel.position);
         controls.update();
 
         // Adjust clipping planes
@@ -301,6 +303,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+    
 
     
 
