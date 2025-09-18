@@ -43,7 +43,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
-      50, // fov
+      12, // fov
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
