@@ -14,6 +14,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   background,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -22,6 +24,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Scene
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -35,6 +38,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    rendererRef.current = renderer;
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
@@ -86,7 +90,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     const capMaterial = createMaterial(materialKeys.cap);
     const bodyMaterial = createMaterial(materialKeys.body);
-    const pumpMaterial = createMaterial(pumpMaterial);
+    const pumpMaterial = createMaterial(materialKeys.pump);
 
     // Bottle Parts
     const bottleGroup = new THREE.Group();
@@ -162,56 +166,44 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       });
       renderer.dispose();
       controls.dispose();
+      rendererRef.current = null;
+      sceneRef.current = null;
     };
   }, []); // Run only once on mount
 
   // Effect to update colors, materials, and background
   useEffect(() => {
-    const scene = (renderer.domElement.previousSibling as any)?.__r3f.root.getState().scene; // Hacky way to get scene, better way is to store it in ref
-    if (!scene) {
-        // Find the scene in the mount ref if it's not available in the renderer.
-        const canvas = mountRef.current?.querySelector('canvas');
-        if (canvas) {
-            const rendererInstance = new THREE.WebGLRenderer({ canvas });
-            const sceneRef = (rendererInstance as any)._scene; // private access, not ideal
-            if(sceneRef) {
-                updateScene(sceneRef);
-            }
-        }
-    } else {
-        updateScene(scene);
+    const scene = sceneRef.current;
+    if (!scene) return;
+    
+    scene.background = new THREE.Color(background);
+
+    const cap = scene.getObjectByName("cap") as THREE.Mesh;
+    if (cap && cap.material instanceof THREE.MeshStandardMaterial) {
+        cap.material.color.set(colors.cap);
+        const props = materials[materialKeys.cap];
+        Object.assign(cap.material, props);
+        cap.material.needsUpdate = true;
     }
 
-    function updateScene(scene: THREE.Scene) {
-        scene.background = new THREE.Color(background);
+    const body = scene.getObjectByName("body") as THREE.Mesh;
+    if (body && body.material instanceof THREE.MeshStandardMaterial) {
+        body.material.color.set(colors.body);
+        const props = materials[materialKeys.body];
+        Object.assign(body.material, props);
+        body.material.needsUpdate = true;
+    }
 
-        const cap = scene.getObjectByName("cap") as THREE.Mesh;
-        if (cap) {
-            (cap.material as THREE.MeshStandardMaterial).color.set(colors.cap);
-            const props = materials[materialKeys.cap];
-            Object.assign(cap.material, props);
-            (cap.material as THREE.MeshStandardMaterial).needsUpdate = true;
-        }
-
-        const body = scene.getObjectByName("body") as THREE.Mesh;
-        if (body) {
-            (body.material as THREE.MeshStandardMaterial).color.set(colors.body);
-            const props = materials[materialKeys.body];
-            Object.assign(body.material, props);
-            (body.material as THREE.MeshStandardMaterial).needsUpdate = true;
-        }
-
-        const pumpGroup = scene.getObjectByName("pump") as THREE.Group;
-        if (pumpGroup) {
-            pumpGroup.children.forEach(child => {
-                if (child instanceof THREE.Mesh) {
-                    (child.material as THREE.MeshStandardMaterial).color.set(colors.pump);
-                    const props = materials[materialKeys.pump];
-                    Object.assign(child.material, props);
-                    (child.material as THREE.MeshStandardMaterial).needsUpdate = true;
-                }
-            });
-        }
+    const pumpGroup = scene.getObjectByName("pump") as THREE.Group;
+    if (pumpGroup) {
+        pumpGroup.children.forEach(child => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                child.material.color.set(colors.pump);
+                const props = materials[materialKeys.pump];
+                Object.assign(child.material, props);
+                child.material.needsUpdate = true;
+            }
+        });
     }
   }, [colors, materialKeys, background]);
 
