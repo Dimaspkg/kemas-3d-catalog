@@ -49,10 +49,10 @@ export default function AdminLayout({
 }) {
   
   return (
-    <Sheet>
-        <div className="min-h-screen w-full">
-            <div className="flex flex-col">
-                 <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+    <div className="min-h-screen w-full">
+        <div className="flex flex-col">
+                <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+                <Sheet>
                     <SheetTrigger asChild>
                         <Button
                         variant="outline"
@@ -63,19 +63,19 @@ export default function AdminLayout({
                         <span className="sr-only">Toggle navigation menu</span>
                         </Button>
                     </SheetTrigger>
-                    <h1 className="text-xl font-semibold">Admin Panel</h1>
-                </header>
-                <main className="flex-1 p-4 md:p-8">
-                    {children}
-                </main>
-            </div>
+                     <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
+                        <SheetHeader className="sr-only">
+                        <SheetTitle>Admin Menu</SheetTitle>
+                        </SheetHeader>
+                        <NavMenu />
+                    </SheetContent>
+                </Sheet>
+                <h1 className="text-xl font-semibold">Admin Panel</h1>
+            </header>
+            <main className="flex-1 p-4 md:p-8">
+                {children}
+            </main>
         </div>
-        <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
-            <SheetHeader className="sr-only">
-              <SheetTitle>Admin Menu</SheetTitle>
-            </SheetHeader>
-            <NavMenu />
-        </SheetContent>
-    </Sheet>
+    </div>
   );
 }
