@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AddProductDialog } from '@/components/admin/add-product-dialog';
 import { AddCategoryDialog } from '@/components/admin/add-category-dialog';
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 
 
 interface Product {
@@ -50,7 +52,12 @@ export default function ProductManagementPage() {
                     Manage your 3D products and categories here.
                 </p>
             </div>
-            <AddProductDialog categories={mockCategories} />
+            <Button asChild>
+                <Link href="/admin/products/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Product
+                </Link>
+            </Button>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>

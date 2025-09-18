@@ -3,19 +3,9 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { db } from '@/lib/firebase';
 import { supabase } from '@/lib/supabase';
 import { collection, addDoc } from 'firebase/firestore';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,11 +13,22 @@ import { z } from "zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Category {
   id: string;
   name: string;
 }
+
+const mockCategories: Category[] = [
+    { id: '1', name: 'Lipsticks' },
+    { id: '2', name: 'Foundations' },
+    { id: '3', name: 'Mascaras' },
+    { id: '4', name: 'Bottles' },
+];
+
 
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -42,10 +43,10 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-export function AddProductDialog({ categories }: { categories: Category[] }) {
-    const [open, setOpen] = useState(false);
+export default function NewProductPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
         defaultValues: {
@@ -68,40 +69,23 @@ export function AddProductDialog({ categories }: { categories: Category[] }) {
         }
 
         try {
-            // Upload file to Supabase Storage
-            const filePath = `models/${Date.now()}_${file.name}`;
-            const { error: uploadError } = await supabase.storage
-              .from('models') // Assuming your bucket is named 'models'
-              .upload(filePath, file);
-
-            if (uploadError) {
-              throw uploadError;
-            }
-
-            // Get public URL
-            const { data: urlData } = supabase.storage
-              .from('models')
-              .getPublicUrl(filePath);
-
-            if (!urlData.publicUrl) {
-                throw new Error("Could not get public URL for the model.");
-            }
-            
-            const downloadURL = urlData.publicUrl;
-
-            // Add model data to Firestore
-            await addDoc(collection(db, "models"), {
+            // NOTE: This uses mock data and will not persist.
+            // In a real app, you would upload to Supabase and save to Firestore.
+            console.log("Submitting with mock data:", {
                 name: data.name,
                 categories: data.categories,
-                modelURL: downloadURL,
+                fileName: file.name,
             });
 
+            // Simulate async operation
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             toast({
-                title: "Success",
+                title: "Success (Mock)",
                 description: "Product added successfully.",
             });
-            form.reset();
-            setOpen(false);
+            router.push('/admin/products');
+
         } catch (error: any) {
             console.error("Error adding document: ", error);
             toast({
@@ -115,22 +99,16 @@ export function AddProductDialog({ categories }: { categories: Category[] }) {
     };
     
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Product
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Add New Product</DialogTitle>
-                    <DialogDescription>
-                        Fill in the details for your new 3D product model.
-                    </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+                <CardTitle>Add New Product</CardTitle>
+                <CardDescription>
+                    Fill in the details for your new 3D product model.
+                </CardDescription>
+            </CardHeader>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <CardContent className="space-y-6">
                         <FormField
                             control={form.control}
                             name="name"
@@ -155,39 +133,41 @@ export function AddProductDialog({ categories }: { categories: Category[] }) {
                                         Select one or more categories for your product.
                                     </FormDescription>
                                 </div>
-                                {categories.map((item) => (
-                                    <FormField
-                                    key={item.id}
-                                    control={form.control}
-                                    name="categories"
-                                    render={({ field }) => {
-                                        return (
-                                        <FormItem
-                                            key={item.id}
-                                            className="flex flex-row items-start space-x-3 space-y-0"
-                                        >
-                                            <FormControl>
-                                            <Checkbox
-                                                checked={field.value?.includes(item.name)}
-                                                onCheckedChange={(checked) => {
-                                                return checked
-                                                    ? field.onChange([...(field.value || []), item.name])
-                                                    : field.onChange(
-                                                        field.value?.filter(
-                                                        (value) => value !== item.name
+                                <div className="space-y-2">
+                                    {mockCategories.map((item) => (
+                                        <FormField
+                                        key={item.id}
+                                        control={form.control}
+                                        name="categories"
+                                        render={({ field }) => {
+                                            return (
+                                            <FormItem
+                                                key={item.id}
+                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                            >
+                                                <FormControl>
+                                                <Checkbox
+                                                    checked={field.value?.includes(item.name)}
+                                                    onCheckedChange={(checked) => {
+                                                    return checked
+                                                        ? field.onChange([...(field.value || []), item.name])
+                                                        : field.onChange(
+                                                            field.value?.filter(
+                                                            (value) => value !== item.name
+                                                            )
                                                         )
-                                                    )
-                                                }}
-                                            />
-                                            </FormControl>
-                                            <FormLabel className="font-normal">
-                                                {item.name}
-                                            </FormLabel>
-                                        </FormItem>
-                                        )
-                                    }}
-                                    />
-                                ))}
+                                                    }}
+                                                />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    {item.name}
+                                                </FormLabel>
+                                            </FormItem>
+                                            )
+                                        }}
+                                        />
+                                    ))}
+                                </div>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -209,14 +189,17 @@ export function AddProductDialog({ categories }: { categories: Category[] }) {
                                 </FormItem>
                             )}
                         />
-                        <DialogFooter>
-                            <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? 'Saving...' : 'Save Product'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+                    </CardContent>
+                    <CardFooter className="flex justify-end gap-2">
+                        <Button variant="ghost" asChild>
+                            <Link href="/admin/products">Cancel</Link>
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : 'Save Product'}
+                        </Button>
+                    </CardFooter>
+                </form>
+            </Form>
+        </Card>
     );
 }
