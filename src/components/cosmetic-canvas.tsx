@@ -92,7 +92,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 0.1;
+    controls.minDistance = 0.2;
     controls.maxDistance = 50; // Increased max distance for larger models
     controls.target.set(0, 1, 0);
     controls.update();
