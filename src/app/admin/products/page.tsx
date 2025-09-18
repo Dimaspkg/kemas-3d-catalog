@@ -14,6 +14,7 @@ import { AddCategoryDialog } from '@/components/admin/add-category-dialog';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
+import Image from 'next/image';
 
 
 interface Product {
@@ -21,6 +22,7 @@ interface Product {
   name: string;
   categories: string[];
   modelURL: string;
+  imageURL: string;
 }
 
 interface Category {
@@ -29,9 +31,9 @@ interface Category {
 }
 
 const mockProducts: Product[] = [
-    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#' },
-    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#' },
-    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#' },
+    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p1/100/100' },
+    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p2/100/100' },
+    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#', imageURL: 'https://picsum.photos/seed/p3/100/100' },
 ];
 
 const mockCategories: Category[] = [
@@ -76,6 +78,7 @@ export default function ProductManagementPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                <TableHead>Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Categories</TableHead>
                                 <TableHead>File</TableHead>
@@ -84,6 +87,15 @@ export default function ProductManagementPage() {
                             <TableBody>
                                 {mockProducts.map((product) => (
                                 <TableRow key={product.id}>
+                                    <TableCell>
+                                        <Image 
+                                            src={product.imageURL} 
+                                            alt={product.name}
+                                            width={64}
+                                            height={64}
+                                            className="rounded-md object-cover"
+                                        />
+                                    </TableCell>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell>{product.categories?.join(', ')}</TableCell>
                                      <TableCell>

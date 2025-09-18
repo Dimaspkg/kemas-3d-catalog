@@ -38,7 +38,11 @@ const productFormSchema = z.object({
     modelFile: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
         (files) => files?.length > 0,
         "A model file is required."
-      ),
+    ),
+    productImage: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
+        (files) => files?.length > 0,
+        "A product image is required."
+    ),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -57,12 +61,14 @@ export default function NewProductPage() {
 
     const onSubmit = async (data: ProductFormValues) => {
         setIsSubmitting(true);
-        const file = data.modelFile[0];
-        if (!file) {
+        const modelFile = data.modelFile[0];
+        const productImageFile = data.productImage[0];
+
+        if (!modelFile || !productImageFile) {
              toast({
                 variant: "destructive",
                 title: "Error",
-                description: "No file selected.",
+                description: "Model file and product image are required.",
             });
             setIsSubmitting(false);
             return;
@@ -74,7 +80,8 @@ export default function NewProductPage() {
             console.log("Submitting with mock data:", {
                 name: data.name,
                 categories: data.categories,
-                fileName: file.name,
+                modelFileName: modelFile.name,
+                imageFileName: productImageFile.name,
             });
 
             // Simulate async operation
@@ -169,6 +176,23 @@ export default function NewProductPage() {
                                     ))}
                                 </div>
                                 <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="productImage"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Product Image</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            type="file" 
+                                            accept="image/png, image/jpeg, image/webp"
+                                            onChange={(e) => field.onChange(e.target.files)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
