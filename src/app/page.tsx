@@ -59,7 +59,7 @@ export default function Home() {
       body: "glossy",
       pump: "metal-polished",
     },
-    background: "#f5f5f5", // very light gray
+    background: "#f9f9f9",
   });
 
   return (

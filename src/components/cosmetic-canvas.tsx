@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef, useEffect } from "react";
@@ -6,6 +7,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 type CosmeticCanvasProps = CustomizationState;
 
@@ -29,12 +31,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
-      50,
+      45, // fov
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
     );
-    camera.position.set(0, 1.5, 5);
+    camera.position.set(0, 1, 3); // position
     camera.lookAt(0, 1, 0);
 
     // Renderer
@@ -47,6 +49,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
     currentMount.appendChild(renderer.domElement);
+    
+    // Environment
+    const environment = new RoomEnvironment( renderer );
+    const pmremGenerator = new THREE.PMREMGenerator( renderer );
+    scene.environment = pmremGenerator.fromScene( environment ).texture;
+    environment.dispose();
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -58,22 +66,20 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.update();
 
     // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    keyLight.position.set(-5, 5, 5);
+    keyLight.position.set(5, 5, 5);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 2048;
-    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.mapSize.width = 1024;
+    keyLight.shadow.mapSize.height = 1024;
     keyLight.shadow.radius = 8;
     scene.add(keyLight);
-    
-    // Environment
-    const rgbeLoader = new RGBELoader();
-    rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        scene.environment = texture;
-        scene.background = null; // Use environment for background
-    });
 
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(-5, 3, -2);
+    scene.add(fillLight);
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
@@ -178,7 +184,10 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const scene = sceneRef.current;
     if (!scene) return;
     
-    if (scene.environment === null) {
+    if (scene.environment) {
+        // if env exists, let it control the background
+        scene.background = null;
+    } else {
         scene.background = new THREE.Color(background);
     }
 
