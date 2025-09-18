@@ -34,7 +34,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
-      45, // fov
+      27, // fov
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
@@ -54,11 +54,14 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     currentMount.appendChild(renderer.domElement);
     
     // Environment
-    const environment = new RoomEnvironment( renderer );
-    const pmremGenerator = new THREE.PMREMGenerator( renderer );
-    const envTexture = pmremGenerator.fromScene( environment ).texture;
-    environmentRef.current = envTexture;
-    environment.dispose();
+    const rgbeLoader = new RGBELoader();
+    rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        environmentRef.current = texture;
+        if (!scene.background) {
+          scene.environment = texture;
+        }
+    });
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
