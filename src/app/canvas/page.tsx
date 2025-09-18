@@ -44,14 +44,18 @@ function CustomizationPanelSkeleton() {
 export default function CanvasPage() {
   const [customization, setCustomization] = useState<CustomizationState>({
     colors: {
-      cap: "#C0C0C0",
-      body: "#FFFFFF",
-      pump: "#808080",
+      Base: "#C0C0C0",
+      Cover: "#FFFFFF",
+      Rod: "#808080",
+      Tip: "#C0C0C0",
+      Wiper: "#FFFFFF",
     },
     materials: {
-      cap: "glossy",
-      body: "glossy",
-      pump: "metal-polished",
+      Base: "glossy",
+      Cover: "glossy",
+      Rod: "metal-polished",
+      Tip: "glossy",
+      Wiper: "matte",
     },
     background: "#f0f0f0",
   });

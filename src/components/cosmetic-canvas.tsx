@@ -154,7 +154,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         camera.position.set(0, size.y / 2, cameraZ);
         
         // Adjust controls target to the model's new center
-        controls.target.copy(loadedModel.position);
+        controls.target.set(0, size.y / 2, 0);
         
 
         // Adjust clipping planes
@@ -166,9 +166,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         modelRef.current = loadedModel;
 
         // Apply initial customization
-        updateObject("cap", colors.cap, materialKeys.cap);
-        updateObject("body", colors.body, materialKeys.body);
-        updateObject("pump", colors.pump, materialKeys.pump);
+        for (const partName in colors) {
+          if (Object.prototype.hasOwnProperty.call(colors, partName)) {
+            updateObject(partName, colors[partName], materialKeys[partName]);
+          }
+        }
         
         controls.update();
       });
@@ -178,19 +180,18 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         modelRef.current = bottleGroup;
         scene.add(bottleGroup);
 
-        const capMaterial = new THREE.MeshStandardMaterial();
-        const bodyMaterial = new THREE.MeshStandardMaterial();
-        const pumpMaterial = new THREE.MeshStandardMaterial();
-        
-        const bodyGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 64);
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        const defaultParts = {
+          body: new THREE.CylinderGeometry(0.8, 0.8, 2, 64),
+          cap: new THREE.CylinderGeometry(0.85, 0.85, 0.4, 64),
+        };
+
+        const body = new THREE.Mesh(defaultParts.body, new THREE.MeshStandardMaterial());
         body.name = "body";
         body.castShadow = true;
         body.position.y = 1;
         bottleGroup.add(body);
-
-        const capGeometry = new THREE.CylinderGeometry(0.85, 0.85, 0.4, 64);
-        const cap = new THREE.Mesh(capGeometry, capMaterial);
+        
+        const cap = new THREE.Mesh(defaultParts.cap, new THREE.MeshStandardMaterial());
         cap.name = "cap";
         cap.castShadow = true;
         cap.position.y = 2.2;
@@ -198,6 +199,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
         const pumpGroup = new THREE.Group();
         pumpGroup.name = "pump";
+        const pumpMaterial = new THREE.MeshStandardMaterial();
         const pumpBaseGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 32);
         const pumpBase = new THREE.Mesh(pumpBaseGeo, pumpMaterial);
         pumpBase.position.y = 2.15;
@@ -213,9 +215,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         });
         bottleGroup.add(pumpGroup);
 
-        updateObject("cap", colors.cap, materialKeys.cap);
-        updateObject("body", colors.body, materialKeys.body);
-        updateObject("pump", colors.pump, materialKeys.pump);
+        for (const partName in colors) {
+          if (Object.prototype.hasOwnProperty.call(colors, partName)) {
+            updateObject(partName, colors[partName], materialKeys[partName]);
+          }
+        }
     }
 
     // Animation loop
@@ -277,7 +281,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       }
     }
     
-    const updatePart = (name: keyof CustomizationState['colors'], color: string, materialKey: MaterialKey) => {
+    const updatePart = (name: string, color: string, materialKey: MaterialKey) => {
         const model = modelRef.current;
         if (!model) return;
     
@@ -294,9 +298,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         }
     };
   
-    updatePart("cap", colors.cap, materialKeys.cap);
-    updatePart("body", colors.body, materialKeys.body);
-    updatePart("pump", colors.pump, materialKeys.pump);
+    for (const partName in colors) {
+        if (Object.prototype.hasOwnProperty.call(colors, partName)) {
+            updatePart(partName, colors[partName], materialKeys[partName]);
+        }
+    }
   
   }, [colors, materialKeys, background]);
 

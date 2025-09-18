@@ -23,14 +23,10 @@ import { Button } from "./ui/button";
 
 export type CustomizationState = {
   colors: {
-    cap: string;
-    body: string;
-    pump: string;
+    [key: string]: string;
   };
   materials: {
-    cap: MaterialKey;
-    body: MaterialKey;
-    pump: MaterialKey;
+    [key: string]: MaterialKey;
   };
   background: string | null;
 };
@@ -72,7 +68,7 @@ export default function CustomizationPanel({
   onStateChange,
 }: CustomizationPanelProps) {
   const handleColorChange =
-    (part: keyof CustomizationState["colors"]) =>
+    (part: string) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onStateChange((prev) => ({
         ...prev,
@@ -81,7 +77,7 @@ export default function CustomizationPanel({
     };
 
   const handleMaterialChange =
-    (part: keyof CustomizationState["materials"]) => (value: MaterialKey) => {
+    (part: string) => (value: MaterialKey) => {
       onStateChange((prev) => ({
         ...prev,
         materials: { ...prev.materials, [part]: value },
@@ -96,7 +92,7 @@ export default function CustomizationPanel({
     onStateChange(prev => ({...prev, background: null}));
   }
 
-  const parts: (keyof CustomizationState["colors"])[] = ["cap", "body", "pump"];
+  const parts = Object.keys(state.colors);
 
   return (
     <div className="h-full w-full p-4 md:p-8">
@@ -164,5 +160,3 @@ export default function CustomizationPanel({
     </div>
   );
 }
-
-    
