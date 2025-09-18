@@ -9,22 +9,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
 
-function AdminHeader({ onMenuClick }: { onMenuClick: () => void }) {
-    return (
-        <header className="px-4 lg:px-8 py-4 border-b flex items-center gap-4 bg-card shadow-sm">
-            <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
-                    <PanelLeft className="h-5 w-5" />
-                    <span className="sr-only">Toggle Menu</span>
-                </Button>
-            </SheetTrigger>
-            <h1 className="text-2xl font-headline font-bold text-foreground">
-                Admin Panel
-            </h1>
-        </header>
-    )
-}
-
 function NavMenu({ className }: { className?: string }) {
     const pathname = usePathname();
     return (
@@ -68,17 +52,14 @@ export default function AdminLayout({
   
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-        <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-            <div className="hidden border-r bg-muted/40 md:block">
-                <NavMenu />
-            </div>
+        <div className="min-h-screen w-full">
             <div className="flex flex-col">
                  <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
                     <SheetTrigger asChild>
                         <Button
                         variant="outline"
                         size="icon"
-                        className="shrink-0 md:hidden"
+                        className="shrink-0"
                         >
                         <PanelLeft className="h-5 w-5" />
                         <span className="sr-only">Toggle navigation menu</span>
