@@ -39,7 +39,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       0.1,
       1000
     );
-    camera.position.set(0, 1, 3); // position
+    camera.position.set(0, 1, 5); // position
     camera.lookAt(0, 1, 0);
 
     // Renderer
@@ -65,7 +65,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 2;
-    controls.maxDistance = 10;
+    controls.maxDistance = 15;
     controls.target.set(0, 1, 0);
     controls.update();
 
