@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Home, Box, PanelLeft } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -73,6 +73,9 @@ export default function AdminLayout({
             </div>
         </div>
         <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Admin Menu</SheetTitle>
+            </SheetHeader>
             <NavMenu />
         </SheetContent>
     </Sheet>
