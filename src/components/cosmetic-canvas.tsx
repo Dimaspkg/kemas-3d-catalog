@@ -15,6 +15,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
   background,
+  brightness,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -188,7 +189,10 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   // Effect to update colors, materials, and background
   useEffect(() => {
     const scene = sceneRef.current;
-    if (!scene) return;
+    const renderer = rendererRef.current;
+    if (!scene || !renderer) return;
+
+    renderer.toneMappingExposure = brightness;
     
     if (background) {
       scene.background = new THREE.Color(background);
@@ -226,7 +230,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             }
         });
     }
-  }, [colors, materialKeys, background]);
+  }, [colors, materialKeys, background, brightness]);
 
 
   return <div ref={mountRef} className="w-full h-full" />;
