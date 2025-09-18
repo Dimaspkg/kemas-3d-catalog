@@ -49,7 +49,10 @@ interface Category {
 const modelFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     category: z.string().min(1, "Category is required"),
-    modelFile: z.instanceof(FileList).refine(files => files.length > 0, "A model file is required."),
+    modelFile: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
+        (files) => files?.length > 0,
+        "A model file is required."
+      ),
 });
 
 type ModelFormValues = z.infer<typeof modelFormSchema>;
