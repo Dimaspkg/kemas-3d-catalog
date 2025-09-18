@@ -130,8 +130,8 @@ export default function CustomizationPanel({
                     </SelectTrigger>
                     <SelectContent>
                       {materialOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="capitalize">
-                          {option.replace("-", " ")}
+                        <SelectItem key={option.key} value={option.key} className="capitalize">
+                          {option.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -162,3 +162,5 @@ export default function CustomizationPanel({
     </Card>
   );
 }
+
+    

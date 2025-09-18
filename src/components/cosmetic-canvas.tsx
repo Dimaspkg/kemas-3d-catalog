@@ -203,9 +203,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   // Effect to update colors, materials, and background
   useEffect(() => {
     const scene = sceneRef.current;
-    const renderer = rendererRef.current;
-    if (!scene || !renderer) return;
-
+    if (!scene) return;
+  
     if (background) {
       scene.background = new THREE.Color(background);
       scene.environment = null;
@@ -215,35 +214,31 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
           scene.environment = environmentRef.current;
       }
     }
-
-
-    const cap = scene.getObjectByName("cap") as THREE.Mesh;
-    if (cap && cap.material instanceof THREE.MeshStandardMaterial) {
-        cap.material.color.set(colors.cap);
-        const props = materials[materialKeys.cap];
-        Object.assign(cap.material, props);
-        cap.material.needsUpdate = true;
-    }
-
-    const body = scene.getObjectByName("body") as THREE.Mesh;
-    if (body && body.material instanceof THREE.MeshStandardMaterial) {
-        body.material.color.set(colors.body);
-        const props = materials[materialKeys.body];
-        Object.assign(body.material, props);
-        body.material.needsUpdate = true;
-    }
-
-    const pumpGroup = scene.getObjectByName("pump") as THREE.Group;
-    if (pumpGroup) {
-        pumpGroup.children.forEach(child => {
+  
+    const updateObject = (name: string, color: string, materialKey: MaterialKey) => {
+      const object = scene.getObjectByName(name);
+      if (object) {
+        const props = materials[materialKey];
+        if (object instanceof THREE.Group) {
+          object.children.forEach(child => {
             if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                child.material.color.set(colors.pump);
-                const props = materials[materialKeys.pump];
-                Object.assign(child.material, props);
-                child.material.needsUpdate = true;
+              child.material.color.set(color);
+              Object.assign(child.material, props);
+              child.material.needsUpdate = true;
             }
-        });
-    }
+          });
+        } else if (object instanceof THREE.Mesh && object.material instanceof THREE.MeshStandardMaterial) {
+          object.material.color.set(color);
+          Object.assign(object.material, props);
+          object.material.needsUpdate = true;
+        }
+      }
+    };
+  
+    updateObject("cap", colors.cap, materialKeys.cap);
+    updateObject("body", colors.body, materialKeys.body);
+    updateObject("pump", colors.pump, materialKeys.pump);
+  
   }, [colors, materialKeys, background]);
 
 
@@ -251,3 +246,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+
+    

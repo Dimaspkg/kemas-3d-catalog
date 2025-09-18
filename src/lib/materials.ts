@@ -1,9 +1,15 @@
 
 import type * as THREE from 'three';
 
-export const materialOptions = ["matte", "glossy", "metal-polished", "metal-rough"] as const;
+export const materialOptions = [
+    { key: "matte", name: "Matte" },
+    { key: "glossy", name: "Glossy" },
+    { key: "metal-polished", name: "Polished Metal" },
+    { key: "metal-rough", name: "Rough Metal" },
+] as const;
 
-export type MaterialKey = (typeof materialOptions)[number];
+
+export type MaterialKey = (typeof materialOptions)[number]['key'];
 
 type MaterialProperties = {
     metalness: number;
@@ -28,3 +34,5 @@ export const materials: Record<MaterialKey, MaterialProperties> = {
         roughness: 0.6,
     }
 };
+
+    
