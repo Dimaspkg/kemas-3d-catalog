@@ -170,7 +170,7 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
                             name="modelFile"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>3D Model File</FormLabel>
+                                    <FormLabel>3D Model File (.glb, .gltf)</FormLabel>
                                     <FormControl>
                                         <Input 
                                             type="file" 
@@ -271,7 +271,7 @@ export default function ModelManagementPage() {
                         <CardTitle>Categories</CardTitle>
                         <CardDescription>
                             Group your models into categories.
-                        </CardDescription>
+                        </Description>
                     </div>
                     <Button variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4" />
