@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
-import Header from "@/components/header";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Product } from "@/lib/types";
@@ -94,7 +93,6 @@ export default function CanvasPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
-      <Header />
       <main className="flex-1 flex flex-col">
         <div className="w-full max-w-7xl mx-auto">
           <div className="w-full aspect-[12/5]">
@@ -123,4 +121,3 @@ export default function CanvasPage() {
     </div>
   );
 }
-
