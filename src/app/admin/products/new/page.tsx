@@ -120,15 +120,27 @@ export default function NewProductPage() {
     
     return (
         <Card className="mx-auto">
-            <CardHeader>
-                <CardTitle>Add New Product</CardTitle>
-                <CardDescription>
-                    Fill in the details for your new 3D product model.
-                </CardDescription>
-            </CardHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <form id="product-form" onSubmit={form.handleSubmit(onSubmit)}>
+                     <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle>Add New Product</CardTitle>
+                                <CardDescription>
+                                    Fill in the details for your new 3D product model.
+                                </CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" asChild>
+                                    <Link href="/admin/products">Cancel</Link>
+                                </Button>
+                                <Button type="submit" form="product-form" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Saving...' : 'Save Product'}
+                                </Button>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
                         <div className="space-y-6">
                              <FormField
                                 control={form.control}
@@ -234,7 +246,7 @@ export default function NewProductPage() {
                                 <CardTitle>Specifications</CardTitle>
                                 <CardDescription>Provide detailed specifications for the product.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent className="space-y-4 pt-6">
                                 <FormField
                                     control={form.control}
                                     name="dimensions"
@@ -317,14 +329,6 @@ export default function NewProductPage() {
                         </Card>
 
                     </CardContent>
-                    <CardFooter className="flex justify-end gap-2 mt-8">
-                        <Button variant="ghost" asChild>
-                            <Link href="/admin/products">Cancel</Link>
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Product'}
-                        </Button>
-                    </CardFooter>
                 </form>
             </Form>
         </Card>
