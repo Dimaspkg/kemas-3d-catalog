@@ -7,15 +7,17 @@ import { Home, Package, Menu, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
-import { createClient } from '@/lib/supabase/client';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useEffect } from "react";
 
 function NavMenu({ className }: { className?: string }) {
     const pathname = usePathname();
     const router = useRouter();
 
     const handleLogout = async () => {
-        const supabase = createClient();
-        await supabase.auth.signOut();
+        await signOut(auth);
+        await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/login');
     };
 
@@ -62,11 +64,21 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/login');
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
   
   return (
     <div className="min-h-screen w-full">
         <div className="flex flex-col">
-                <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+            <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
                 <Sheet>
                     <SheetTrigger asChild>
                         <Button

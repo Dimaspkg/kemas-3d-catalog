@@ -20,7 +20,8 @@ import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { createClient } from '@/lib/supabase/client';
+import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
@@ -49,45 +50,47 @@ export default function LoginPage() {
 
   async function handleLogin(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const idToken = await userCredential.user.getIdToken();
 
-    if (error) {
+      await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${idToken}`,
+          },
+      });
+
+      router.push('/admin');
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Error logging in.',
         description: error.message,
       });
-    } else {
-      router.push('/admin');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
 
   async function handleSignUp(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-    });
-
-    if (error) {
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: 'Success!',
+        description: 'Account created successfully. You can now log in.',
+      });
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Error signing up.',
         description: error.message,
       });
-    } else {
-      toast({
-        title: 'Success!',
-        description: 'Please check your email to confirm your sign up.',
-      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
 
   return (
