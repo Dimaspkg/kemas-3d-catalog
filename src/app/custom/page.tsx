@@ -109,13 +109,13 @@ function CustomizationFooter({
                 <div className="flex items-center gap-2">
                     {materialOptions.map((mat) => (
                         <Button
-                            key={mat}
-                            variant={state.materials[currentPart] === mat ? 'secondary' : 'outline'}
+                            key={mat.key}
+                            variant={state.materials[currentPart] === mat.key ? 'secondary' : 'outline'}
                             size="sm"
-                            onClick={() => handleMaterialChange(mat)}
+                            onClick={() => handleMaterialChange(mat.key)}
                             className="capitalize rounded-full"
                         >
-                            {mat.replace("-", " ")}
+                            {mat.name}
                         </Button>
                     ))}
                 </div>
