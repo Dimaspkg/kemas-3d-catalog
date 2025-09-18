@@ -56,6 +56,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     const sceneEnv = new RoomEnvironment();
     environmentRef.current = pmremGenerator.fromScene(sceneEnv).texture;
+    scene.environment = environmentRef.current;
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -67,20 +68,28 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.update();
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    keyLight.position.set(5, 5, 5);
+    // Key Light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
     keyLight.shadow.radius = 8;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
-    fillLight.position.set(-5, 3, -2);
+    // Fill Light
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight.position.set(5, 2, 5);
     scene.add(fillLight);
+
+    // Back Light
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    backLight.position.set(0, 5, -8);
+    scene.add(backLight);
+
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
