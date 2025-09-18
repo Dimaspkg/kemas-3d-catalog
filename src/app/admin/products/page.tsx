@@ -421,7 +421,7 @@ export default function ProductManagementPage() {
                         </Table>
                      )}
                 </CardContent>
-            </Card>
+            </card>
         </div>
     </div>
   );
