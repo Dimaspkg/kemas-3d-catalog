@@ -191,7 +191,7 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
                 </Form>
             </DialogContent>
         </Dialog>
-    )
+    );
 }
 
 export default function ModelManagementPage() {
@@ -271,7 +271,7 @@ export default function ModelManagementPage() {
                         <CardTitle>Categories</CardTitle>
                         <CardDescription>
                             Group your models into categories.
-                        </Description>
+                        </CardDescription>
                     </div>
                     <Button variant="outline">
                         <PlusCircle className="mr-2 h-4 w-4" />
