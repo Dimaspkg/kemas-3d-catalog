@@ -151,7 +151,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
         
-        cameraZ *= 1.5; // Super Zoom
+        cameraZ *= 0.5; // Super Zoom
         camera.position.set(0, size.y / 2, cameraZ);
         
         const newTarget = new THREE.Vector3(0, size.y / 2, 0);
@@ -227,8 +227,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       cameraRef.current = null;
 
       // Ensure the canvas is removed from the DOM
-      if (currentMount && renderer.domElement.parentNode === currentMount) {
-        currentMount.removeChild(renderer.domElement);
+      if (currentMount && rendererRef.current && rendererRef.current.domElement.parentNode === currentMount) {
+        currentMount.removeChild(rendererRef.current.domElement);
       }
     };
   }, [modelURL, onModelLoad, background]); 
