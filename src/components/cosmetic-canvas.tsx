@@ -242,38 +242,27 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       }
     }
     
-    // Handle color updates
-    for (const partName in colors) {
-        if (Object.prototype.hasOwnProperty.call(colors, partName)) {
+    // Handle part color and material updates
+    Object.keys(colors).forEach(partName => {
+        const object = modelRef.current?.getObjectByName(partName);
+        if (object) {
             const color = colors[partName];
-            const object = modelRef.current.getObjectByName(partName);
-            if (object) {
-                object.traverse((child) => {
-                    if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                        child.material.color.set(color);
-                        child.material.needsUpdate = true;
-                    }
-                });
-            }
-        }
-    }
-    
-    // Handle material updates
-    for (const partName in materialKeys) {
-        if (Object.prototype.hasOwnProperty.call(materialKeys, partName)) {
             const materialKey = materialKeys[partName];
-            const object = modelRef.current.getObjectByName(partName);
-            if (object && materialKey) {
-                const props = materials[materialKey];
-                object.traverse((child) => {
-                    if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                        Object.assign(child.material, props);
-                        child.material.needsUpdate = true;
+            const materialProps = materialKey ? materials[materialKey] : null;
+
+            object.traverse(child => {
+                if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                    if (color) {
+                        child.material.color.set(color);
                     }
-                });
-            }
+                    if (materialProps) {
+                        Object.assign(child.material, materialProps);
+                    }
+                    child.material.needsUpdate = true;
+                }
+            });
         }
-    }
+    });
   
   }, [colors, materialKeys, background]);
 
