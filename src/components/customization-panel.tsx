@@ -99,67 +99,69 @@ export default function CustomizationPanel({
   const parts: (keyof CustomizationState["colors"])[] = ["cap", "body", "pump"];
 
   return (
-    <Card className="h-full shadow-lg">
-      <CardHeader>
-        <CardTitle className="font-headline">Customize Your Product</CardTitle>
-        <CardDescription>
-          Adjust colors and materials to create your perfect design.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {parts.map((part, index) => (
-          <React.Fragment key={part}>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold font-headline capitalize">{part}</h3>
-              <div className="grid grid-cols-2 gap-4 items-center">
-                <div className="space-y-2">
-                  <Label htmlFor={`${part}-color`}>Color</Label>
-                  <ColorPickerInput
-                    value={state.colors[part]}
-                    onChange={handleColorChange(part)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`${part}-material`}>Material</Label>
-                  <Select
-                    value={state.materials[part]}
-                    onValueChange={handleMaterialChange(part)}
-                  >
-                    <SelectTrigger id={`${part}-material`}>
-                      <SelectValue placeholder="Select material" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {materialOptions.map((option) => (
-                        <SelectItem key={option.key} value={option.key} className="capitalize">
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-            {index < parts.length -1 && <Separator />}
-          </React.Fragment>
-        ))}
-        <Separator />
-         <div className="space-y-4">
-            <h3 className="text-lg font-semibold font-headline">Environment</h3>
-            <div className="flex items-center gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="bg-color">Background Color</Label>
+    <div className="h-full w-full p-4 md:p-8">
+        <Card className="h-full shadow-lg">
+        <CardHeader>
+            <CardTitle className="font-headline">Customize Your Product</CardTitle>
+            <CardDescription>
+            Adjust colors and materials to create your perfect design.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            {parts.map((part, index) => (
+            <React.Fragment key={part}>
+                <div className="space-y-4">
+                <h3 className="text-lg font-semibold font-headline capitalize">{part}</h3>
+                <div className="grid grid-cols-2 gap-4 items-center">
+                    <div className="space-y-2">
+                    <Label htmlFor={`${part}-color`}>Color</Label>
                     <ColorPickerInput
-                        value={state.background || '#f9f9f9'}
-                        onChange={handleBackgroundChange}
+                        value={state.colors[part]}
+                        onChange={handleColorChange(part)}
                     />
+                    </div>
+                    <div className="space-y-2">
+                    <Label htmlFor={`${part}-material`}>Material</Label>
+                    <Select
+                        value={state.materials[part]}
+                        onValueChange={handleMaterialChange(part)}
+                    >
+                        <SelectTrigger id={`${part}-material`}>
+                        <SelectValue placeholder="Select material" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {materialOptions.map((option) => (
+                            <SelectItem key={option.key} value={option.key} className="capitalize">
+                            {option.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                    </div>
                 </div>
-                <div className="self-end">
-                    <Button variant="outline" onClick={handleUseEnvironment}>Use Environment</Button>
+                </div>
+                {index < parts.length -1 && <Separator />}
+            </React.Fragment>
+            ))}
+            <Separator />
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold font-headline">Environment</h3>
+                <div className="flex items-center gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="bg-color">Background Color</Label>
+                        <ColorPickerInput
+                            value={state.background || '#f9f9f9'}
+                            onChange={handleBackgroundChange}
+                        />
+                    </div>
+                    <div className="self-end">
+                        <Button variant="outline" onClick={handleUseEnvironment}>Use Environment</Button>
+                    </div>
                 </div>
             </div>
-         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+        </Card>
+    </div>
   );
 }
 
