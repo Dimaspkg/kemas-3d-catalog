@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { db, storage } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import { collection, onSnapshot, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   Table,
   TableBody,
@@ -91,10 +91,26 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
         }
 
         try {
-            // Upload file to Firebase Storage
-            const storageRef = ref(storage, `models/${Date.now()}_${file.name}`);
-            const uploadResult = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(uploadResult.ref);
+            // Upload file to Supabase Storage
+            const filePath = `models/${Date.now()}_${file.name}`;
+            const { error: uploadError } = await supabase.storage
+              .from('models') // Assuming your bucket is named 'models'
+              .upload(filePath, file);
+
+            if (uploadError) {
+              throw uploadError;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from('models')
+              .getPublicUrl(filePath);
+
+            if (!urlData.publicUrl) {
+                throw new Error("Could not get public URL for the model.");
+            }
+            
+            const downloadURL = urlData.publicUrl;
 
             // Add model data to Firestore
             await addDoc(collection(db, "models"), {
@@ -109,12 +125,12 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
             });
             form.reset();
             setOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error adding document: ", error);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to add model.",
+                description: error.message || "Failed to add model.",
             });
         } finally {
             setIsSubmitting(false);
