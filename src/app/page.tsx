@@ -30,16 +30,16 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full py-20 md:py-32 lg:py-40 flex items-center justify-center text-center bg-card overflow-hidden">
+        <section className="relative w-full py-20 md:py-32 lg:py-40 flex items-center justify-center text-center overflow-hidden">
           <div className="absolute inset-0 z-0">
              <Image
                 src="https://picsum.photos/seed/hero/1920/1080"
                 alt="Abstract cosmetic background"
                 fill
-                className="object-cover opacity-20"
+                className="object-cover"
                 data-ai-hint="abstract cosmetic background"
              />
-             <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-background"></div>
+             <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/80 to-background"></div>
           </div>
           <div className="container px-4 md:px-6 z-10">
             <div className="max-w-3xl mx-auto space-y-4">
