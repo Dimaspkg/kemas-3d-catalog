@@ -30,14 +30,14 @@ import { Label } from "@/components/ui/label"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Model {
   id: string;
   name: string;
-  category: string;
+  categories: string[];
   modelURL: string;
 }
 
@@ -48,7 +48,9 @@ interface Category {
 
 const modelFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
-    category: z.string().min(1, "Category is required"),
+    categories: z.array(z.string()).refine((value) => value.length > 0, {
+        message: "You must select at least one category.",
+    }),
     modelFile: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
         (files) => files?.length > 0,
         "A model file is required."
@@ -71,7 +73,7 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
         resolver: zodResolver(modelFormSchema),
         defaultValues: {
             name: "",
-            category: "",
+            categories: [],
         },
     });
 
@@ -97,7 +99,7 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
             // Add model data to Firestore
             await addDoc(collection(db, "models"), {
                 name: data.name,
-                category: data.category,
+                categories: data.categories,
                 modelURL: downloadURL,
             });
 
@@ -149,28 +151,54 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
                                 </FormItem>
                             )}
                         />
-                         <FormField
+                        <FormField
                             control={form.control}
-                            name="category"
-                            render={({ field }) => (
+                            name="categories"
+                            render={() => (
                                 <FormItem>
-                                <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a category" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {categories.map((category) => (
-                                        <SelectItem key={category.id} value={category.name}>{category.name}</SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
+                                <div className="mb-4">
+                                    <FormLabel className="text-base">Categories</FormLabel>
+                                    <FormDescription>
+                                        Select one or more categories for your model.
+                                    </FormDescription>
+                                </div>
+                                {categories.map((item) => (
+                                    <FormField
+                                    key={item.id}
+                                    control={form.control}
+                                    name="categories"
+                                    render={({ field }) => {
+                                        return (
+                                        <FormItem
+                                            key={item.id}
+                                            className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                            <FormControl>
+                                            <Checkbox
+                                                checked={field.value?.includes(item.name)}
+                                                onCheckedChange={(checked) => {
+                                                return checked
+                                                    ? field.onChange([...(field.value || []), item.name])
+                                                    : field.onChange(
+                                                        field.value?.filter(
+                                                        (value) => value !== item.name
+                                                        )
+                                                    )
+                                                }}
+                                            />
+                                            </FormControl>
+                                            <FormLabel className="font-normal">
+                                                {item.name}
+                                            </FormLabel>
+                                        </FormItem>
+                                        )
+                                    }}
+                                    />
+                                ))}
                                 <FormMessage />
                                 </FormItem>
                             )}
-                            />
+                        />
                         <FormField
                             control={form.control}
                             name="modelFile"
@@ -324,7 +352,7 @@ export default function ModelManagementPage() {
                             <TableHeader>
                                 <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Category</TableHead>
+                                <TableHead>Categories</TableHead>
                                 <TableHead>File</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -332,7 +360,7 @@ export default function ModelManagementPage() {
                                 {models.map((model) => (
                                 <TableRow key={model.id}>
                                     <TableCell className="font-medium">{model.name}</TableCell>
-                                    <TableCell>{model.category}</TableCell>
+                                    <TableCell>{model.categories?.join(', ')}</TableCell>
                                      <TableCell>
                                         <a href={model.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                                             View
