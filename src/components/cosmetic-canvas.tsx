@@ -39,7 +39,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       0.1,
       1000
     );
-    camera.position.set(0, 1, 5); // position
+    camera.position.set(0, 1, 8); // position
     camera.lookAt(0, 1, 0);
 
     // Renderer
@@ -54,21 +54,16 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     currentMount.appendChild(renderer.domElement);
     
     // Environment
-    const rgbeLoader = new RGBELoader();
-    rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        environmentRef.current = texture;
-        if (!scene.background) {
-          scene.environment = texture;
-        }
-    });
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const sceneEnv = new RoomEnvironment();
+    environmentRef.current = pmremGenerator.fromScene(sceneEnv).texture;
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 2;
-    controls.maxDistance = 15;
+    controls.maxDistance = 20;
     controls.target.set(0, 1, 0);
     controls.update();
 
@@ -182,6 +177,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       if(environmentRef.current) {
         environmentRef.current.dispose();
       }
+      pmremGenerator.dispose();
+      sceneEnv.dispose();
       renderer.dispose();
       controls.dispose();
       rendererRef.current = null;
