@@ -3,18 +3,33 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Package, Menu } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { Home, Package, Menu, LogOut } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
+import { createClient } from '@/lib/supabase/client';
 
 function NavMenu({ className }: { className?: string }) {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+        router.push('/login');
+    };
+
     return (
         <nav className={className}>
-            <div className="flex items-center gap-2 p-4 border-b">
-                <Logo className="h-8 w-8 text-primary" />
-                <span className="text-lg font-semibold">KEMAS Innovations</span>
+            <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                    <Logo className="h-8 w-8 text-primary" />
+                    <span className="text-lg font-semibold">KEMAS Innovations</span>
+                </div>
+                 <Button variant="ghost" size="icon" onClick={handleLogout}>
+                    <LogOut className="h-5 w-5" />
+                    <span className="sr-only">Logout</span>
+                </Button>
             </div>
             <div className="flex flex-col gap-1 p-4">
                 <Button 
