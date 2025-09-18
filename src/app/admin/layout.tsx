@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Home, Package, PanelLeft } from 'lucide-react';
@@ -48,10 +47,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
   
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet>
         <div className="min-h-screen w-full">
             <div className="flex flex-col">
                  <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
