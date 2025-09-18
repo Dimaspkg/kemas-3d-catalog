@@ -2,39 +2,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface Model {
-  id: string;
-  name: string;
-  categories: string[];
-  modelURL: string;
-}
+import type { Product } from '@/lib/types';
+import Image from 'next/image';
 
 function ProductCardSkeleton() {
     return (
         <Card>
             <CardHeader>
-                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-40 w-full rounded-md" />
             </CardHeader>
             <CardContent>
-                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-6 w-3/4 mt-2" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
             </CardContent>
         </Card>
     )
 }
 
 export default function ProductsPage() {
-  const [models, setModels] = useState<Model[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'models'), (snapshot) => {
-      const modelsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Model));
-      setModels(modelsData);
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      setProducts(productsData);
       setLoading(false);
     });
 
@@ -48,15 +45,23 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => <ProductCardSkeleton key={i} />)}
         </div>
-      ) : models.length > 0 ? (
+      ) : products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {models.map((model) => (
-            <Card key={model.id}>
-              <CardHeader>
-                <CardTitle>{model.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{model.categories?.join(', ')}</p>
+          {products.map((product) => (
+            <Card key={product.id}>
+                <CardHeader className="p-0">
+                    <div className="relative aspect-square w-full">
+                        <Image 
+                            src={product.imageURL}
+                            alt={product.name}
+                            fill
+                            className="object-cover rounded-t-lg"
+                        />
+                    </div>
+                </CardHeader>
+              <CardContent className="pt-4">
+                <CardTitle className="text-lg">{product.name}</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">{product.categories?.join(', ')}</p>
               </CardContent>
             </Card>
           ))}
