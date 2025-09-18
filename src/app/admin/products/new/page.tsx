@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { db } from '@/lib/firebase';
 import { supabase } from '@/lib/supabase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,19 +17,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Category {
   id: string;
   name: string;
 }
-
-const mockCategories: Category[] = [
-    { id: '1', name: 'Lipsticks' },
-    { id: '2', name: 'Foundations' },
-    { id: '3', name: 'Mascaras' },
-    { id: '4', name: 'Bottles' },
-];
-
 
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -56,6 +49,8 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export default function NewProductPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(true);
     const { toast } = useToast();
     const router = useRouter();
     const form = useForm<ProductFormValues>({
@@ -73,6 +68,17 @@ export default function NewProductPage() {
             manufacturingLocation: "",
         },
     });
+
+    useEffect(() => {
+        const q = query(collection(db, 'categories'), orderBy('name'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+            setCategories(categoriesData);
+            setLoadingCategories(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const onSubmit = async (data: ProductFormValues) => {
         setIsSubmitting(true);
@@ -199,41 +205,49 @@ export default function NewProductPage() {
                                                 Select one or more categories for your product.
                                             </FormDescription>
                                         </div>
-                                        <div className="space-y-2">
-                                            {mockCategories.map((item) => (
-                                                <FormField
-                                                key={item.id}
-                                                control={form.control}
-                                                name="categories"
-                                                render={({ field }) => {
-                                                    return (
-                                                    <FormItem
-                                                        key={item.id}
-                                                        className="flex flex-row items-start space-x-3 space-y-0"
-                                                    >
-                                                        <FormControl>
-                                                        <Checkbox
-                                                            checked={field.value?.includes(item.name)}
-                                                            onCheckedChange={(checked) => {
-                                                            return checked
-                                                                ? field.onChange([...(field.value || []), item.name])
-                                                                : field.onChange(
-                                                                    field.value?.filter(
-                                                                    (value) => value !== item.name
+                                        {loadingCategories ? (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-20" /></div>
+                                                <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-24" /></div>
+                                                <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-16" /></div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {categories.map((item) => (
+                                                    <FormField
+                                                    key={item.id}
+                                                    control={form.control}
+                                                    name="categories"
+                                                    render={({ field }) => {
+                                                        return (
+                                                        <FormItem
+                                                            key={item.id}
+                                                            className="flex flex-row items-start space-x-3 space-y-0"
+                                                        >
+                                                            <FormControl>
+                                                            <Checkbox
+                                                                checked={field.value?.includes(item.name)}
+                                                                onCheckedChange={(checked) => {
+                                                                return checked
+                                                                    ? field.onChange([...(field.value || []), item.name])
+                                                                    : field.onChange(
+                                                                        field.value?.filter(
+                                                                        (value) => value !== item.name
+                                                                        )
                                                                     )
-                                                                )
-                                                            }}
-                                                        />
-                                                        </FormControl>
-                                                        <FormLabel className="font-normal">
-                                                            {item.name}
-                                                        </FormLabel>
-                                                    </FormItem>
-                                                    )
-                                                }}
-                                                />
-                                            ))}
-                                        </div>
+                                                                }}
+                                                            />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">
+                                                                {item.name}
+                                                            </FormLabel>
+                                                        </FormItem>
+                                                        )
+                                                    }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                         <FormMessage />
                                         </FormItem>
                                     )}
@@ -370,3 +384,4 @@ export default function NewProductPage() {
     );
 
     
+

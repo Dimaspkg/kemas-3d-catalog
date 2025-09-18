@@ -35,13 +35,6 @@ interface Category {
   name: string;
 }
 
-const mockCategories: Category[] = [
-    { id: '1', name: 'Lipsticks' },
-    { id: '2', name: 'Foundations' },
-    { id: '3', name: 'Mascaras' },
-    { id: '4', name: 'Bottles' },
-];
-
 function ProductRowSkeleton() {
     return (
         <TableRow>
@@ -54,16 +47,38 @@ function ProductRowSkeleton() {
     )
 }
 
+function CategoryRowSkeleton() {
+    return (
+        <TableRow>
+            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+        </TableRow>
+    )
+}
+
+
 export default function ProductManagementPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
       setProducts(productsData);
-      setLoading(false);
+      setLoadingProducts(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'categories'), orderBy('name'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+        setCategories(categoriesData);
+        setLoadingCategories(false);
     });
 
     return () => unsubscribe();
@@ -94,7 +109,7 @@ export default function ProductManagementPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {loading ? (
+                    {loadingProducts ? (
                          <Table>
                             <TableHeader>
                                 <TableRow>
@@ -164,7 +179,20 @@ export default function ProductManagementPage() {
                     <AddCategoryDialog />
                 </CardHeader>
                 <CardContent>
-                     {mockCategories.length === 0 ? (
+                     {loadingCategories ? (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <CategoryRowSkeleton />
+                                <CategoryRowSkeleton />
+                                <CategoryRowSkeleton />
+                            </TableBody>
+                        </Table>
+                     ) : categories.length === 0 ? (
                         <div className="text-center py-12 border-2 border-dashed rounded-lg">
                             <p className="text-muted-foreground">No categories created yet.</p>
                         </div>
@@ -176,7 +204,7 @@ export default function ProductManagementPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {mockCategories.map((category) => (
+                                {categories.map((category) => (
                                     <TableRow key={category.id}>
                                         <TableCell className="font-medium">{category.name}</TableCell>
                                     </TableRow>
