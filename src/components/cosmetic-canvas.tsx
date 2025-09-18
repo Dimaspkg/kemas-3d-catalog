@@ -107,6 +107,23 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     floor.receiveShadow = true;
     scene.add(floor);
 
+    const updateObject = (name: string, color: string, materialKey: MaterialKey) => {
+        const model = modelRef.current;
+        if (!model) return;
+        
+        const object = model.getObjectByName(name);
+        if (object) {
+          const props = materials[materialKey];
+          object.traverse((child) => {
+              if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                  child.material.color.set(color);
+                  Object.assign(child.material, props);
+                  child.material.needsUpdate = true;
+              }
+          });
+        }
+    };
+
     // Model Loading
     if (modelURL) {
       const loader = new GLTFLoader();
@@ -177,23 +194,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         updateObject("body", colors.body, materialKeys.body);
         updateObject("pump", colors.pump, materialKeys.pump);
     }
-
-    const updateObject = (name: string, color: string, materialKey: MaterialKey) => {
-        const model = modelRef.current;
-        if (!model) return;
-        
-        const object = model.getObjectByName(name);
-        if (object) {
-          const props = materials[materialKey];
-          object.traverse((child) => {
-              if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                  child.material.color.set(color);
-                  Object.assign(child.material, props);
-                  child.material.needsUpdate = true;
-              }
-          });
-        }
-      };
 
     // Animation loop
     const animate = () => {
