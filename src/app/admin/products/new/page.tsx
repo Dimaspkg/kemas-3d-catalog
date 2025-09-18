@@ -13,7 +13,7 @@ import { z } from "zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -119,134 +119,141 @@ export default function NewProductPage() {
     };
     
     return (
-        <Card className="mx-auto">
-            <Form {...form}>
-                <form id="product-form" onSubmit={form.handleSubmit(onSubmit)}>
-                     <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <CardTitle>Add New Product</CardTitle>
-                                <CardDescription>
-                                    Fill in the details for your new 3D product model.
-                                </CardDescription>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="ghost" asChild>
-                                    <Link href="/admin/products">Cancel</Link>
-                                </Button>
-                                <Button type="submit" form="product-form" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Saving...' : 'Save Product'}
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-                        <div className="space-y-6">
-                             <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Product Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g. Lipstick Tube" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="categories"
-                                render={() => (
-                                    <FormItem>
-                                    <div className="mb-4">
-                                        <FormLabel className="text-base">Categories</FormLabel>
-                                        <FormDescription>
-                                            Select one or more categories for your product.
-                                        </FormDescription>
-                                    </div>
-                                    <div className="space-y-2">
-                                        {mockCategories.map((item) => (
-                                            <FormField
-                                            key={item.id}
-                                            control={form.control}
-                                            name="categories"
-                                            render={({ field }) => {
-                                                return (
-                                                <FormItem
-                                                    key={item.id}
-                                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                                >
-                                                    <FormControl>
-                                                    <Checkbox
-                                                        checked={field.value?.includes(item.name)}
-                                                        onCheckedChange={(checked) => {
-                                                        return checked
-                                                            ? field.onChange([...(field.value || []), item.name])
-                                                            : field.onChange(
-                                                                field.value?.filter(
-                                                                (value) => value !== item.name
-                                                                )
-                                                            )
-                                                        }}
-                                                    />
-                                                    </FormControl>
-                                                    <FormLabel className="font-normal">
-                                                        {item.name}
-                                                    </FormLabel>
-                                                </FormItem>
-                                                )
-                                            }}
-                                            />
-                                        ))}
-                                    </div>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="productImage"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Product Image</FormLabel>
-                                        <FormControl>
-                                            <Input 
-                                                type="file" 
-                                                accept="image/png, image/jpeg, image/webp"
-                                                onChange={(e) => field.onChange(e.target.files)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="modelFile"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>3D Model File (.glb, .gltf)</FormLabel>
-                                        <FormControl>
-                                            <Input 
-                                                type="file" 
-                                                accept=".glb,.gltf"
-                                                onChange={(e) => field.onChange(e.target.files)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+        <Form {...form}>
+            <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">Add New Product</h1>
+                        <p className="text-muted-foreground">
+                            Fill in the details for your new 3D product model.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" asChild>
+                            <Link href="/admin/products">Cancel</Link>
+                        </Button>
+                        <Button type="submit" form="product-form" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : 'Save Product'}
+                        </Button>
+                    </div>
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="md:col-span-2 space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Product Details</CardTitle>
+                                <CardDescription>Basic information and assets for the product.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Product Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g. Lipstick Tube" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="categories"
+                                    render={() => (
+                                        <FormItem>
+                                        <div className="mb-4">
+                                            <FormLabel className="text-base">Categories</FormLabel>
+                                            <FormDescription>
+                                                Select one or more categories for your product.
+                                            </FormDescription>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {mockCategories.map((item) => (
+                                                <FormField
+                                                key={item.id}
+                                                control={form.control}
+                                                name="categories"
+                                                render={({ field }) => {
+                                                    return (
+                                                    <FormItem
+                                                        key={item.id}
+                                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                                    >
+                                                        <FormControl>
+                                                        <Checkbox
+                                                            checked={field.value?.includes(item.name)}
+                                                            onCheckedChange={(checked) => {
+                                                            return checked
+                                                                ? field.onChange([...(field.value || []), item.name])
+                                                                : field.onChange(
+                                                                    field.value?.filter(
+                                                                    (value) => value !== item.name
+                                                                    )
+                                                                )
+                                                            }}
+                                                        />
+                                                        </FormControl>
+                                                        <FormLabel className="font-normal">
+                                                            {item.name}
+                                                        </FormLabel>
+                                                    </FormItem>
+                                                    )
+                                                }}
+                                                />
+                                            ))}
+                                        </div>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="productImage"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Product Image</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="file" 
+                                                    accept="image/png, image/jpeg, image/webp"
+                                                    onChange={(e) => field.onChange(e.target.files)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="modelFile"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>3D Model File (.glb, .gltf)</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="file" 
+                                                    accept=".glb,.gltf"
+                                                    onChange={(e) => field.onChange(e.target.files)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="md:col-span-1">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Specifications</CardTitle>
                                 <CardDescription>Provide detailed specifications for the product.</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4 pt-6">
+                            <CardContent className="space-y-4">
                                 <FormField
                                     control={form.control}
                                     name="dimensions"
@@ -327,10 +334,10 @@ export default function NewProductPage() {
                                 />
                             </CardContent>
                         </Card>
-
-                    </CardContent>
-                </form>
-            </Form>
-        </Card>
+                    </div>
+                </div>
+            </form>
+        </Form>
     );
-}
+
+    
