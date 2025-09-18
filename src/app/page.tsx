@@ -1,92 +1,37 @@
-"use client";
 
-import { useState, Suspense, useEffect } from "react";
-import dynamic from "next/dynamic";
-import type { MaterialKey } from "@/lib/materials";
+import Link from "next/link";
 import Header from "@/components/header";
-import CosmeticCanvas from "@/components/cosmetic-canvas";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { CustomizationState } from "@/components/customization-panel";
-
-const CustomizationPanel = dynamic(
-  () => import("@/components/customization-panel"),
-  {
-    ssr: false,
-    loading: () => <CustomizationPanelSkeleton />,
-  }
-);
-
-function CustomizationPanelSkeleton() {
-  return (
-    <div className="space-y-6 p-6">
-      <Skeleton className="h-8 w-3/4" />
-      <Skeleton className="h-6 w-1/2" />
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-1/4" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-1/4" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-1/4" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  const [customization, setCustomization] = useState<CustomizationState>({
-    colors: {
-      cap: "#C0C0C0",
-      body: "#FFFFFF",
-      pump: "#808080",
-    },
-    materials: {
-      cap: "glossy",
-      body: "glossy",
-      pump: "metal-polished",
-    },
-    background: null,
-  });
-  
-  const [isClient, setIsClient] = useState(false)
- 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  if (!isClient) {
-    return <CustomizationPanelSkeleton />
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header />
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 p-4 md:p-8">
-        <div className="lg:col-span-2 h-[50vh] lg:h-auto rounded-xl shadow-lg overflow-hidden bg-card">
-          <CosmeticCanvas {...customization} />
-        </div>
-        <div className="lg:col-span-1">
-          <Suspense fallback={<CustomizationPanelSkeleton />}>
-            <CustomizationPanel
-              state={customization}
-              onStateChange={setCustomization}
-            />
-          </Suspense>
-        </div>
+      <main className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-3xl font-headline">Welcome to Cosmetic Canvas</CardTitle>
+            <CardDescription>
+              Your interactive 3D product customization tool.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Unleash your creativity and design your perfect cosmetic product.
+              Adjust colors, materials, and see your creation come to life in stunning 3D.
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button asChild size="lg">
+              <Link href="/custom">
+                Start Customizing
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
       </main>
     </div>
   );
