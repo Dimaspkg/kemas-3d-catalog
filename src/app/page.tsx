@@ -5,7 +5,6 @@ import { useState, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
-import Header from "@/components/header";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -54,7 +53,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
-      <Header />
       <main className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-8">
         <div className="md:col-span-2 min-h-[50vh] md:min-h-0">
           <Suspense fallback={<Skeleton className="w-full h-full" />}>
@@ -73,3 +71,4 @@ export default function Home() {
     </div>
   );
 }
+
