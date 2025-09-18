@@ -9,13 +9,17 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 
-type CosmeticCanvasProps = Omit<CustomizationState, "brightness"> & { modelURL?: string };
+type CosmeticCanvasProps = CustomizationState & { 
+    modelURL?: string;
+    onModelLoad: (partNames: string[]) => void;
+};
 
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
   background,
   modelURL,
+  onModelLoad,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -56,7 +60,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     
     const updateObject = (name: string, color: string, materialKey: MaterialKey) => {
         const model = modelRef.current;
-        if (!model) return;
+        if (!model || !color || !materialKey) return;
         
         const object = model.getObjectByName(name);
         if (object) {
@@ -130,32 +134,43 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       const loader = new GLTFLoader();
       loader.load(modelURL, (gltf) => {
         const loadedModel = gltf.scene;
+
+        const partNames: string[] = [];
         loadedModel.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            
+            // If the mesh itself has a name, add it.
+            // Or if its parent is not the scene root and has a name, use the parent's name.
+            // This handles cases where multiple meshes are grouped under a named object.
+            const partName = child.name || (child.parent && child.parent.name !== "" && child.parent.name !== loadedModel.name ? child.parent.name : null);
+            if (partName && !partNames.includes(partName)) {
+                partNames.push(partName);
+            }
           }
         });
+        
+        onModelLoad(partNames);
         
         // Center the model and place it on the floor
         const box = new THREE.Box3().setFromObject(loadedModel);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         
-        loadedModel.position.sub(center); // Center the model at the origin
-        loadedModel.position.y += size.y / 2; // Move the model up so its base is on the floor
+        loadedModel.position.sub(center); 
+        loadedModel.position.y += size.y / 2;
 
         // Adjust camera to fit the model
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        cameraZ *= 0.5; // super zoom
+        cameraZ *= 0.5;
         
         camera.position.set(0, size.y / 2, cameraZ);
         
         // Adjust controls target to the model's new center
         controls.target.set(0, size.y / 2, 0);
-        
 
         // Adjust clipping planes
         camera.near = maxDim / 100;
@@ -174,52 +189,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         
         controls.update();
       });
-    } else {
-        // Fallback to default geometry if no modelURL
-        const bottleGroup = new THREE.Group();
-        modelRef.current = bottleGroup;
-        scene.add(bottleGroup);
-
-        const defaultParts = {
-          body: new THREE.CylinderGeometry(0.8, 0.8, 2, 64),
-          cap: new THREE.CylinderGeometry(0.85, 0.85, 0.4, 64),
-        };
-
-        const body = new THREE.Mesh(defaultParts.body, new THREE.MeshStandardMaterial());
-        body.name = "body";
-        body.castShadow = true;
-        body.position.y = 1;
-        bottleGroup.add(body);
-        
-        const cap = new THREE.Mesh(defaultParts.cap, new THREE.MeshStandardMaterial());
-        cap.name = "cap";
-        cap.castShadow = true;
-        cap.position.y = 2.2;
-        bottleGroup.add(cap);
-
-        const pumpGroup = new THREE.Group();
-        pumpGroup.name = "pump";
-        const pumpMaterial = new THREE.MeshStandardMaterial();
-        const pumpBaseGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 32);
-        const pumpBase = new THREE.Mesh(pumpBaseGeo, pumpMaterial);
-        pumpBase.position.y = 2.15;
-        
-        const pumpNozzleGeo = new THREE.BoxGeometry(0.2, 0.2, 0.6);
-        const pumpNozzle = new THREE.Mesh(pumpNozzleGeo, pumpMaterial);
-        pumpNozzle.position.set(0, 2.3, 0.3);
-
-        pumpGroup.add(pumpBase);
-        pumpGroup.add(pumpNozzle);
-        pumpGroup.children.forEach(child => {
-            child.castShadow = true;
-        });
-        bottleGroup.add(pumpGroup);
-
-        for (const partName in colors) {
-          if (Object.prototype.hasOwnProperty.call(colors, partName)) {
-            updateObject(partName, colors[partName], materialKeys[partName]);
-          }
-        }
     }
 
     // Animation loop
@@ -242,8 +211,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
-      if (renderer.domElement.parentNode === currentMount) {
-        currentMount.removeChild(renderer.domElement);
+      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
       }
       scene.traverse(object => {
         if (object instanceof THREE.Mesh) {
@@ -283,7 +252,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     
     const updatePart = (name: string, color: string, materialKey: MaterialKey) => {
         const model = modelRef.current;
-        if (!model) return;
+        if (!model || !color || !materialKey) return;
     
         const object = model.getObjectByName(name);
         if (object) {
