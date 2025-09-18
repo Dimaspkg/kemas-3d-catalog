@@ -14,23 +14,16 @@ import {
 import { AddCategoryDialog } from '@/components/admin/add-category-dialog';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { Pencil, PlusCircle } from "lucide-react";
 import Image from 'next/image';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EditCategoryDialog } from '@/components/admin/edit-category-dialog';
 import { DeleteCategoryDialog } from '@/components/admin/delete-category-dialog';
+import type { Product } from '@/lib/types';
+import { DeleteProductDialog } from '@/components/admin/delete-product-dialog';
 
-
-interface Product {
-  id: string;
-  name: string;
-  categories: string[];
-  modelURL: string;
-  imageURL: string;
-  material?: string;
-}
 
 interface Category {
   id: string;
@@ -45,6 +38,7 @@ function ProductRowSkeleton() {
             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
             <TableCell><Skeleton className="h-4 w-16" /></TableCell>
             <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+            <TableCell><Skeleton className="h-8 w-20" /></TableCell>
         </TableRow>
     )
 }
@@ -103,8 +97,8 @@ export default function ProductManagementPage() {
                 </Link>
             </Button>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <Card className="xl:col-span-2">
                 <CardHeader>
                     <CardTitle>Your Products</CardTitle>
                     <CardDescription>
@@ -119,8 +113,8 @@ export default function ProductManagementPage() {
                                 <TableHead>Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Categories</TableHead>
-                                <TableHead>Material</TableHead>
                                 <TableHead>File</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -140,8 +134,8 @@ export default function ProductManagementPage() {
                                 <TableHead>Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Categories</TableHead>
-                                <TableHead>Material</TableHead>
                                 <TableHead>File</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -158,11 +152,21 @@ export default function ProductManagementPage() {
                                     </TableCell>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell>{product.categories?.join(', ')}</TableCell>
-                                    <TableCell>{product.material || 'N/A'}</TableCell>
                                      <TableCell>
                                         <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                                             View
                                         </a>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex gap-2 justify-end">
+                                            <Button asChild variant="ghost" size="icon">
+                                                <Link href={`/admin/products/edit/${product.id}`}>
+                                                    <Pencil className="h-4 w-4" />
+                                                    <span className="sr-only">Edit Product</span>
+                                                </Link>
+                                            </Button>
+                                            <DeleteProductDialog product={product} />
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                                 ))}
@@ -171,7 +175,7 @@ export default function ProductManagementPage() {
                     )}
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="xl:col-span-1">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle>Categories</CardTitle>
@@ -187,7 +191,7 @@ export default function ProductManagementPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Actions</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
