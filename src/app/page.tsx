@@ -1,75 +1,91 @@
 
-"use client";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Brush, Gem, Package } from 'lucide-react';
+import Header from '@/components/header';
+import Image from 'next/image';
 
-import { useState, Suspense } from "react";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { CustomizationState } from "@/components/customization-panel";
-import Header from "@/components/header";
-
-const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
-  ssr: false,
-  loading: () => <Skeleton className="w-full h-[50vh] md:h-full rounded-lg" />,
-});
-
-const CustomizationPanel = dynamic(
-  () => import("@/components/customization-panel"),
+const features = [
   {
-    ssr: false,
-    loading: () => <CustomizationPanelSkeleton />,
-  }
-);
+    icon: <Brush className="w-8 h-8 text-primary" />,
+    title: 'Customization at Your Fingertips',
+    description: 'Easily change colors, materials, and finishes to match your brand aesthetic. See your changes in real-time with our interactive 3D viewer.',
+  },
+  {
+    icon: <Gem className="w-8 h-8 text-primary" />,
+    title: 'Premium Materials & Finishes',
+    description: 'Experiment with a wide range of high-quality materials, from glossy plastics to polished metals, to create a truly unique product.',
+  },
+  {
+    icon: <Package className="w-8 h-8 text-primary" />,
+    title: 'Ready for Production',
+    description: 'Finalize your designs and access detailed specifications, ready to be sent to your manufacturing partners.',
+  },
+];
 
-function CustomizationPanelSkeleton() {
-  return (
-    <div className="space-y-6 p-6">
-      <Skeleton className="h-8 w-3/4" />
-      <Skeleton className="h-6 w-1/2" />
-      <div className="space-y-4">
-        <Skeleton className="h-6 w-1/4" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-export default function Home() {
-  const [customization, setCustomization] = useState<CustomizationState>({
-    colors: {
-      cap: "#C0C0C0",
-      body: "#FFFFFF",
-      pump: "#808080",
-    },
-    materials: {
-      cap: "glossy",
-      body: "glossy",
-      pump: "metal-polished",
-    },
-    background: "#f0f0f0",
-  });
-
+export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header />
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 min-h-[50vh] md:min-h-0">
-          <Suspense fallback={<Skeleton className="w-full h-full" />}>
-            <CosmeticCanvas {...customization} />
-          </Suspense>
-        </div>
-        <div className="md:col-span-1">
-           <Suspense fallback={<CustomizationPanelSkeleton />}>
-            <CustomizationPanel
-              state={customization}
-              onStateChange={setCustomization}
-            />
-          </Suspense>
-        </div>
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative w-full py-20 md:py-32 lg:py-40 flex items-center justify-center text-center bg-card overflow-hidden">
+          <div className="absolute inset-0 z-0">
+             <Image
+                src="https://picsum.photos/seed/hero/1920/1080"
+                alt="Abstract cosmetic background"
+                fill
+                className="object-cover opacity-20"
+                data-ai-hint="abstract cosmetic background"
+             />
+             <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-background"></div>
+          </div>
+          <div className="container px-4 md:px-6 z-10">
+            <div className="max-w-3xl mx-auto space-y-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-headline font-bold tracking-tight">
+                Design the Future of Cosmetics
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Welcome to Cosmetic Canvas, the interactive 3D product visualizer that brings your packaging ideas to life. Instantly customize and visualize your next masterpiece.
+              </p>
+              <Button asChild size="lg" className="font-semibold">
+                <Link href="/canvas">
+                  Start Customizing <ArrowRight className="ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="w-full py-16 md:py-24 lg:py-32 bg-background">
+          <div className="container px-4 md:px-6">
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature, index) => (
+                <Card key={index} className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <CardHeader className="items-center space-y-4">
+                    {feature.icon}
+                    <CardTitle className="font-headline text-2xl">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+       <footer className="py-6 bg-card border-t">
+        <div className="container px-4 md:px-6 flex items-center justify-center">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} Cosmetic Canvas. All Rights Reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
