@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { supabase } from '@/lib/supabase';
 import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { User } from 'firebase/auth';
 
 interface Category {
   id: string;
@@ -51,6 +52,7 @@ export default function NewProductPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
     const { toast } = useToast();
     const router = useRouter();
     const form = useForm<ProductFormValues>({
@@ -68,19 +70,35 @@ export default function NewProductPage() {
             manufacturingLocation: "",
         },
     });
-
+    
     useEffect(() => {
+        const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUser(user);
+            } else {
+                router.push('/login');
+            }
+        });
+        
         const q = query(collection(db, 'categories'), orderBy('name'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribeCategories = onSnapshot(q, (snapshot) => {
             const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
             setCategories(categoriesData);
             setLoadingCategories(false);
         });
 
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            unsubscribeAuth();
+            unsubscribeCategories();
+        };
+    }, [router]);
 
     const onSubmit = async (data: ProductFormValues) => {
+        if (!user) {
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a product." });
+            return;
+        }
+
         setIsSubmitting(true);
         const productImageFile = data.productImage[0];
         const modelFile = data.modelFile[0];
@@ -97,7 +115,7 @@ export default function NewProductPage() {
 
         try {
             // Upload product image
-            const imageFileName = `${uuidv4()}-${productImageFile.name}`;
+            const imageFileName = `${user.uid}/${uuidv4()}-${productImageFile.name}`;
             const { error: imageError } = await supabase.storage
                 .from('product-images')
                 .upload(imageFileName, productImageFile);
@@ -109,7 +127,7 @@ export default function NewProductPage() {
                 .getPublicUrl(imageFileName);
 
             // Upload 3D model file
-            const modelFileName = `${uuidv4()}-${modelFile.name}`;
+            const modelFileName = `${user.uid}/${uuidv4()}-${modelFile.name}`;
             const { error: modelError } = await supabase.storage
                 .from('product-models')
                 .upload(modelFileName, modelFile);
@@ -133,6 +151,7 @@ export default function NewProductPage() {
                 specialFeatures: data.specialFeatures,
                 manufacturingLocation: data.manufacturingLocation,
                 createdAt: new Date(),
+                userId: user.uid,
             });
             
             toast({
@@ -382,6 +401,4 @@ export default function NewProductPage() {
             </form>
         </Form>
     );
-
-    
-
+}
