@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -19,10 +20,7 @@ import { Logo } from '@/components/icons/logo';
 function AdminHeader() {
     return (
         <header className="px-4 lg:px-8 py-4 border-b flex items-center gap-4 bg-card shadow-sm">
-            <div className="md:hidden">
-                <SidebarTrigger />
-            </div>
-            <Logo className="h-8 w-8 text-primary-foreground hidden md:block" style={{ color: 'hsl(var(--primary))' }} />
+            <SidebarTrigger />
             <h1 className="text-2xl font-headline font-bold text-foreground">
                 Admin Panel
             </h1>
@@ -40,7 +38,7 @@ export default function AdminLayout({
   
   return (
     <SidebarProvider>
-        <Sidebar>
+        <Sidebar collapsible="offcanvas">
             <SidebarHeader>
                 <div className="flex items-center gap-2 p-2">
                     <Logo className="h-8 w-8 text-primary" />
