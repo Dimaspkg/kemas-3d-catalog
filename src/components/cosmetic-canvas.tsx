@@ -147,7 +147,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        cameraZ *= 1.2; // zoom out a little so model doesn't fill the screen
+        cameraZ *= 0.8; // zoom out a little so model doesn't fill the screen
         
         // Move camera back
         const newPosition = new THREE.Vector3(0, 0, cameraZ);
