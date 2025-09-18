@@ -35,11 +35,11 @@ const productFormSchema = z.object({
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
-    modelFile: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
+    modelFile: z.any().refine(
         (files) => files?.length > 0,
         "A model file is required."
     ),
-    productImage: (typeof window === 'undefined' ? z.any() : z.instanceof(FileList)).refine(
+    productImage: z.any().refine(
         (files) => files?.length > 0,
         "A product image is required."
     ),
@@ -56,6 +56,8 @@ export default function NewProductPage() {
         defaultValues: {
             name: "",
             categories: [],
+            modelFile: undefined,
+            productImage: undefined,
         },
     });
 
