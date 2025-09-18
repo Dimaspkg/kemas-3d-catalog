@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 p-4 md:p-8">
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2 min-h-[50vh] md:min-h-0">
           <Suspense fallback={<Skeleton className="w-full h-full" />}>
             <CosmeticCanvas {...customization} />
@@ -71,4 +71,3 @@ export default function Home() {
     </div>
   );
 }
-
