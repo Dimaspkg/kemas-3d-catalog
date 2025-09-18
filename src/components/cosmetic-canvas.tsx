@@ -148,10 +148,9 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         // Adjust camera to fit the model
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
-        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        cameraZ *= 0.8; // zoom out a little so model doesn't fill the screen
+        const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
         
-        camera.position.set(0, 0, cameraZ);
+        camera.position.set(0, size.y / 2, cameraZ);
         
         // Adjust controls target to the model's new center
         controls.target.copy(loadedModel.position);
