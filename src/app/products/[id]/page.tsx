@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Brush } from 'lucide-react';
 
 function SpecificationRow({ label, value }: { label: string, value?: string }) {
     if (!value) return null;
@@ -121,6 +121,13 @@ export default function ProductDetailPage() {
                         ))}
                     </div>
                     
+                    <Button asChild size="lg" className="w-full mb-6">
+                        <Link href={`/canvas?productId=${product.id}`}>
+                            <Brush className="mr-2 h-5 w-5" />
+                            Customize This Product
+                        </Link>
+                    </Button>
+
                     <Card>
                         <CardHeader>
                             <CardTitle>Specifications</CardTitle>
