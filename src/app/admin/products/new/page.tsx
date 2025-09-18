@@ -119,7 +119,7 @@ export default function NewProductPage() {
     };
     
     return (
-        <Card className="max-w-4xl mx-auto">
+        <Card className="mx-auto">
             <CardHeader>
                 <CardTitle>Add New Product</CardTitle>
                 <CardDescription>
