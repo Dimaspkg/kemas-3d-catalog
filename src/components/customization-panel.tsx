@@ -17,8 +17,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import type { CustomizationState } from "@/app/page";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
+
+
+export type CustomizationState = {
+  colors: {
+    cap: string;
+    body: string;
+    pump: string;
+  };
+  materials: {
+    cap: MaterialKey;
+    body: MaterialKey;
+    pump: MaterialKey;
+  };
+  background: string;
+};
 
 interface CustomizationPanelProps {
   state: CustomizationState;

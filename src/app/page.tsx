@@ -1,24 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import dynamic from "next/dynamic";
 import type { MaterialKey } from "@/lib/materials";
 import Header from "@/components/header";
 import CosmeticCanvas from "@/components/cosmetic-canvas";
-import CustomizationPanel from "@/components/customization-panel";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { CustomizationState } from "@/components/customization-panel";
 
-export type CustomizationState = {
-  colors: {
-    cap: string;
-    body: string;
-    pump: string;
-  };
-  materials: {
-    cap: MaterialKey;
-    body: MaterialKey;
-    pump: MaterialKey;
-  };
-  background: string;
-};
+const CustomizationPanel = dynamic(
+  () => import("@/components/customization-panel"),
+  {
+    ssr: false,
+    loading: () => <CustomizationPanelSkeleton />,
+  }
+);
+
+function CustomizationPanelSkeleton() {
+  return (
+    <div className="space-y-6 p-6">
+      <Skeleton className="h-8 w-3/4" />
+      <Skeleton className="h-6 w-1/2" />
+      <div className="space-y-4">
+        <Skeleton className="h-6 w-1/4" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-6 w-1/4" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-6 w-1/4" />
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 export default function Home() {
   const [customization, setCustomization] = useState<CustomizationState>({
@@ -43,10 +70,12 @@ export default function Home() {
           <CosmeticCanvas {...customization} />
         </div>
         <div className="lg:col-span-1">
-          <CustomizationPanel
-            state={customization}
-            onStateChange={setCustomization}
-          />
+          <Suspense fallback={<CustomizationPanelSkeleton />}>
+            <CustomizationPanel
+              state={customization}
+              onStateChange={setCustomization}
+            />
+          </Suspense>
         </div>
       </main>
     </div>
