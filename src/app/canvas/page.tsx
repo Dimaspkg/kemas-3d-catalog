@@ -94,7 +94,7 @@ export default function CanvasPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <main className="flex-1 flex flex-col">
-        <div className="w-full max-w-7xl mx-auto">
+        <div className="w-full">
           <div className="w-full aspect-[12/5]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
