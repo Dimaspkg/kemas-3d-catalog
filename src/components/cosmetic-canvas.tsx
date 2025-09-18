@@ -149,13 +149,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
         cameraZ *= 0.8; // zoom out a little so model doesn't fill the screen
         
-        // Move camera back
-        const newPosition = new THREE.Vector3(0, 0, cameraZ);
-        camera.position.copy(newPosition);
-        camera.lookAt(new THREE.Vector3(0,0,0));
-
-        // Adjust controls target
+        camera.position.set(0, 0, cameraZ);
+        
+        // Adjust controls target to the model's new center
         controls.target.set(0, 0, 0);
+        controls.update();
 
         // Adjust clipping planes
         camera.near = maxDim / 100;
@@ -303,5 +301,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+    
 
     
