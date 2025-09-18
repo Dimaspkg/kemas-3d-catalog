@@ -22,9 +22,10 @@ import { Trash2 } from 'lucide-react';
 interface DeleteCategoryDialogProps {
     categoryId: string;
     categoryName: string;
+    trigger?: React.ReactNode;
 }
 
-export function DeleteCategoryDialog({ categoryId, categoryName }: DeleteCategoryDialogProps) {
+export function DeleteCategoryDialog({ categoryId, categoryName, trigger }: DeleteCategoryDialogProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
 
@@ -51,10 +52,12 @@ export function DeleteCategoryDialog({ categoryId, categoryName }: DeleteCategor
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon">
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete Category</span>
-                </Button>
+                {trigger || (
+                    <Button variant="destructive" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete Category</span>
+                    </Button>
+                )}
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>

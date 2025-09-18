@@ -4,6 +4,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,7 +20,7 @@ import {
 import { AddCategoryDialog } from '@/components/admin/add-category-dialog';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Pencil, PlusCircle } from "lucide-react";
+import { MoreHorizontal, Pencil, PlusCircle } from "lucide-react";
 import Image from 'next/image';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -217,10 +223,26 @@ export default function ProductManagementPage() {
                                     <TableRow key={category.id}>
                                         <TableCell className="font-medium">{category.name}</TableCell>
                                         <TableCell className="text-right">
-                                            <div className="flex gap-2 justify-end">
-                                                <EditCategoryDialog category={category} />
-                                                <DeleteCategoryDialog categoryId={category.id} categoryName={category.name} />
-                                            </div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <span className="sr-only">Open menu</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <EditCategoryDialog category={category} trigger={
+                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                            Edit
+                                                        </DropdownMenuItem>
+                                                    } />
+                                                    <DeleteCategoryDialog categoryId={category.id} categoryName={category.name} trigger={
+                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    } />
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -233,3 +255,4 @@ export default function ProductManagementPage() {
     </div>
   );
 }
+

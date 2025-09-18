@@ -32,8 +32,12 @@ const categoryFormSchema = z.object({
 });
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
+interface EditCategoryDialogProps {
+    category: Category;
+    trigger?: React.ReactNode;
+}
 
-export function EditCategoryDialog({ category }: { category: Category }) {
+export function EditCategoryDialog({ category, trigger }: EditCategoryDialogProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
@@ -51,7 +55,7 @@ export function EditCategoryDialog({ category }: { category: Category }) {
                 title: "Success",
                 description: `Category updated to "${data.name}".`,
             });
-            form.reset();
+            form.reset({ name: data.name });
             setOpen(false);
         } catch (error) {
             console.error("Error updating category: ", error);
@@ -64,14 +68,24 @@ export function EditCategoryDialog({ category }: { category: Category }) {
             setIsSubmitting(false);
         }
     };
+    
+    // Reset form when dialog opens/closes
+    const handleOpenChange = (isOpen: boolean) => {
+        if (isOpen) {
+            form.reset({ name: category.name });
+        }
+        setOpen(isOpen);
+    }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">Edit Category</span>
-                </Button>
+                {trigger || (
+                    <Button variant="ghost" size="icon">
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit Category</span>
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
