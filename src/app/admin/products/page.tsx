@@ -1,10 +1,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { db } from '@/lib/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -29,26 +27,22 @@ interface Category {
   name: string;
 }
 
+const mockProducts: Product[] = [
+    { id: '1', name: 'Lipstick Model A', categories: ['Lipsticks'], modelURL: '#' },
+    { id: '2', name: 'Foundation Bottle', categories: ['Foundations', 'Bottles'], modelURL: '#' },
+    { id: '3', name: 'Mascara Wand', categories: ['Mascaras'], modelURL: '#' },
+];
+
+const mockCategories: Category[] = [
+    { id: '1', name: 'Lipsticks' },
+    { id: '2', name: 'Foundations' },
+    { id: '3', name: 'Mascaras' },
+    { id: '4', name: 'Bottles' },
+];
+
 export default function ProductManagementPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    const unsubscribeProducts = onSnapshot(collection(db, 'models'), (snapshot) => {
-      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-      setProducts(productsData);
-    });
-
-    const unsubscribeCategories = onSnapshot(collection(db, 'categories'), (snapshot) => {
-        const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
-        setCategories(categoriesData);
-    });
-
-    return () => {
-      unsubscribeProducts();
-      unsubscribeCategories();
-    };
-  }, []);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [categories, setCategories] = useState<Category[]>(mockCategories);
 
   return (
     <div className="space-y-6">
