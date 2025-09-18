@@ -30,12 +30,45 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   const controlsRef = useRef<OrbitControls | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
 
+  const cleanup = useCallback(() => {
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+    }
+    if (mountRef.current) {
+        mountRef.current.innerHTML = '';
+    }
+    if (rendererRef.current) {
+      const gl = rendererRef.current.getContext();
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      rendererRef.current.dispose();
+    }
+    if (sceneRef.current) {
+      sceneRef.current.traverse(object => {
+        if (object instanceof THREE.Mesh) {
+          object.geometry.dispose();
+          if (Array.isArray(object.material)) {
+            object.material.forEach(material => material.dispose());
+          } else if (object.material) {
+            object.material.dispose();
+          }
+        }
+      });
+    }
+    if (environmentRef.current) {
+      environmentRef.current.dispose();
+    }
+    if (controlsRef.current) {
+      controlsRef.current.dispose();
+    }
+  }, []);
+
+
   useEffect(() => {
     if (!mountRef.current) return;
+    
+    cleanup();
 
     const currentMount = mountRef.current;
-    // Clear the mount point on re-render to prevent duplicate canvases
-    currentMount.innerHTML = '';
 
     // Scene
     const scene = new THREE.Scene();
@@ -188,56 +221,17 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
-
-      if (rendererRef.current) {
-        const gl = rendererRef.current.getContext();
-        gl.getExtension('WEBGL_lose_context')?.loseContext();
-        rendererRef.current.dispose();
-      }
-
-      if (sceneRef.current) {
-        sceneRef.current.traverse(object => {
-          if (object instanceof THREE.Mesh) {
-            object.geometry.dispose();
-            if (Array.isArray(object.material)) {
-              object.material.forEach(material => material.dispose());
-            } else if (object.material) {
-              object.material.dispose();
-            }
-          }
-        });
-      }
-
-      if(environmentRef.current) {
-        environmentRef.current.dispose();
-      }
-      if (controlsRef.current) {
-        controlsRef.current.dispose();
-      }
-
-      modelRef.current = undefined;
-      sceneRef.current = null;
-      rendererRef.current = null;
-      controlsRef.current = null;
-      cameraRef.current = null;
-
-      // Ensure the canvas is removed from the DOM
-      if (currentMount && rendererRef.current && rendererRef.current.domElement.parentNode === currentMount) {
-        currentMount.removeChild(rendererRef.current.domElement);
-      }
+        window.removeEventListener("resize", handleResize);
+        cleanup();
     };
-  }, [modelURL, onModelLoad, background]); 
+  }, [modelURL, onModelLoad, background, cleanup]); 
 
   // Effect to update colors and materials
   useEffect(() => {
     const scene = sceneRef.current;
-    if (!scene) return;
-  
+    if (!scene || !modelRef.current) return;
+
+    // Handle background update
     if (background) {
       scene.background = new THREE.Color(background);
       scene.environment = null;
@@ -248,26 +242,36 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       }
     }
     
-    const updatePart = (name: string, color: string, materialKey: MaterialKey) => {
-        const model = modelRef.current;
-        if (!model || !color || !materialKey) return;
-    
-        const object = model.getObjectByName(name);
-        if (object) {
-            const props = materials[materialKey];
-            object.traverse((child) => {
-                if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                    child.material.color.set(color);
-                    Object.assign(child.material, props);
-                    child.material.needsUpdate = true;
-                }
-            });
-        }
-    };
-  
+    // Handle color updates
     for (const partName in colors) {
         if (Object.prototype.hasOwnProperty.call(colors, partName)) {
-            updatePart(partName, colors[partName], materialKeys[partName]);
+            const color = colors[partName];
+            const object = modelRef.current.getObjectByName(partName);
+            if (object) {
+                object.traverse((child) => {
+                    if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                        child.material.color.set(color);
+                        child.material.needsUpdate = true;
+                    }
+                });
+            }
+        }
+    }
+    
+    // Handle material updates
+    for (const partName in materialKeys) {
+        if (Object.prototype.hasOwnProperty.call(materialKeys, partName)) {
+            const materialKey = materialKeys[partName];
+            const object = modelRef.current.getObjectByName(partName);
+            if (object && materialKey) {
+                const props = materials[materialKey];
+                object.traverse((child) => {
+                    if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                        Object.assign(child.material, props);
+                        child.material.needsUpdate = true;
+                    }
+                });
+            }
         }
     }
   
@@ -278,3 +282,5 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+    
