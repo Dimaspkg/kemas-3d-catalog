@@ -13,7 +13,7 @@ import type { Product } from "@/lib/types";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
-  loading: () => <Skeleton className="w-full aspect-video rounded-lg" />,
+  loading: () => <Skeleton className="w-full aspect-[12/5] rounded-lg" />,
 });
 
 const CustomizationPanel = dynamic(
@@ -97,7 +97,7 @@ export default function CanvasPage() {
       <Header />
       <main className="flex-1 flex flex-col">
         <div className="w-full max-w-7xl mx-auto">
-          <div className="w-full aspect-video">
+          <div className="w-full aspect-[12/5]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 {...customization} 
