@@ -47,7 +47,7 @@ export default function LandingPage() {
                 Design the Future of Cosmetics
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                Welcome to Cosmetic Canvas, the interactive 3D product visualizer that brings your packaging ideas to life. Instantly customize and visualize your next masterpiece.
+                Welcome to KEMAS Innovations, the interactive 3D product visualizer that brings your packaging ideas to life. Instantly customize and visualize your next masterpiece.
               </p>
               <Button asChild size="lg" className="font-semibold">
                 <Link href="/canvas">
@@ -82,7 +82,7 @@ export default function LandingPage() {
        <footer className="py-6 bg-card border-t">
         <div className="container px-4 md:px-6 flex items-center justify-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Cosmetic Canvas. All Rights Reserved.
+            &copy; {new Date().getFullYear()} KEMAS Innovations. All Rights Reserved.
           </p>
         </div>
       </footer>

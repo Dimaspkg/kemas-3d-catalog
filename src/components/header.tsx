@@ -9,7 +9,7 @@ export default function Header() {
       <Link href="/" className="flex items-center gap-4">
         <Logo className="h-8 w-8 text-primary-foreground" style={{ color: 'hsl(var(--primary))' }} />
         <h1 className="text-2xl font-headline font-bold text-foreground">
-          Cosmetic Canvas
+          KEMAS Innovations
         </h1>
       </Link>
       <nav className="flex items-center gap-2">

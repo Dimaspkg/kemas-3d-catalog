@@ -14,7 +14,7 @@ function NavMenu({ className }: { className?: string }) {
         <nav className={className}>
             <div className="flex items-center gap-2 p-4 border-b">
                 <Logo className="h-8 w-8 text-primary" />
-                <span className="text-lg font-semibold">Cosmetic Canvas</span>
+                <span className="text-lg font-semibold">KEMAS Innovations</span>
             </div>
             <div className="flex flex-col gap-1 p-4">
                 <Button 

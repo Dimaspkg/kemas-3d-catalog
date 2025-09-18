@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Cosmetic Canvas',
+  title: 'KEMAS Innovations',
   description: 'Interactive 3D cosmetic product customizer.',
 };
 
