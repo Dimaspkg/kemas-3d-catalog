@@ -9,13 +9,12 @@ import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-type CosmeticCanvasProps = CustomizationState;
+type CosmeticCanvasProps = Omit<CustomizationState, "brightness">;
 
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
   background,
-  brightness,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -192,8 +191,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const renderer = rendererRef.current;
     if (!scene || !renderer) return;
 
-    renderer.toneMappingExposure = brightness;
-    
     if (background) {
       scene.background = new THREE.Color(background);
       scene.environment = null;
@@ -230,7 +227,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             }
         });
     }
-  }, [colors, materialKeys, background, brightness]);
+  }, [colors, materialKeys, background]);
 
 
   return <div ref={mountRef} className="w-full h-full" />;

@@ -19,8 +19,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Button } from "./ui/button";
-import { Slider } from "./ui/slider";
-
 
 export type CustomizationState = {
   colors: {
@@ -34,7 +32,6 @@ export type CustomizationState = {
     pump: MaterialKey;
   };
   background: string | null;
-  brightness: number;
 };
 
 interface CustomizationPanelProps {
@@ -94,10 +91,6 @@ export default function CustomizationPanel({
     onStateChange(prev => ({ ...prev, background: e.target.value }));
   };
 
-  const handleBrightnessChange = (value: number[]) => {
-    onStateChange(prev => ({...prev, brightness: value[0]}));
-  }
-
   const handleUseEnvironment = () => {
     onStateChange(prev => ({...prev, background: null}));
   }
@@ -151,17 +144,6 @@ export default function CustomizationPanel({
         <Separator />
          <div className="space-y-4">
             <h3 className="text-lg font-semibold font-headline">Environment</h3>
-             <div className="space-y-2">
-                <Label htmlFor="brightness">Brightness</Label>
-                <Slider
-                    id="brightness"
-                    min={0}
-                    max={3}
-                    step={0.1}
-                    value={[state.brightness]}
-                    onValueChange={handleBrightnessChange}
-                />
-             </div>
             <div className="flex items-center gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="bg-color">Background Color</Label>

@@ -59,8 +59,7 @@ export default function Home() {
       body: "glossy",
       pump: "metal-polished",
     },
-    background: "#f9f9f9",
-    brightness: 1,
+    background: null,
   });
   
   const [isClient, setIsClient] = useState(false)
