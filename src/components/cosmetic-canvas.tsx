@@ -19,6 +19,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const environmentRef = useRef<THREE.Texture | null>(null);
+
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -53,7 +55,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Environment
     const environment = new RoomEnvironment( renderer );
     const pmremGenerator = new THREE.PMREMGenerator( renderer );
-    scene.environment = pmremGenerator.fromScene( environment ).texture;
+    const envTexture = pmremGenerator.fromScene( environment ).texture;
+    environmentRef.current = envTexture;
     environment.dispose();
 
     // Controls
@@ -172,6 +175,9 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
           }
         }
       });
+      if(environmentRef.current) {
+        environmentRef.current.dispose();
+      }
       renderer.dispose();
       controls.dispose();
       rendererRef.current = null;
@@ -184,11 +190,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     const scene = sceneRef.current;
     if (!scene) return;
     
-    if (scene.environment) {
-        // if env exists, let it control the background
-        scene.background = null;
-    } else {
-        scene.background = new THREE.Color(background);
+    if (background) {
+      scene.background = new THREE.Color(background);
+      scene.environment = null;
+    } else if (environmentRef.current) {
+      scene.background = null;
+      scene.environment = environmentRef.current;
     }
 
 

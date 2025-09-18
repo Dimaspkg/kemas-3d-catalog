@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
+import { Button } from "./ui/button";
 
 
 export type CustomizationState = {
@@ -31,7 +32,7 @@ export type CustomizationState = {
     body: MaterialKey;
     pump: MaterialKey;
   };
-  background: string;
+  background: string | null;
 };
 
 interface CustomizationPanelProps {
@@ -91,6 +92,10 @@ export default function CustomizationPanel({
     onStateChange(prev => ({ ...prev, background: e.target.value }));
   };
 
+  const handleUseEnvironment = () => {
+    onStateChange(prev => ({...prev, background: null}));
+  }
+
   const parts: (keyof CustomizationState["colors"])[] = ["cap", "body", "pump"];
 
   return (
@@ -140,12 +145,17 @@ export default function CustomizationPanel({
         <Separator />
          <div className="space-y-4">
             <h3 className="text-lg font-semibold font-headline">Environment</h3>
-            <div className="space-y-2">
-                <Label htmlFor="bg-color">Background Color</Label>
-                 <ColorPickerInput
-                    value={state.background}
-                    onChange={handleBackgroundChange}
-                  />
+            <div className="flex items-center gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="bg-color">Background Color</Label>
+                    <ColorPickerInput
+                        value={state.background || '#f9f9f9'}
+                        onChange={handleBackgroundChange}
+                    />
+                </div>
+                <div className="self-end">
+                    <Button variant="outline" onClick={handleUseEnvironment}>Use Environment</Button>
+                </div>
             </div>
          </div>
       </CardContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { MaterialKey } from "@/lib/materials";
 import Header from "@/components/header";
@@ -59,8 +59,18 @@ export default function Home() {
       body: "glossy",
       pump: "metal-polished",
     },
-    background: "#f9f9f9",
+    background: null,
   });
+  
+  const [isClient, setIsClient] = useState(false)
+ 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return <CustomizationPanelSkeleton />
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
