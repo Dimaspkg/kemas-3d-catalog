@@ -24,9 +24,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const environmentRef = useRef<THREE.Texture | null>(null);
   const modelRef = useRef<THREE.Group>();
   const controlsRef = useRef<OrbitControls | null>(null);
+  const animationFrameIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -46,6 +48,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       0.1,
       1000
     );
+    cameraRef.current = camera;
     camera.position.set(0, 1, 5); // Initial position
     camera.lookAt(0, 1, 0);
 
@@ -125,7 +128,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             child.castShadow = true;
             child.receiveShadow = true;
             
-            const partName = child.name || (child.parent && child.parent.name !== "" && child.parent.name !== loadedModel.name ? child.parent.name : null);
+            const partName = child.name;
             if (partName && !partNames.includes(partName)) {
                 partNames.push(partName);
             }
@@ -142,7 +145,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         loadedModel.position.y += (loadedModel.position.y - center.y);
         loadedModel.position.z += (loadedModel.position.z - center.z);
         
-        loadedModel.position.y = box.min.y > 0 ? -box.min.y : -box.min.y;
+        loadedModel.position.y -= box.min.y;
         
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
@@ -167,26 +170,35 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
     // Animation loop
     const animate = () => {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
+      animationFrameIdRef.current = requestAnimationFrame(animate);
+      if (rendererRef.current && sceneRef.current && cameraRef.current && controlsRef.current) {
+        controlsRef.current.update();
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
     };
     animate();
 
     // Resize handler
     const handleResize = () => {
-      if (!currentMount) return;
-      camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+      if (!currentMount || !cameraRef.current || !rendererRef.current) return;
+      cameraRef.current.aspect = currentMount.clientWidth / currentMount.clientHeight;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(currentMount.clientWidth, currentMount.clientHeight);
     };
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       
-      const gl = renderer.getContext();
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+      }
+
+      if (rendererRef.current) {
+        const gl = rendererRef.current.getContext();
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+        rendererRef.current.dispose();
+      }
 
       if (sceneRef.current) {
         sceneRef.current.traverse(object => {
@@ -207,14 +219,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       if (controlsRef.current) {
         controlsRef.current.dispose();
       }
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
 
       modelRef.current = undefined;
       sceneRef.current = null;
       rendererRef.current = null;
       controlsRef.current = null;
+      cameraRef.current = null;
 
       // Ensure the canvas is removed from the DOM
       if (currentMount && renderer.domElement.parentNode === currentMount) {
