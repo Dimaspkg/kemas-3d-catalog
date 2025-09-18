@@ -9,6 +9,7 @@ export type MaterialProperties = Partial<
     | 'thickness'
     | 'transparent'
     | 'opacity'
+    | 'ior'
   >
 >;
 
@@ -24,6 +25,7 @@ export const materials: Record<string, MaterialProperties> = {
     transmission: 1,
     thickness: 1.5,
     transparent: true,
+    ior: 1.5,
   },
   'glass-transparent-rough': {
     roughness: 0.3,
@@ -31,6 +33,7 @@ export const materials: Record<string, MaterialProperties> = {
     transmission: 1,
     thickness: 1.5,
     transparent: true,
+    ior: 1.5,
   },
 };
 
