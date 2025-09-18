@@ -117,7 +117,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controlsRef.current = controls;
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 0.1;
+    controls.minDistance = 0.05;
     controls.maxDistance = 50; 
     controls.target.set(0, 1, 0);
     controls.update();
