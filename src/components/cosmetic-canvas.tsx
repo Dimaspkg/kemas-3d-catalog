@@ -54,9 +54,17 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     
     // Environment
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const sceneEnv = new RoomEnvironment();
-    environmentRef.current = pmremGenerator.fromScene(sceneEnv).texture;
-    scene.environment = environmentRef.current;
+    new RGBELoader()
+      .setPath('/hdr/')
+      .load('soft_studio.hdr', (texture) => {
+        environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
+        if (!background) {
+            scene.environment = environmentRef.current;
+        }
+        texture.dispose();
+        pmremGenerator.dispose();
+      });
+
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -103,7 +111,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Materials
     const createMaterial = (key: MaterialKey) => {
         const props = materials[key];
-        return new THREE.MeshStandardMaterial(props);
+        const material = new THREE.MeshStandardMaterial(props);
+        return material;
     };
 
     const capMaterial = createMaterial(materialKeys.cap);
@@ -185,8 +194,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
       if(environmentRef.current) {
         environmentRef.current.dispose();
       }
-      pmremGenerator.dispose();
-      sceneEnv.dispose();
       renderer.dispose();
       controls.dispose();
       rendererRef.current = null;
