@@ -3,7 +3,7 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Package, PanelLeft } from 'lucide-react';
+import { Home, Package, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
@@ -59,7 +59,7 @@ export default function AdminLayout({
                         size="icon"
                         className="shrink-0"
                         >
-                        <PanelLeft className="h-5 w-5" />
+                        <Menu className="h-5 w-5" />
                         <span className="sr-only">Toggle navigation menu</span>
                         </Button>
                     </SheetTrigger>
