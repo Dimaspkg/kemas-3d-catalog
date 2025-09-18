@@ -93,7 +93,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 2;
-    controls.maxDistance = 20;
+    controls.maxDistance = 50; // Increased max distance for larger models
     controls.target.set(0, 1, 0);
     controls.update();
 
@@ -141,7 +141,27 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const box = new THREE.Box3().setFromObject(loadedModel);
         const center = box.getCenter(new THREE.Vector3());
         loadedModel.position.sub(center);
+
+        // Adjust camera to fit the model
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+        cameraZ *= 2.5; // zoom out a little so model doesn't fill the screen
         
+        // Move camera back
+        const newPosition = new THREE.Vector3(0, 0, cameraZ);
+        camera.position.copy(newPosition);
+        camera.lookAt(new THREE.Vector3(0,0,0));
+
+        // Adjust controls target
+        controls.target.set(0, 0, 0);
+
+        // Adjust clipping planes
+        camera.near = maxDim / 100;
+        camera.far = maxDim * 100;
+        camera.updateProjectionMatrix();
+
         scene.add(loadedModel);
         modelRef.current = loadedModel;
 
