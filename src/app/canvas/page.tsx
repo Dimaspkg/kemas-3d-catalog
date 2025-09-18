@@ -96,14 +96,16 @@ export default function CanvasPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header />
       <main className="flex-1 flex flex-col">
-        <div className="w-full aspect-video">
-          <Suspense fallback={<Skeleton className="w-full h-full" />}>
-            <CosmeticCanvas 
-              {...customization} 
-              modelURL={product?.modelURL} 
-              onModelLoad={handleModelLoad}
-            />
-          </Suspense>
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="w-full aspect-video">
+            <Suspense fallback={<Skeleton className="w-full h-full" />}>
+              <CosmeticCanvas 
+                {...customization} 
+                modelURL={product?.modelURL} 
+                onModelLoad={handleModelLoad}
+              />
+            </Suspense>
+          </div>
         </div>
         <div className="flex-grow">
            <Suspense fallback={<CustomizationPanelSkeleton />}>
@@ -121,3 +123,4 @@ export default function CanvasPage() {
     </div>
   );
 }
+
