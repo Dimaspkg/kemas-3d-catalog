@@ -5,8 +5,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
   Table,
   TableBody,
@@ -37,6 +38,7 @@ interface Model {
   id: string;
   name: string;
   category: string;
+  modelURL: string;
 }
 
 interface Category {
@@ -47,12 +49,14 @@ interface Category {
 const modelFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     category: z.string().min(1, "Category is required"),
+    modelFile: z.instanceof(FileList).refine(files => files.length > 0, "A model file is required."),
 });
 
 type ModelFormValues = z.infer<typeof modelFormSchema>;
 
 function AddModelDialog({ categories }: { categories: Category[] }) {
     const [open, setOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
     const form = useForm<ModelFormValues>({
         resolver: zodResolver(modelFormSchema),
@@ -63,8 +67,31 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
     });
 
     const onSubmit = async (data: ModelFormValues) => {
+        setIsSubmitting(true);
+        const file = data.modelFile[0];
+        if (!file) {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No file selected.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            await addDoc(collection(db, "models"), data);
+            // Upload file to Firebase Storage
+            const storageRef = ref(storage, `models/${Date.now()}_${file.name}`);
+            const uploadResult = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(uploadResult.ref);
+
+            // Add model data to Firestore
+            await addDoc(collection(db, "models"), {
+                name: data.name,
+                category: data.category,
+                modelURL: downloadURL,
+            });
+
             toast({
                 title: "Success",
                 description: "Model added successfully.",
@@ -78,6 +105,8 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
                 title: "Error",
                 description: "Failed to add model.",
             });
+        } finally {
+            setIsSubmitting(false);
         }
     };
     
@@ -133,8 +162,27 @@ function AddModelDialog({ categories }: { categories: Category[] }) {
                                 </FormItem>
                             )}
                             />
+                        <FormField
+                            control={form.control}
+                            name="modelFile"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>3D Model File</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            type="file" 
+                                            accept=".glb,.gltf"
+                                            onChange={(e) => field.onChange(e.target.files)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <DialogFooter>
-                            <Button type="submit">Save Model</Button>
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Saving...' : 'Save Model'}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </Form>
@@ -194,6 +242,7 @@ export default function ModelManagementPage() {
                                 <TableRow>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Category</TableHead>
+                                <TableHead>File</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -201,6 +250,11 @@ export default function ModelManagementPage() {
                                 <TableRow key={model.id}>
                                     <TableCell className="font-medium">{model.name}</TableCell>
                                     <TableCell>{model.category}</TableCell>
+                                     <TableCell>
+                                        <a href={model.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                            View
+                                        </a>
+                                    </TableCell>
                                 </TableRow>
                                 ))}
                             </TableBody>
@@ -248,3 +302,5 @@ export default function ModelManagementPage() {
     </div>
   );
 }
+
+    
