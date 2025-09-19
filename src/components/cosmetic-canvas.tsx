@@ -86,9 +86,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     currentMount.appendChild(renderer.domElement);
     
     // Environment
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    
     const loadEnvironment = (url: string) => {
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
         const isExr = url.toLowerCase().endsWith('.exr');
         const loader = isExr ? new EXRLoader() : new RGBELoader();
         
@@ -268,3 +267,5 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
+    
