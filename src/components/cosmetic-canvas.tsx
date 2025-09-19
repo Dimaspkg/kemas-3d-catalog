@@ -37,32 +37,18 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
     }
+    if (rendererRef.current) {
+      rendererRef.current.dispose();
+    }
     if (mountRef.current) {
         mountRef.current.innerHTML = '';
     }
-    if (rendererRef.current) {
-      const gl = rendererRef.current.getContext();
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
-      rendererRef.current.dispose();
-    }
-    if (sceneRef.current) {
-      sceneRef.current.traverse(object => {
-        if (object instanceof THREE.Mesh) {
-          object.geometry.dispose();
-          if (Array.isArray(object.material)) {
-            object.material.forEach(material => material.dispose());
-          } else if (object.material) {
-            object.material.dispose();
-          }
-        }
-      });
-    }
-    if (environmentRef.current) {
-      environmentRef.current.dispose();
-    }
-    if (controlsRef.current) {
-      controlsRef.current.dispose();
-    }
+    rendererRef.current = null;
+    sceneRef.current = null;
+    cameraRef.current = null;
+    modelRef.current = undefined;
+    controlsRef.current = null;
+    animationFrameIdRef.current = null;
   }, []);
 
 
