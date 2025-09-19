@@ -63,6 +63,21 @@ const ColorPickerInput = ({ value, onChange }: { value: string, onChange: (e: Re
     );
 }
 
+// Function to clean up part names
+function cleanPartName(name: string): string {
+    const match = name.match(/\(([^)]+)\)/);
+    if (match && match[1]) {
+        return match[1].replace(/_/g, ' ');
+    }
+    
+    // Fallback for names like Spring_pin_150_x_10001
+    const cleanedName = name.split('_').slice(0, 2).join(' ');
+    if (cleanedName) return cleanedName;
+    
+    return name;
+}
+
+
 export default function CustomizationPanel({
   state,
   onStateChange,
@@ -115,8 +130,8 @@ export default function CustomizationPanel({
   }
 
   return (
-    <div className="h-full w-full p-4 md:p-8">
-        <Card className="h-full shadow-lg rounded-lg border-0">
+    <div className="p-4 md:p-8">
+        <Card className="shadow-lg rounded-lg border-0">
         <CardHeader>
             <CardTitle className="font-headline">Customize Your Product</CardTitle>
             <CardDescription>
@@ -127,7 +142,7 @@ export default function CustomizationPanel({
           <Tabs defaultValue={parts[0]} className="w-full">
             <TabsList>
               {parts.map(part => (
-                <TabsTrigger key={`${TABS_ID}-${part}`} value={part} className="capitalize">{part}</TabsTrigger>
+                <TabsTrigger key={`${TABS_ID}-${part}`} value={part} className="capitalize">{cleanPartName(part)}</TabsTrigger>
               ))}
                <TabsTrigger key={`${TABS_ID}-environment`} value="environment">Environment</TabsTrigger>
             </TabsList>
