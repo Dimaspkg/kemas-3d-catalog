@@ -5,6 +5,7 @@ import React, { useRef, useEffect, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
@@ -100,32 +101,32 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     
     // Environment
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const rgbeLoader = new RGBELoader();
+    
+    const loadEnvironment = (url: string) => {
+        const isExr = url.toLowerCase().endsWith('.exr');
+        const loader = isExr ? new EXRLoader() : new RGBELoader();
+        
+        loader.load(url, (texture) => {
+            environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
+            if (!background) {
+                scene.environment = environmentRef.current;
+            } else {
+                scene.background = new THREE.Color(background);
+                scene.environment = environmentRef.current;
+            }
+            texture.dispose();
+            pmremGenerator.dispose();
+        }, undefined, (error) => {
+            console.error(`Failed to load environment map: ${url}`, error);
+            // Fallback to default if custom fails
+            if (url !== '/hdr/soft_studio.hdr') {
+                loadEnvironment('/hdr/soft_studio.hdr');
+            }
+        });
+    }
 
     const envMapURL = environmentURL || '/hdr/soft_studio.hdr';
-
-    rgbeLoader.load(envMapURL, (texture) => {
-        environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
-        if (!background) {
-            scene.environment = environmentRef.current;
-        } else {
-            scene.background = new THREE.Color(background);
-            scene.environment = environmentRef.current;
-        }
-        texture.dispose();
-        pmremGenerator.dispose();
-    }, undefined, (error) => {
-        console.error(`Failed to load environment map: ${envMapURL}`, error);
-        // Fallback to default if custom fails
-        if (envMapURL !== '/hdr/soft_studio.hdr') {
-            rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
-                environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
-                scene.environment = environmentRef.current;
-                texture.dispose();
-                pmremGenerator.dispose();
-            });
-        }
-    });
+    loadEnvironment(envMapURL);
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);

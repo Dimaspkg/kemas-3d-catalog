@@ -27,12 +27,15 @@ import type { User } from 'firebase/auth';
 
 const environmentFormSchema = z.object({
     name: z.string().min(3, "Environment name must be at least 3 characters long."),
-    hdrFile: z.any().refine(
+    envFile: z.any().refine(
         (files) => files?.length > 0,
-        "An HDR file is required."
+        "An environment file is required."
     ).refine(
-        (files) => files?.[0]?.name.endsWith('.hdr'),
-        "File must be a .hdr file."
+        (files) => {
+            const fileName = files?.[0]?.name.toLowerCase();
+            return fileName?.endsWith('.hdr') || fileName?.endsWith('.exr');
+        },
+        "File must be a .hdr or .exr file."
     ),
 });
 type EnvironmentFormValues = z.infer<typeof environmentFormSchema>;
@@ -52,15 +55,15 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
 
     const onSubmit = async (data: EnvironmentFormValues) => {
         setIsSubmitting(true);
-        const hdrFile = data.hdrFile[0];
+        const envFile = data.envFile[0];
 
         try {
-            const fileName = `${user.uid}/${uuidv4()}-${hdrFile.name}`;
+            const fileName = `${user.uid}/${uuidv4()}-${envFile.name}`;
             const { error: uploadError } = await supabase.storage
                 .from('environment-maps')
-                .upload(fileName, hdrFile);
+                .upload(fileName, envFile);
 
-            if (uploadError) throw new Error(`HDR file upload failed: ${uploadError.message}`);
+            if (uploadError) throw new Error(`Environment file upload failed: ${uploadError.message}`);
 
             const { data: { publicUrl: fileURL } } = supabase.storage
                 .from('environment-maps')
@@ -104,7 +107,7 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
                 <DialogHeader>
                     <DialogTitle>Add New Environment</DialogTitle>
                     <DialogDescription>
-                        Upload a new .hdr file to use as a background environment.
+                        Upload a new .hdr or .exr file to use as a background environment.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -124,14 +127,14 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
                         />
                          <FormField
                             control={form.control}
-                            name="hdrFile"
+                            name="envFile"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>HDR File</FormLabel>
+                                    <FormLabel>Environment File (.hdr, .exr)</FormLabel>
                                     <FormControl>
                                         <Input 
                                             type="file" 
-                                            accept=".hdr"
+                                            accept=".hdr,.exr"
                                             onChange={(e) => field.onChange(e.target.files)}
                                         />
                                     </FormControl>
