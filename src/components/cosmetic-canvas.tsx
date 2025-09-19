@@ -19,6 +19,7 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
+  backgroundColor,
   modelURL,
   environmentURL,
   onModelLoad,
@@ -38,16 +39,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     }
     if (rendererRef.current) {
       rendererRef.current.dispose();
+      rendererRef.current = null;
     }
     if (mountRef.current) {
         mountRef.current.innerHTML = '';
     }
-    rendererRef.current = null;
-    sceneRef.current = null;
-    cameraRef.current = null;
-    modelRef.current = undefined;
-    controlsRef.current = null;
-    animationFrameIdRef.current = null;
   }, []);
 
 
@@ -61,6 +57,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
+    scene.background = new THREE.Color(backgroundColor);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -91,9 +88,10 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const loader = isExr ? new EXRLoader() : new RGBELoader();
         
         loader.load(url, (texture) => {
-            environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
-            scene.background = environmentRef.current;
-            scene.environment = environmentRef.current;
+            const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+            environmentRef.current = envMap;
+            // scene.background = envMap; // We now use a solid color
+            scene.environment = envMap;
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
@@ -215,7 +213,14 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         window.removeEventListener("resize", handleResize);
         cleanup();
     };
-  }, [modelURL, onModelLoad, cleanup, environmentURL]); 
+  }, [modelURL, onModelLoad, cleanup, environmentURL, backgroundColor]); 
+
+  // Effect to update background color
+  useEffect(() => {
+    if (sceneRef.current) {
+        sceneRef.current.background = new THREE.Color(backgroundColor);
+    }
+  }, [backgroundColor])
 
   // Effect to update colors and materials
   useEffect(() => {
