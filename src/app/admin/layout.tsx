@@ -3,7 +3,7 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Package, Menu, LogOut } from 'lucide-react';
+import { Home, Package, Menu, LogOut, Image as ImageIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
@@ -52,6 +52,16 @@ function NavMenu({ className }: { className?: string }) {
                     <Link href="/admin/products">
                         <Package className="mr-2 h-4 w-4" />
                         Products
+                    </Link>
+                </Button>
+                 <Button 
+                    asChild 
+                    variant={pathname.startsWith('/admin/environment') ? 'secondary' : 'ghost'} 
+                    className="justify-start"
+                >
+                    <Link href="/admin/environment">
+                        <ImageIcon className="mr-2 h-4 w-4" />
+                        Environment
                     </Link>
                 </Button>
             </div>

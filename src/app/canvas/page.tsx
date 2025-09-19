@@ -6,9 +6,9 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Product } from "@/lib/types";
+import type { Product, Environment } from "@/lib/types";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -45,31 +45,41 @@ export default function CanvasPage() {
     background: "#f0f0f0",
   });
   const [product, setProduct] = useState<Product | null>(null);
+  const [environment, setEnvironment] = useState<Environment | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
 
   useEffect(() => {
-    if (!productId) {
-      setLoading(false);
-      // If no product ID, we could load a default model or show a message
-      return;
-    }
-
-    const fetchProduct = async () => {
+    const fetchData = async () => {
         setLoading(true);
-        const docRef = doc(db, 'products', productId);
-        const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            setProduct({ id: docSnap.id, ...docSnap.data() } as Product);
-        } else {
-            console.error("Product not found!");
+        // Fetch active environment
+        const envQuery = query(collection(db, 'environments'), where("isActive", "==", true));
+        const envSnapshot = await getDocs(envQuery);
+        if (!envSnapshot.empty) {
+            setEnvironment(envSnapshot.docs[0].data() as Environment);
         }
-        // Loading will be set to false inside onModelLoad to ensure state is ready
+
+        // Fetch product if ID exists
+        if (productId) {
+            const docRef = doc(db, 'products', productId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                setProduct({ id: docSnap.id, ...docSnap.data() } as Product);
+            } else {
+                console.error("Product not found!");
+            }
+        }
+        // Loading will be set to false inside onModelLoad to ensure state is ready,
+        // or if there's no product ID
+        if (!productId) {
+            setLoading(false);
+        }
     };
 
-    fetchProduct();
+    fetchData();
   }, [productId]);
 
   const handleModelLoad = useCallback((partNames: string[]) => {
@@ -100,6 +110,7 @@ export default function CanvasPage() {
               <CosmeticCanvas 
                 {...customization} 
                 modelURL={product?.modelURL} 
+                environmentURL={environment?.fileURL}
                 onModelLoad={handleModelLoad}
               />
             </Suspense>

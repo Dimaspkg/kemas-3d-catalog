@@ -13,3 +13,12 @@ export interface Product {
   manufacturingLocation?: string;
   createdAt: any;
 }
+
+export interface Environment {
+  id: string;
+  name: string;
+  fileURL: string;
+  isActive: boolean;
+  createdAt: any;
+  userId: string;
+}

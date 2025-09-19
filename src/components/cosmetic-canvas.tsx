@@ -11,6 +11,7 @@ import { materials, type MaterialKey } from "@/lib/materials";
 
 type CosmeticCanvasProps = CustomizationState & { 
     modelURL?: string;
+    environmentURL?: string;
     onModelLoad: (partNames: string[]) => void;
 };
 
@@ -19,6 +20,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   materials: materialKeys,
   background,
   modelURL,
+  environmentURL,
   onModelLoad,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -98,9 +100,11 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     
     // Environment
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    new RGBELoader()
-      .setPath('/hdr/')
-      .load('soft_studio.hdr', (texture) => {
+    const rgbeLoader = new RGBELoader();
+
+    const envMapURL = environmentURL || '/hdr/soft_studio.hdr';
+
+    rgbeLoader.load(envMapURL, (texture) => {
         environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
         if (!background) {
             scene.environment = environmentRef.current;
@@ -110,7 +114,18 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         }
         texture.dispose();
         pmremGenerator.dispose();
-      });
+    }, undefined, (error) => {
+        console.error(`Failed to load environment map: ${envMapURL}`, error);
+        // Fallback to default if custom fails
+        if (envMapURL !== '/hdr/soft_studio.hdr') {
+            rgbeLoader.load('/hdr/soft_studio.hdr', (texture) => {
+                environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
+                scene.environment = environmentRef.current;
+                texture.dispose();
+                pmremGenerator.dispose();
+            });
+        }
+    });
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -179,7 +194,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
         
-        cameraZ *= 1.5; // Super Zoom
+        cameraZ *= 1.5; 
         camera.position.set(0, size.y / 2, cameraZ);
         
         const newTarget = new THREE.Vector3(0, size.y / 2, 0);
@@ -219,7 +234,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         window.removeEventListener("resize", handleResize);
         cleanup();
     };
-  }, [modelURL, onModelLoad, background, cleanup]); 
+  }, [modelURL, onModelLoad, background, cleanup, environmentURL]); 
 
   // Effect to update colors and materials
   useEffect(() => {
