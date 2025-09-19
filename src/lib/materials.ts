@@ -6,6 +6,7 @@ export const materialOptions = [
     { key: "glossy", name: "Glossy" },
     { key: "metal-polished", name: "Polished Metal" },
     { key: "metal-rough", name: "Rough Metal" },
+    { key: "mirror", name: "Mirror" },
 ] as const;
 
 
@@ -32,6 +33,10 @@ export const materials: Record<MaterialKey, MaterialProperties> = {
     "metal-rough": {
         metalness: 0.8,
         roughness: 0.6,
+    },
+    "mirror": {
+        metalness: 1,
+        roughness: 0,
     }
 };
 
