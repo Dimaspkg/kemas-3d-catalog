@@ -42,7 +42,6 @@ export default function CanvasPage() {
   const [customization, setCustomization] = useState<CustomizationState>({
     colors: {},
     materials: {},
-    background: "#f0f0f0",
   });
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);

@@ -19,7 +19,6 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
-  background,
   modelURL,
   environmentURL,
   onModelLoad,
@@ -93,12 +92,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         
         loader.load(url, (texture) => {
             environmentRef.current = pmremGenerator.fromEquirectangular(texture).texture;
-            if (!background) {
-                scene.environment = environmentRef.current;
-            } else {
-                scene.background = new THREE.Color(background);
-                scene.environment = environmentRef.current;
-            }
+            scene.background = environmentRef.current;
+            scene.environment = environmentRef.current;
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
@@ -220,23 +215,12 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         window.removeEventListener("resize", handleResize);
         cleanup();
     };
-  }, [modelURL, onModelLoad, background, cleanup, environmentURL]); 
+  }, [modelURL, onModelLoad, cleanup, environmentURL]); 
 
   // Effect to update colors and materials
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !modelRef.current) return;
-
-    // Handle background update
-    if (background) {
-      scene.background = new THREE.Color(background);
-      scene.environment = null;
-    } else {
-      scene.background = null;
-      if (environmentRef.current) {
-          scene.environment = environmentRef.current;
-      }
-    }
     
     // Handle part color and material updates
     Object.keys(colors).forEach(partName => {
@@ -260,12 +244,10 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         }
     });
   
-  }, [colors, materialKeys, background]);
+  }, [colors, materialKeys]);
 
 
   return <div ref={mountRef} className="w-full h-full" />;
 };
 
 export default CosmeticCanvas;
-
-    

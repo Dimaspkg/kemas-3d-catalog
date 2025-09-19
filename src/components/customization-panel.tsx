@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
-import { Button } from "./ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type CustomizationState = {
@@ -28,7 +27,6 @@ export type CustomizationState = {
   materials: {
     [key: string]: MaterialKey;
   };
-  background: string | null;
 };
 
 interface CustomizationPanelProps {
@@ -99,14 +97,6 @@ export default function CustomizationPanel({
       }));
     };
   
-  const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onStateChange(prev => ({ ...prev, background: e.target.value }));
-  };
-
-  const handleUseEnvironment = () => {
-    onStateChange(prev => ({...prev, background: null}));
-  }
-
   const parts = Object.keys(state.colors);
   const TABS_ID = React.useId();
 
@@ -144,7 +134,6 @@ export default function CustomizationPanel({
               {parts.map(part => (
                 <TabsTrigger key={`${TABS_ID}-${part}`} value={part} className="capitalize">{cleanPartName(part)}</TabsTrigger>
               ))}
-               <TabsTrigger key={`${TABS_ID}-environment`} value="environment">Environment</TabsTrigger>
             </TabsList>
             
             {parts.map((part) => (
@@ -178,22 +167,6 @@ export default function CustomizationPanel({
                 </div>
               </TabsContent>
             ))}
-
-            <TabsContent key={`${TABS_ID}-environment-content`} value="environment">
-               <div className="flex items-center gap-6 pt-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="bg-color">Background Color</Label>
-                        <ColorPickerInput
-                            value={state.background || '#f9f9f9'}
-                            onChange={handleBackgroundChange}
-                        />
-                    </div>
-                    <div className="self-end">
-                        <Button variant="outline" onClick={handleUseEnvironment}>Use Environment</Button>
-                    </div>
-                </div>
-            </TabsContent>
-
           </Tabs>
         </CardContent>
         </Card>
