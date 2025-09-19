@@ -172,13 +172,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         
         const box = new THREE.Box3().setFromObject(loadedModel);
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
 
-        loadedModel.position.x += (loadedModel.position.x - center.x);
-        loadedModel.position.y += (loadedModel.position.y - center.y);
-        loadedModel.position.z += (loadedModel.position.z - center.z);
-
-        loadedModel.position.y = size.y / 2;
+        loadedModel.position.y = -box.min.y;
         
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
@@ -271,8 +266,3 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
-
-    
-
-    
-
