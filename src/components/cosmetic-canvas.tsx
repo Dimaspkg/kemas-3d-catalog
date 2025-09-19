@@ -179,7 +179,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const fov = camera.fov * (Math.PI / 180);
         let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
         
-        cameraZ *= 0.5; // Super Zoom
+        cameraZ *= 1.5; // Super Zoom
         camera.position.set(0, size.y / 2, cameraZ);
         
         const newTarget = new THREE.Vector3(0, size.y / 2, 0);
