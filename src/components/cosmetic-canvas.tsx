@@ -333,19 +333,23 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             className="w-full h-full"
         />
 
-        <div className="absolute top-0 left-0 p-4 pointer-events-none">
-            <h1 className="font-semibold text-lg">{product?.name || <Skeleton className="h-6 w-48" />}</h1>
+        <div className="absolute top-0 left-0 p-4 pointer-events-none text-foreground/80">
+            <h1 className="font-semibold text-lg drop-shadow-sm">{product?.name || <Skeleton className="h-6 w-48 bg-black/10" />}</h1>
             {product ? (
-                <p className="text-muted-foreground">{formatPrice(product.price)}</p>
+                <p className="drop-shadow-sm">{formatPrice(product.price)}</p>
             ) : (
-                <div className="text-muted-foreground">
-                    <Skeleton className="h-5 w-32 mt-1" />
+                <div>
+                    <Skeleton className="h-5 w-32 mt-1 bg-black/10" />
                 </div>
             )}
         </div>
 
         <div className="absolute top-0 right-0 p-4">
-            <Button onClick={onScreenshot}>
+            <Button
+                onClick={onScreenshot}
+                variant="outline"
+                className="bg-white/20 backdrop-blur-lg border-white/30 text-white hover:bg-white/30"
+            >
                 <Camera className="mr-2 h-4 w-4" />
                 Screenshot
             </Button>
@@ -358,3 +362,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
