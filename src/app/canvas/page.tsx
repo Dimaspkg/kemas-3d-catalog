@@ -114,7 +114,13 @@ export default function CanvasPage() {
         <header className="flex items-center justify-between p-4 border-b">
             <div>
                 <h1 className="font-semibold text-lg">{product?.name || <Skeleton className="h-6 w-48" />}</h1>
-                <p className="text-muted-foreground">{product ? formatPrice(product.price) : <Skeleton className="h-5 w-32 mt-1" />}</p>
+                {product ? (
+                    <p className="text-muted-foreground">{formatPrice(product.price)}</p>
+                ) : (
+                    <div className="text-muted-foreground">
+                        <Skeleton className="h-5 w-32 mt-1" />
+                    </div>
+                )}
             </div>
             <div className="flex items-center gap-2">
                  <Button variant="outline" size="icon" disabled>
