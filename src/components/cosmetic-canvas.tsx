@@ -10,7 +10,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 
-type CosmeticCanvasProps = CustomizationState & { 
+type CosmeticCanvasProps = Omit<CustomizationState, "backgroundColor"> & { 
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[]) => void;
@@ -19,7 +19,6 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
-  backgroundColor,
   modelURL,
   environmentURL,
   onModelLoad,
@@ -92,6 +91,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
             scene.environment = envMap;
+            scene.background = envMap; // Use env map for background as well
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
@@ -216,14 +216,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         window.removeEventListener("resize", handleResize);
         cleanup();
     };
-  }, [modelURL, onModelLoad, cleanup, environmentURL, backgroundColor]); 
+  }, [modelURL, onModelLoad, cleanup, environmentURL]); 
 
-  // Effect to update background color
-  useEffect(() => {
-    if (sceneRef.current) {
-        sceneRef.current.background = new THREE.Color(backgroundColor);
-    }
-  }, [backgroundColor])
 
   // Effect to update colors and materials
   useEffect(() => {

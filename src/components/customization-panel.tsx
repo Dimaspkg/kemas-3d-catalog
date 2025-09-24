@@ -28,7 +28,6 @@ export type CustomizationState = {
   materials: {
     [key: string]: MaterialKey;
   };
-  backgroundColor: string;
 };
 
 interface CustomizationPanelProps {
@@ -98,10 +97,6 @@ export default function CustomizationPanel({
         materials: { ...prev.materials, [part]: value },
       }));
     };
-
-  const handleBackgroundColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onStateChange(prev => ({ ...prev, backgroundColor: e.target.value }));
-  };
   
   const parts = Object.keys(state.colors);
   const TABS_ID = React.useId();
@@ -135,16 +130,6 @@ export default function CustomizationPanel({
             </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-              <Label>Background Color</Label>
-              <ColorPickerInput
-                  value={state.backgroundColor}
-                  onChange={handleBackgroundColorChange}
-              />
-          </div>
-
-          <Separator className="my-6" />
-
           <Tabs defaultValue={parts[0]} className="w-full">
             <TabsList>
               {parts.map(part => (
