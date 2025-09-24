@@ -305,7 +305,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             className="w-full h-full"
         />
 
-        <div className="absolute top-0 left-0 p-6 pointer-events-none text-foreground/80">
+        <div className="absolute bottom-0 left-0 p-6 pointer-events-none text-foreground/80">
             <h1 className="font-semibold text-lg drop-shadow-sm">{product?.name || <Skeleton className="h-6 w-48 bg-black/10" />}</h1>
             {product ? (
                 <p className="drop-shadow-sm">{formatPrice(product.price)}</p>
