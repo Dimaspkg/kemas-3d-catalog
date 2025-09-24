@@ -19,10 +19,17 @@ import {
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "./ui/separator";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Upload, X } from "lucide-react";
+import { X } from "lucide-react";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+  } from "@/components/ui/carousel"
+import { cn } from "@/lib/utils";
 
 export type CustomizationState = {
   colors: {
@@ -68,25 +75,31 @@ const ColorPickerInput = ({ value, onChange }: { value: string, onChange: (e: Re
     );
 }
 
-// Function to clean up part names
 function cleanPartName(name: string): string {
     const match = name.match(/\(([^)]+)\)/);
     if (match && match[1]) {
         return match[1].replace(/_/g, ' ');
     }
     
-    // Fallback for names like Spring_pin_150_x_10001
     const cleanedName = name.split('_').slice(0, 2).join(' ');
     if (cleanedName) return cleanedName;
     
     return name;
 }
 
-
 export default function CustomizationPanel({
   state,
   onStateChange,
 }: CustomizationPanelProps) {
+  const parts = Object.keys(state.colors);
+  const [activePart, setActivePart] = React.useState<string | null>(parts[0] || null);
+
+  React.useEffect(() => {
+    if (!activePart && parts.length > 0) {
+      setActivePart(parts[0]);
+    }
+  }, [parts, activePart]);
+
   const handleColorChange =
     (part: string) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,10 +140,6 @@ export default function CustomizationPanel({
       logos: { ...prev.logos, [part]: null },
     }));
   };
-  
-  const parts = Object.keys(state.colors);
-  const TABS_ID = React.useId();
-
 
   if (parts.length === 0) {
     return (
@@ -160,16 +169,33 @@ export default function CustomizationPanel({
             </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue={parts[0]} className="w-full">
-            <TabsList>
-              {parts.map(part => (
-                <TabsTrigger key={`${TABS_ID}-${part}`} value={part} className="capitalize">{cleanPartName(part)}</TabsTrigger>
-              ))}
-            </TabsList>
+            <Carousel
+                opts={{
+                    align: "start",
+                    dragFree: true,
+                }}
+                className="w-full"
+            >
+                <CarouselContent>
+                    {parts.map((part) => (
+                    <CarouselItem key={part} className="basis-auto">
+                        <Button
+                            variant={activePart === part ? "default" : "outline"}
+                            onClick={() => setActivePart(part)}
+                            className="capitalize"
+                        >
+                            {cleanPartName(part)}
+                        </Button>
+                    </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex" />
+                <CarouselNext className="hidden sm:flex" />
+            </Carousel>
             
-            {parts.map((part) => (
-              <TabsContent key={`${TABS_ID}-${part}-content`} value={part}>
-                 <Tabs defaultValue="color-material" className="w-full pt-4">
+            {activePart && (
+              <div className="mt-6">
+                 <Tabs defaultValue="color-material" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="color-material">Appearance</TabsTrigger>
                       <TabsTrigger value="logo">Logo</TabsTrigger>
@@ -177,49 +203,49 @@ export default function CustomizationPanel({
                     <TabsContent value="color-material">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
                             <div className="space-y-2">
-                            <Label htmlFor={`${part}-color`}>Color</Label>
-                            <ColorPickerInput
-                                value={state.colors[part]}
-                                onChange={handleColorChange(part)}
-                            />
+                                <Label htmlFor={`${activePart}-color`}>Color</Label>
+                                <ColorPickerInput
+                                    value={state.colors[activePart]}
+                                    onChange={handleColorChange(activePart)}
+                                />
                             </div>
                             <div className="space-y-2">
-                            <Label htmlFor={`${part}-material`}>Material</Label>
-                            <Select
-                                value={state.materials[part]}
-                                onValueChange={handleMaterialChange(part)}
-                            >
-                                <SelectTrigger id={`${part}-material`} className="max-w-xs">
-                                    <SelectValue placeholder="Select material" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                {materialOptions.map((option) => (
-                                    <SelectItem key={option.key} value={option.key} className="capitalize">
-                                    {option.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
+                                <Label htmlFor={`${activePart}-material`}>Material</Label>
+                                <Select
+                                    value={state.materials[activePart]}
+                                    onValueChange={handleMaterialChange(activePart)}
+                                >
+                                    <SelectTrigger id={`${activePart}-material`} className="max-w-xs">
+                                        <SelectValue placeholder="Select material" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {materialOptions.map((option) => (
+                                        <SelectItem key={option.key} value={option.key} className="capitalize">
+                                        {option.name}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                     </TabsContent>
                     <TabsContent value="logo">
                         <div className="pt-4 space-y-4">
-                            <Label htmlFor={`${part}-logo`}>Upload Logo (.png)</Label>
+                            <Label htmlFor={`${activePart}-logo`}>Upload Logo (.png)</Label>
                             <Input
-                                id={`${part}-logo`}
+                                id={`${activePart}-logo`}
                                 type="file"
                                 accept="image/png"
-                                onChange={handleLogoChange(part)}
+                                onChange={handleLogoChange(activePart)}
                             />
-                            {state.logos[part] && (
+                            {state.logos[activePart] && (
                                 <div className="space-y-2">
                                     <p className="text-sm text-muted-foreground">Current logo:</p>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-16 h-16 rounded-md border p-1">
-                                            <img src={state.logos[part]!} alt={`${cleanPartName(part)} logo`} className="w-full h-full object-contain" />
+                                        <div className="w-16 h-16 rounded-md border p-1 bg-white">
+                                            <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
                                         </div>
-                                        <Button variant="outline" size="icon" onClick={handleRemoveLogo(part)}>
+                                        <Button variant="outline" size="icon" onClick={handleRemoveLogo(activePart)}>
                                             <X className="h-4 w-4" />
                                             <span className="sr-only">Remove Logo</span>
                                         </Button>
@@ -229,9 +255,8 @@ export default function CustomizationPanel({
                         </div>
                     </TabsContent>
                  </Tabs>
-              </TabsContent>
-            ))}
-          </Tabs>
+              </div>
+            )}
         </CardContent>
         </Card>
     </div>
