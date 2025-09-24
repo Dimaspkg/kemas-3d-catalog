@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
@@ -121,11 +122,16 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    renderer.toneMappingExposure = 1.0; // Adjusted exposure
     currentMount.appendChild(renderer.domElement);
     
     // Environment
     const loadEnvironment = (url: string) => {
+        // TEMPORARILY DISABLED TO PREVENT 404
+        console.warn("Environment loading is temporarily disabled to fix a 404 error. To re-enable, add the .hdr file and uncomment the loading logic in cosmetic-canvas.tsx");
+        return; 
+        
+        /*
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
         pmremGenerator.compileEquirectangularShader();
         
@@ -145,10 +151,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 loadEnvironment('/hdr/soft_studio.hdr');
             }
         });
+        */
     }
 
-    const envMapURL = environmentURL || '/hdr/soft_studio.hdr';
-    loadEnvironment(envMapURL);
+    if (environmentURL) {
+        loadEnvironment(environmentURL);
+    }
+
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -176,6 +185,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
     backLight.position.set(0, 5, -8);
     scene.add(backLight);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
@@ -326,16 +338,18 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 <Camera className="mr-2 h-4 w-4" />
                 Screenshot
             </Button>
-            <Button
-                asChild
-                variant="outline"
-                className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-            >
-                <Link href={`/products/${product?.id}`}>
-                    <X className="mr-2 h-4 w-4" />
-                    Exit
-                </Link>
-            </Button>
+            {product?.id && (
+                 <Button
+                    asChild
+                    variant="outline"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                >
+                    <Link href={`/products/${product.id}`}>
+                        <X className="mr-2 h-4 w-4" />
+                        Exit
+                    </Link>
+                </Button>
+            )}
         </div>
 
     </div>
@@ -347,4 +361,6 @@ CosmeticCanvas.displayName = 'CosmeticCanvas';
 export default CosmeticCanvas;
 
     
+    
+
     
