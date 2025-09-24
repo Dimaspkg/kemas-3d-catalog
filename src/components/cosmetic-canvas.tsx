@@ -10,7 +10,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 
-type CosmeticCanvasProps = Omit<CustomizationState, "backgroundColor"> & { 
+type CosmeticCanvasProps = CustomizationState & { 
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
@@ -56,7 +56,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(0xaaaaaa); // Set background to gray
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -236,7 +235,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         const partMaterialKey = materialKeys[partName];
 
         if (partColor && partMaterialKey) {
-            const materialProps = materials[partMaterialKey];
+            const materialProps = materials[partMaterialKey as MaterialKey];
             
             if (child.material instanceof THREE.MeshStandardMaterial) {
                 child.material.color.set(partColor);
@@ -262,7 +261,5 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
-
-
 
     
