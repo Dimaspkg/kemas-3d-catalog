@@ -9,21 +9,39 @@ import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
-import type { CanvasHandle } from "@/lib/types";
+import type { CanvasHandle, Product } from "@/lib/types";
+import { Button } from "./ui/button";
+import { Camera } from "lucide-react";
+import { Skeleton } from "./ui/skeleton";
+
+const formatPrice = (price?: number) => {
+    if (!price) return null;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+};
+
 
 type CosmeticCanvasProps = CustomizationState & { 
+    product?: Product | null;
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
+    onScreenshot: () => void;
 };
 
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   colors,
   materials: materialKeys,
   logos,
+  product,
   modelURL,
   environmentURL,
   onModelLoad,
+  onScreenshot,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -63,7 +81,11 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       rendererRef.current = null;
     }
     if (mountRef.current) {
-        mountRef.current.innerHTML = '';
+        // Clear only canvas, not the entire div
+        const canvas = mountRef.current.querySelector('canvas');
+        if (canvas) {
+            mountRef.current.removeChild(canvas);
+        }
     }
   }, []);
 
@@ -304,7 +326,33 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }, [colors, materialKeys, logos]);
 
 
-  return <div ref={mountRef} className="w-full h-full" />;
+  return (
+    <div className="w-full h-full relative">
+        <div 
+            ref={mountRef} 
+            className="w-full h-full"
+        />
+
+        <div className="absolute top-0 left-0 p-4 pointer-events-none">
+            <h1 className="font-semibold text-lg">{product?.name || <Skeleton className="h-6 w-48" />}</h1>
+            {product ? (
+                <p className="text-muted-foreground">{formatPrice(product.price)}</p>
+            ) : (
+                <div className="text-muted-foreground">
+                    <Skeleton className="h-5 w-32 mt-1" />
+                </div>
+            )}
+        </div>
+
+        <div className="absolute top-0 right-0 p-4">
+            <Button onClick={onScreenshot}>
+                <Camera className="mr-2 h-4 w-4" />
+                Screenshot
+            </Button>
+        </div>
+
+    </div>
+  );
 });
 
 CosmeticCanvas.displayName = 'CosmeticCanvas';
