@@ -19,7 +19,13 @@ import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { X, ArrowLeft, ArrowRight, Menu } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 export type CustomizationState = {
   colors: {
@@ -142,7 +148,22 @@ export default function CustomizationPanel({
     <div className="p-4">
         <Collapsible>
             <div className="flex items-center justify-between gap-4">
-                <div className="flex-1 flex items-center justify-center gap-4">
+                 <CollapsibleTrigger asChild>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                    <Menu className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Menu</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </CollapsibleTrigger>
+                
+                <div className="flex-1 flex items-center justify-center gap-2">
                     <Button variant="ghost" size="icon" onClick={goToPrevPart}>
                         <ArrowLeft />
                     </Button>
@@ -154,21 +175,12 @@ export default function CustomizationPanel({
                         <ArrowRight />
                     </Button>
                 </div>
-
-                <div className="flex items-center gap-2">
-                    <ColorSwatch
-                        name={activePart}
-                        value={state.colors[activePart]}
-                        onChange={handleColorChange(activePart)}
-                    />
-
-                    <CollapsibleTrigger asChild>
-                        <Button variant="outline">
-                            <Menu className="mr-2 h-4 w-4" />
-                            Menu
-                        </Button>
-                    </CollapsibleTrigger>
-                </div>
+                
+                 <ColorSwatch
+                    name={activePart}
+                    value={state.colors[activePart]}
+                    onChange={handleColorChange(activePart)}
+                />
             </div>
 
             <CollapsibleContent className="mt-4 pt-4 border-t">
