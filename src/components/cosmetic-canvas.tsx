@@ -36,9 +36,6 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   colors,
   materials: materialKeys,
-  logos,
-  logoSizes,
-  logoOffsets,
   product,
   modelURL,
   environmentURL,
@@ -207,7 +204,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             if (partName && !partNames.includes(partName)) {
                 partNames.push(partName);
                 if (child.material instanceof THREE.MeshStandardMaterial) {
-                    initialColors[partName] = `#${child.material.color.getHexString()}`;
+                    initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
                 } else {
                     initialColors[partName] = '#C0C0C0'; // Fallback
                 }
@@ -270,82 +267,35 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }, [modelURL, onModelLoad, cleanup, environmentURL]); 
 
 
-  // Effect to update colors, materials, and logos
+  // Effect to update colors and materials
   useEffect(() => {
-    if (!modelRef.current || !colors || !materialKeys || !logos || !logoSizes || !logoOffsets) return;
-
-    const textureLoader = new THREE.TextureLoader();
+    if (!modelRef.current || !colors || !materialKeys) return;
 
     modelRef.current.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const partName = child.name.trim();
         const partColor = colors[partName];
         const partMaterialKey = materialKeys[partName];
-        const partLogo = logos[partName];
-        const partLogoSize = logoSizes[partName] || 1;
-        const partLogoOffset = logoOffsets[partName] || { x: 0, y: 0 };
-
 
         if (partColor && partMaterialKey) {
             const materialProps = materials[partMaterialKey as MaterialKey];
             let material = child.material as THREE.MeshStandardMaterial;
 
-            // Ensure we have a MeshStandardMaterial
             if (!(material instanceof THREE.MeshStandardMaterial)) {
                 material = new THREE.MeshStandardMaterial();
                 child.material = material;
             }
             
-            // Update basic properties
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
-
-            // Update logo
-            if (partLogo) {
-                // If the logo URL is different from the current map, load the new one
-                if (!material.map || material.map.userData.url !== partLogo) {
-                    textureLoader.load(partLogo, (texture) => {
-                        texture.flipY = false;
-                        texture.wrapS = THREE.RepeatWrapping;
-                        texture.wrapT = THREE.RepeatWrapping;
-                        texture.userData.url = partLogo; // Store URL for comparison
-                        
-                        const repeatValue = 1 / partLogoSize;
-                        texture.repeat.set(repeatValue, repeatValue);
-                        texture.offset.set(partLogoOffset.x, partLogoOffset.y);
-                        
-                        if (material.map) {
-                            material.map.dispose(); // Dispose old texture
-                        }
-                        material.map = texture;
-                        material.needsUpdate = true;
-                    });
-                } else {
-                    // If only size or offset changed
-                    const repeatValue = 1 / partLogoSize;
-                    if (material.map.repeat.x !== repeatValue) {
-                        material.map.repeat.set(repeatValue, repeatValue);
-                    }
-                    if (material.map.offset.x !== partLogoOffset.x || material.map.offset.y !== partLogoOffset.y) {
-                         material.map.offset.set(partLogoOffset.x, partLogoOffset.y);
-                    }
-                }
-            } else {
-                // If there's no logo, remove the map
-                if (material.map) {
-                    material.map.dispose();
-                    material.map = null;
-                    material.needsUpdate = true;
-                }
-            }
             
             material.envMap = environmentRef.current;
             material.needsUpdate = true;
         }
       }
     });
-  }, [colors, materialKeys, logos, logoSizes, logoOffsets]);
+  }, [colors, materialKeys]);
 
 
   return (

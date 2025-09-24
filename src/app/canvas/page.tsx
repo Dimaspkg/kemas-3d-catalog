@@ -35,9 +35,6 @@ export default function CanvasPage() {
   const [customization, setCustomization] = useState<CustomizationState>({
     colors: {},
     materials: {},
-    logos: {},
-    logoSizes: {},
-    logoOffsets: {},
   });
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
@@ -81,24 +78,15 @@ export default function CanvasPage() {
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const initialMaterials: { [key: string]: string } = {};
-    const initialLogos: { [key: string]: string | null } = {};
-    const initialLogoSizes: { [key: string]: number } = {};
-    const initialLogoOffsets: { [key: string]: { x: number, y: number } } = {};
-
+    
     partNames.forEach(part => {
         initialMaterials[part] = 'glossy'; // Default to glossy
-        initialLogos[part] = null;
-        initialLogoSizes[part] = 1;
-        initialLogoOffsets[part] = { x: 0, y: 0 };
     });
 
     setCustomization(prev => ({
         ...prev,
         colors: initialColors,
         materials: initialMaterials,
-        logos: initialLogos,
-        logoSizes: initialLogoSizes,
-        logoOffsets: initialLogoOffsets,
     }));
 
     setLoading(false);

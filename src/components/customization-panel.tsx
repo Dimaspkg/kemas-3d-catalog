@@ -35,15 +35,6 @@ export type CustomizationState = {
   materials: {
     [key: string]: MaterialKey;
   };
-  logos: {
-    [key: string]: string | null;
-  };
-  logoSizes: {
-    [key: string]: number;
-  };
-  logoOffsets: {
-    [key: string]: { x: number, y: number };
-  }
 };
 
 interface CustomizationPanelProps {
@@ -110,63 +101,6 @@ export default function CustomizationPanel({
         materials: { ...prev.materials, [part]: value },
       }));
     };
-
-  const handleLogoChange =
-    (part: string) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const recommendedSize = 512;
-                    canvas.width = recommendedSize;
-                    canvas.height = recommendedSize;
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                        ctx.drawImage(img, 0, 0, recommendedSize, recommendedSize);
-                        const resizedDataUrl = canvas.toDataURL('image/png');
-                        onStateChange((prev) => ({
-                            ...prev,
-                            logos: { ...prev.logos, [part]: resizedDataUrl },
-                        }));
-                    }
-                };
-                img.src = event.target?.result as string;
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-
-  const handleRemoveLogo = (part: string) => () => {
-    onStateChange((prev) => ({
-      ...prev,
-      logos: { ...prev.logos, [part]: null },
-    }));
-  };
-
-  const handleLogoSizeChange = (part: string) => (value: number[]) => {
-    onStateChange(prev => ({
-        ...prev,
-        logoSizes: { ...prev.logoSizes, [part]: value[0] }
-    }));
-  }
-
-  const handleLogoOffsetChange = (part: string, axis: 'x' | 'y') => (value: number[]) => {
-    onStateChange(prev => ({
-        ...prev,
-        logoOffsets: {
-            ...prev.logoOffsets,
-            [part]: {
-                ...prev.logoOffsets[part],
-                [axis]: value[0]
-            }
-        }
-    }));
-  }
 
   const goToNextPart = () => {
     setActivePartIndex((prevIndex) => (prevIndex + 1) % parts.length);
@@ -250,64 +184,6 @@ export default function CustomizationPanel({
                                     ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Logo Uploader */}
-                            <div className="space-y-2">
-                                <Label htmlFor={`${activePart}-logo`}>Logo (512x512 .png recommended)</Label>
-                                <Input
-                                    id={`${activePart}-logo`}
-                                    type="file"
-                                    accept="image/png"
-                                    onChange={handleLogoChange(activePart)}
-                                    className="max-w-xs"
-                                />
-                                {state.logos[activePart] && (
-                                    <div className="space-y-3 pt-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-12 h-12 rounded-md border p-1 bg-white">
-                                                <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
-                                            </div>
-                                            <Button variant="ghost" size="icon" onClick={handleRemoveLogo(activePart)}>
-                                                <X className="h-4 w-4" />
-                                                <span className="sr-only">Remove Logo</span>
-                                            </Button>
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor={`${activePart}-logo-size`}>Logo Size</Label>
-                                            <Slider
-                                                id={`${activePart}-logo-size`}
-                                                min={0.25}
-                                                max={2}
-                                                step={0.05}
-                                                value={[state.logoSizes[activePart] || 1]}
-                                                onValueChange={handleLogoSizeChange(activePart)}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor={`${activePart}-logo-offset-x`}>Logo Position X</Label>
-                                            <Slider
-                                                id={`${activePart}-logo-offset-x`}
-                                                min={-0.5}
-                                                max={0.5}
-                                                step={0.01}
-                                                value={[state.logoOffsets[activePart]?.x || 0]}
-                                                onValueChange={handleLogoOffsetChange(activePart, 'x')}
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor={`${activePart}-logo-offset-y`}>Logo Position Y</Label>
-                                            <Slider
-                                                id={`${activePart}-logo-offset-y`}
-                                                min={-0.5}
-                                                max={0.5}
-                                                step={0.01}
-                                                value={[state.logoOffsets[activePart]?.y || 0]}
-                                                onValueChange={handleLogoOffsetChange(activePart, 'y')}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
