@@ -78,14 +78,16 @@ export default function CanvasPage() {
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const initialMaterials: { [key: string]: string } = {};
+    const newInitialColors: Record<string, string> = {};
     
     partNames.forEach(part => {
         initialMaterials[part] = 'glossy'; // Default to glossy
+        newInitialColors[part] = '#FF0000'; // Default to red
     });
 
     setCustomization(prev => ({
         ...prev,
-        colors: initialColors,
+        colors: newInitialColors,
         materials: initialMaterials,
     }));
 
