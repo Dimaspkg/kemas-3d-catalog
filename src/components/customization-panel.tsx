@@ -92,6 +92,7 @@ export default function CustomizationPanel({
   const parts = Object.keys(state.colors);
   const [activePartIndex, setActivePartIndex] = React.useState(0);
   const activePart = parts[activePartIndex];
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleColorChange =
     (part: string) =>
@@ -110,22 +111,35 @@ export default function CustomizationPanel({
       }));
     };
 
-  const handleLogoChange = 
+  const handleLogoChange =
     (part: string) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                const dataUrl = event.target?.result as string;
-                onStateChange((prev) => ({
-                    ...prev,
-                    logos: { ...prev.logos, [part]: dataUrl },
-                }));
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const recommendedSize = 512;
+                    canvas.width = recommendedSize;
+                    canvas.height = recommendedSize;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0, recommendedSize, recommendedSize);
+                        const resizedDataUrl = canvas.toDataURL('image/png');
+                        onStateChange((prev) => ({
+                            ...prev,
+                            logos: { ...prev.logos, [part]: resizedDataUrl },
+                        }));
+                    }
+                };
+                img.src = event.target?.result as string;
             };
             reader.readAsDataURL(file);
         }
     };
+
 
   const handleRemoveLogo = (part: string) => () => {
     onStateChange((prev) => ({
@@ -144,8 +158,8 @@ export default function CustomizationPanel({
   const handleLogoOffsetChange = (part: string, axis: 'x' | 'y') => (value: number[]) => {
     onStateChange(prev => ({
         ...prev,
-        logoOffsets: { 
-            ...prev.logoOffsets, 
+        logoOffsets: {
+            ...prev.logoOffsets,
             [part]: {
                 ...prev.logoOffsets[part],
                 [axis]: value[0]
@@ -173,7 +187,7 @@ export default function CustomizationPanel({
 
   return (
     <div className="p-4">
-        <Collapsible>
+        <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <div className="flex items-center justify-between gap-4">
                  <TooltipProvider>
                     <Tooltip>
@@ -189,33 +203,34 @@ export default function CustomizationPanel({
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                
-                <div className="flex flex-1 flex-col items-center justify-center gap-2">
-                    <div className="flex items-baseline justify-center gap-2">
+
+                <div className="flex items-center justify-center gap-4">
+                  <Button variant="ghost" size="icon" onClick={goToPrevPart}>
+                      <ArrowLeft />
+                  </Button>
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-baseline gap-2">
                         <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
                         <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
                     </div>
-                     <div className="flex items-center justify-center gap-2">
-                      <Button variant="ghost" size="icon" onClick={goToPrevPart}>
-                          <ArrowLeft />
-                      </Button>
-                      <ColorSwatch
-                          name={activePart}
-                          value={state.colors[activePart]}
-                          onChange={handleColorChange(activePart)}
-                      />
-                      <Button variant="ghost" size="icon" onClick={goToNextPart}>
-                          <ArrowRight />
-                      </Button>
-                    </div>
+                    <ColorSwatch
+                        name={activePart}
+                        value={state.colors[activePart]}
+                        onChange={handleColorChange(activePart)}
+                    />
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={goToNextPart}>
+                      <ArrowRight />
+                  </Button>
                 </div>
+
 
                 <div className="w-10 h-10" />
             </div>
 
-            <div className="overflow-hidden">
-                <CollapsibleContent>
-                    <div className="mt-4 pt-4 border-t data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+            <div className={`overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-96' : 'max-h-0'}`}>
+                <CollapsibleContent forceMount>
+                    <div className="mt-4 pt-4 border-t">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Material Selector */}
                             <div className="space-y-2">
@@ -239,7 +254,7 @@ export default function CustomizationPanel({
 
                             {/* Logo Uploader */}
                             <div className="space-y-2">
-                                <Label htmlFor={`${activePart}-logo`}>Logo</Label>
+                                <Label htmlFor={`${activePart}-logo`}>Logo (512x512 .png recommended)</Label>
                                 <Input
                                     id={`${activePart}-logo`}
                                     type="file"
@@ -260,7 +275,7 @@ export default function CustomizationPanel({
                                         </div>
                                          <div className="space-y-2">
                                             <Label htmlFor={`${activePart}-logo-size`}>Logo Size</Label>
-                                            <Slider 
+                                            <Slider
                                                 id={`${activePart}-logo-size`}
                                                 min={0.25}
                                                 max={2}
@@ -271,7 +286,7 @@ export default function CustomizationPanel({
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor={`${activePart}-logo-offset-x`}>Logo Position X</Label>
-                                            <Slider 
+                                            <Slider
                                                 id={`${activePart}-logo-offset-x`}
                                                 min={-0.5}
                                                 max={0.5}
@@ -282,7 +297,7 @@ export default function CustomizationPanel({
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor={`${activePart}-logo-offset-y`}>Logo Position Y</Label>
-                                            <Slider 
+                                            <Slider
                                                 id={`${activePart}-logo-offset-y`}
                                                 min={-0.5}
                                                 max={0.5}
@@ -302,3 +317,5 @@ export default function CustomizationPanel({
     </div>
   );
 }
+
+    
