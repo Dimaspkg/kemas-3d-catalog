@@ -148,39 +148,42 @@ export default function CustomizationPanel({
     <div className="p-4">
         <Collapsible>
             <div className="flex items-center justify-between gap-4">
-                 <CollapsibleTrigger asChild>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <CollapsibleTrigger asChild>
                                 <Button variant="outline" size="icon">
                                     <Menu className="h-4 w-4" />
                                 </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Menu</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                </CollapsibleTrigger>
+                             </CollapsibleTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Menu</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
                 
-                <div className="flex-1 flex items-center justify-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={goToPrevPart}>
-                        <ArrowLeft />
-                    </Button>
-                    <div className="text-center w-32">
-                        <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
-                        <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
+                      <Button variant="ghost" size="icon" onClick={goToPrevPart}>
+                          <ArrowLeft />
+                      </Button>
+                      <div className="text-center w-32">
+                          <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
+                          <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={goToNextPart}>
+                          <ArrowRight />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={goToNextPart}>
-                        <ArrowRight />
-                    </Button>
+                     <ColorSwatch
+                        name={activePart}
+                        value={state.colors[activePart]}
+                        onChange={handleColorChange(activePart)}
+                    />
                 </div>
-                
-                 <ColorSwatch
-                    name={activePart}
-                    value={state.colors[activePart]}
-                    onChange={handleColorChange(activePart)}
-                />
+
+                <div className="w-10 h-10" />
             </div>
 
             <CollapsibleContent className="mt-4 pt-4 border-t">
