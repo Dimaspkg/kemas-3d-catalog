@@ -54,22 +54,27 @@ export function DeleteProductDialog({ product }: DeleteProductDialogProps) {
             // Delete from Firestore
             await deleteDoc(doc(db, "products", product.id));
 
-            // Delete image from Supabase
-            const imagePath = getPathFromUrl(product.imageURL);
-            if (imagePath) {
-                const { error: imageError } = await supabase.storage.from('product-images').remove([imagePath]);
-                if (imageError) {
-                    console.warn(`Could not delete image from storage: ${imageError.message}`);
-                }
-            }
+            // Collect all file paths to delete
+            const pathsToDelete: string[] = [];
             
-            // Delete model from Supabase
+            const imagePath = getPathFromUrl(product.imageURL);
+            if (imagePath) pathsToDelete.push(imagePath);
+
             const modelPath = getPathFromUrl(product.modelURL);
-             if (modelPath) {
-                const { error: modelError } = await supabase.storage.from('product-models').remove([modelPath]);
-                 if (modelError) {
-                    console.warn(`Could not delete model from storage: ${modelError.message}`);
-                }
+            if (modelPath) pathsToDelete.push(modelPath);
+
+            if (product.modelURLOpen) {
+                const modelOpenPath = getPathFromUrl(product.modelURLOpen);
+                if (modelOpenPath) pathsToDelete.push(modelOpenPath);
+            }
+
+            // Delete files from Supabase
+            if (pathsToDelete.length > 0) {
+                 const { error: imageError } = await supabase.storage.from('product-images').remove(pathsToDelete.filter(p => p.includes('product-images')));
+                 if (imageError) console.warn(`Could not delete some images from storage: ${imageError.message}`);
+
+                 const { error: modelError } = await supabase.storage.from('product-models').remove(pathsToDelete.filter(p => p.includes('product-models')));
+                 if (modelError) console.warn(`Could not delete some models from storage: ${modelError.message}`);
             }
 
             toast({

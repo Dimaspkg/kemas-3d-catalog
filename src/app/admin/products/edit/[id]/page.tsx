@@ -33,6 +33,7 @@ const productFormSchema = z.object({
     }),
     productImage: z.any().optional(),
     modelFile: z.any().optional(),
+    modelFileOpen: z.any().optional(),
     dimensions: z.string().optional(),
     godetSize: z.string().optional(),
     mechanism: z.string().optional(),
@@ -102,39 +103,37 @@ export default function EditProductPage() {
         return () => unsubscribe();
     }, []);
 
+    const uploadFile = async (file: File, bucket: string): Promise<string> => {
+        const fileName = `${uuidv4()}-${file.name}`;
+        const { error } = await supabase.storage.from(bucket).upload(fileName, file);
+        if (error) throw new Error(`Upload failed for ${file.name}: ${error.message}`);
+        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        return publicUrl;
+    };
+
     const onSubmit = async (data: ProductFormValues) => {
         if (!product) return;
         setIsSubmitting(true);
         
         let imageURL = product.imageURL;
         let modelURL = product.modelURL;
+        let modelURLOpen = product.modelURLOpen;
 
         try {
             const productImageFile = data.productImage?.[0];
             const modelFile = data.modelFile?.[0];
+            const modelFileOpen = data.modelFileOpen?.[0];
 
-            // Upload new product image if provided
             if (productImageFile) {
-                const imageFileName = `${uuidv4()}-${productImageFile.name}`;
-                const { error: imageError } = await supabase.storage
-                    .from('product-images')
-                    .upload(imageFileName, productImageFile);
-
-                if (imageError) throw new Error(`Image upload failed: ${imageError.message}`);
-                const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(imageFileName);
-                imageURL = publicUrl;
+                imageURL = await uploadFile(productImageFile, 'product-images');
             }
 
-            // Upload new 3D model file if provided
             if (modelFile) {
-                const modelFileName = `${uuidv4()}-${modelFile.name}`;
-                const { error: modelError } = await supabase.storage
-                    .from('product-models')
-                    .upload(modelFileName, modelFile);
+                modelURL = await uploadFile(modelFile, 'product-models');
+            }
 
-                if (modelError) throw new Error(`Model upload failed: ${modelError.message}`);
-                const { data: { publicUrl } } = supabase.storage.from('product-models').getPublicUrl(modelFileName);
-                modelURL = publicUrl;
+            if (modelFileOpen) {
+                modelURLOpen = await uploadFile(modelFileOpen, 'product-models');
             }
 
             // Update product data in Firestore
@@ -145,6 +144,7 @@ export default function EditProductPage() {
                 categories: data.categories,
                 imageURL,
                 modelURL,
+                modelURLOpen,
                 dimensions: data.dimensions,
                 godetSize: data.godetSize,
                 mechanism: data.mechanism,
@@ -348,7 +348,7 @@ export default function EditProductPage() {
                                     name="modelFile"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Replace 3D Model File (Optional)</FormLabel>
+                                            <FormLabel>Replace 3D Model (Closed) (Optional)</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 
@@ -357,6 +357,28 @@ export default function EditProductPage() {
                                                 />
                                             </FormControl>
                                             <FormDescription>Current model: <a href={product?.modelURL} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="modelFileOpen"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Replace 3D Model (Open) (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="file" 
+                                                    accept=".glb,.gltf"
+                                                    onChange={(e) => field.onChange(e.target.files)}
+                                                />
+                                            </FormControl>
+                                            {product?.modelURLOpen ? (
+                                                <FormDescription>Current model: <a href={product.modelURLOpen} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
+                                            ) : (
+                                                <FormDescription>No open state model uploaded.</FormDescription>
+                                            )}
                                             <FormMessage />
                                         </FormItem>
                                     )}

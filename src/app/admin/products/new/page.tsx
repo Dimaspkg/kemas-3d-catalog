@@ -36,8 +36,9 @@ const productFormSchema = z.object({
     ),
     modelFile: z.any().refine(
         (files) => files?.length > 0,
-        "A model file is required."
+        "A model file for the closed state is required."
     ),
+    modelFileOpen: z.any().optional(), // Optional open state model
     dimensions: z.string().optional(),
     godetSize: z.string().optional(),
     mechanism: z.string().optional(),
@@ -62,6 +63,7 @@ export default function NewProductPage() {
             categories: [],
             productImage: undefined,
             modelFile: undefined,
+            modelFileOpen: undefined,
             dimensions: "",
             godetSize: "",
             mechanism: "",
@@ -93,6 +95,20 @@ export default function NewProductPage() {
         };
     }, [router]);
 
+    const uploadFile = async (file: File, bucket: string, userId: string): Promise<string> => {
+        const fileName = `${userId}/${uuidv4()}-${file.name}`;
+        const { error } = await supabase.storage
+            .from(bucket)
+            .upload(fileName, file);
+        if (error) throw new Error(`Upload failed for ${file.name}: ${error.message}`);
+        
+        const { data: { publicUrl } } = supabase.storage
+            .from(bucket)
+            .getPublicUrl(fileName);
+
+        return publicUrl;
+    }
+
     const onSubmit = async (data: ProductFormValues) => {
         if (!user) {
             toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a product." });
@@ -100,43 +116,28 @@ export default function NewProductPage() {
         }
 
         setIsSubmitting(true);
-        const productImageFile = data.productImage[0];
-        const modelFile = data.modelFile[0];
+        const productImageFile = data.productImage?.[0];
+        const modelFile = data.modelFile?.[0];
+        const modelFileOpen = data.modelFileOpen?.[0];
 
         if (!productImageFile || !modelFile) {
              toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Product image and model file are required.",
+                description: "Product image and closed state model file are required.",
             });
             setIsSubmitting(false);
             return;
         }
 
         try {
-            // Upload product image
-            const imageFileName = `${user.uid}/${uuidv4()}-${productImageFile.name}`;
-            const { error: imageError } = await supabase.storage
-                .from('product-images')
-                .upload(imageFileName, productImageFile);
-
-            if (imageError) throw new Error(`Image upload failed: ${imageError.message}`);
-
-            const { data: { publicUrl: imageURL } } = supabase.storage
-                .from('product-images')
-                .getPublicUrl(imageFileName);
-
-            // Upload 3D model file
-            const modelFileName = `${user.uid}/${uuidv4()}-${modelFile.name}`;
-            const { error: modelError } = await supabase.storage
-                .from('product-models')
-                .upload(modelFileName, modelFile);
-
-            if (modelError) throw new Error(`Model upload failed: ${modelError.message}`);
-
-            const { data: { publicUrl: modelURL } } = supabase.storage
-                .from('product-models')
-                .getPublicUrl(modelFileName);
+            const imageURL = await uploadFile(productImageFile, 'product-images', user.uid);
+            const modelURL = await uploadFile(modelFile, 'product-models', user.uid);
+            
+            let modelURLOpen: string | undefined = undefined;
+            if (modelFileOpen) {
+                modelURLOpen = await uploadFile(modelFileOpen, 'product-models', user.uid);
+            }
 
             // Save product data to Firestore
             await addDoc(collection(db, "products"), {
@@ -144,6 +145,7 @@ export default function NewProductPage() {
                 categories: data.categories,
                 imageURL,
                 modelURL,
+                modelURLOpen,
                 dimensions: data.dimensions,
                 godetSize: data.godetSize,
                 mechanism: data.mechanism,
@@ -293,7 +295,24 @@ export default function NewProductPage() {
                                     name="modelFile"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>3D Model File (.glb, .gltf)</FormLabel>
+                                            <FormLabel>3D Model File (Closed State)</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="file" 
+                                                    accept=".glb,.gltf"
+                                                    onChange={(e) => field.onChange(e.target.files)}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="modelFileOpen"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>3D Model File (Open State - Optional)</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 

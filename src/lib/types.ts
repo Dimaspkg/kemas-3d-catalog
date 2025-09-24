@@ -5,6 +5,7 @@ export interface Product {
   price?: number;
   categories: string[];
   modelURL: string;
+  modelURLOpen?: string; // URL for the "open" state model
   imageURL: string;
   dimensions?: string;
   godetSize?: string;

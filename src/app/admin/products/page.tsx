@@ -84,7 +84,7 @@ export default function ProductManagementPage() {
                             <TableHead>Image</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Categories</TableHead>
-                            <TableHead>File</TableHead>
+                            <TableHead>3D Models</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -105,7 +105,7 @@ export default function ProductManagementPage() {
                             <TableHead>Image</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Categories</TableHead>
-                            <TableHead>File</TableHead>
+                            <TableHead>3D Models</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -124,9 +124,16 @@ export default function ProductManagementPage() {
                                 <TableCell className="font-medium">{product.name}</TableCell>
                                 <TableCell>{product.categories?.join(', ')}</TableCell>
                                  <TableCell>
-                                    <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                        View
-                                    </a>
+                                    <div className="flex flex-col gap-1">
+                                        <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                                            View Closed
+                                        </a>
+                                        {product.modelURLOpen && (
+                                            <a href={product.modelURLOpen} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                                                View Open
+                                            </a>
+                                        )}
+                                    </div>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex gap-2 justify-end">
