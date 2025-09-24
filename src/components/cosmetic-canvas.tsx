@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
@@ -9,6 +9,7 @@ import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
+import type { CanvasHandle } from "@/lib/types";
 
 type CosmeticCanvasProps = CustomizationState & { 
     modelURL?: string;
@@ -16,14 +17,14 @@ type CosmeticCanvasProps = CustomizationState & {
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
 };
 
-const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
+const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   colors,
   materials: materialKeys,
   logos,
   modelURL,
   environmentURL,
   onModelLoad,
-}) => {
+}, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -32,6 +33,26 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   const modelRef = useRef<THREE.Group>();
   const controlsRef = useRef<OrbitControls | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    takeScreenshot: () => {
+      const renderer = rendererRef.current;
+      if (renderer) {
+        // Force a render of the current frame
+        renderer.render(sceneRef.current!, cameraRef.current!);
+        
+        // Capture the canvas content
+        const dataURL = renderer.domElement.toDataURL('image/png');
+        
+        // Trigger a download
+        const link = document.createElement('a');
+        link.download = 'product-customization.png';
+        link.href = dataURL;
+        link.click();
+      }
+    }
+  }));
+
 
   const cleanup = useCallback(() => {
     if (animationFrameIdRef.current) {
@@ -70,7 +91,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     camera.lookAt(0, 1, 0);
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
     rendererRef.current = renderer;
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -284,6 +305,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
 
   return <div ref={mountRef} className="w-full h-full" />;
-};
+});
+
+CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;

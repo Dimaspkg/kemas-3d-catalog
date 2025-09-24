@@ -1,3 +1,4 @@
+
 export interface Product {
   id: string;
   name: string;
@@ -21,4 +22,8 @@ export interface Environment {
   isActive: boolean;
   createdAt: any;
   userId: string;
+}
+
+export interface CanvasHandle {
+  takeScreenshot: () => void;
 }

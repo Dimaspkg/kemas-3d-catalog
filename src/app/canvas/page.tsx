@@ -1,17 +1,16 @@
 
 "use client";
 
-import { useState, Suspense, useEffect, useCallback } from "react";
+import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Product, Environment } from "@/lib/types";
+import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Upload } from "lucide-react";
+import { Upload, Camera } from "lucide-react";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -56,6 +55,7 @@ export default function CanvasPage() {
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
+  const canvasRef = useRef<CanvasHandle>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,6 +109,10 @@ export default function CanvasPage() {
     setLoading(false);
   }, []);
 
+  const handleScreenshot = () => {
+    canvasRef.current?.takeScreenshot();
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
         <header className="flex items-center justify-between p-4 border-b">
@@ -127,8 +131,9 @@ export default function CanvasPage() {
                     <Upload className="h-4 w-4" />
                     <span className="sr-only">Share</span>
                 </Button>
-                <Button asChild>
-                    <Link href={productId ? `/products/${productId}` : '/products'}>Done</Link>
+                <Button onClick={handleScreenshot}>
+                    <Camera className="mr-2 h-4 w-4" />
+                    Screenshot
                 </Button>
             </div>
         </header>
@@ -136,6 +141,7 @@ export default function CanvasPage() {
         <main className="flex-1 overflow-hidden">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
+                ref={canvasRef}
                 {...customization} 
                 modelURL={product?.modelURL} 
                 environmentURL={environment?.fileURL}
