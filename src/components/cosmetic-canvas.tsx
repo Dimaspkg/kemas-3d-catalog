@@ -92,7 +92,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
             scene.environment = envMap;
-            // scene.background is now set to gray initially
+            scene.background = new THREE.Color(0xaaaaaa);
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
@@ -156,8 +156,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             child.castShadow = true;
             child.receiveShadow = true;
             
-            // We still want to collect part names for potential future use
-            // or for a different mode of operation, but we won't apply materials.
             const partName = child.name.trim();
             if (partName && !partNames.includes(partName)) {
                 partNames.push(partName);
@@ -222,12 +220,34 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
   // Effect to update colors and materials
   useEffect(() => {
-    const scene = sceneRef.current;
-    if (!scene || !modelRef.current) return;
+    if (!modelRef.current || !colors || !materialKeys) return;
 
-    // NO LONGER APPLYING MATERIALS. This block is now intentionally left empty.
-    // The canvas will respect the materials baked into the GLB file.
-  
+    modelRef.current.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const partName = child.name.trim();
+        const partColor = colors[partName];
+        const partMaterialKey = materialKeys[partName];
+
+        if (partColor && partMaterialKey) {
+            const materialProps = materials[partMaterialKey];
+            
+            if (child.material instanceof THREE.MeshStandardMaterial) {
+                child.material.color.set(partColor);
+                child.material.metalness = materialProps.metalness;
+                child.material.roughness = materialProps.roughness;
+                child.material.needsUpdate = true;
+            } else {
+                 const newMaterial = new THREE.MeshStandardMaterial({
+                    color: partColor,
+                    metalness: materialProps.metalness,
+                    roughness: materialProps.roughness,
+                    envMap: environmentRef.current,
+                });
+                child.material = newMaterial;
+            }
+        }
+      }
+    });
   }, [colors, materialKeys]);
 
 
@@ -235,3 +255,4 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 };
 
 export default CosmeticCanvas;
+
