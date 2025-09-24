@@ -168,7 +168,7 @@ export default function CustomizationPanel({
                       <Button variant="ghost" size="icon" onClick={goToPrevPart}>
                           <ArrowLeft />
                       </Button>
-                      <div className="text-center w-32">
+                      <div className="flex items-baseline justify-center gap-2 w-48">
                           <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
                           <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
                       </div>
