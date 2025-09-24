@@ -348,7 +348,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             <Button
                 onClick={onScreenshot}
                 variant="outline"
-                className="bg-white/20 backdrop-blur-lg border-white/30 text-white hover:bg-white/30"
+                className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
             >
                 <Camera className="mr-2 h-4 w-4" />
                 Screenshot
@@ -362,5 +362,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
 
     
