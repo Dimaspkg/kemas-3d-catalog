@@ -11,8 +11,9 @@ import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
 import type { CanvasHandle, Product } from "@/lib/types";
 import { Button } from "./ui/button";
-import { Camera } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import Link from "next/link";
 
 const formatPrice = (price?: number) => {
     if (!price) return null;
@@ -316,7 +317,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             )}
         </div>
 
-        <div className="absolute top-0 right-0 p-4">
+        <div className="absolute top-0 right-0 p-4 flex items-center gap-2">
             <Button
                 onClick={onScreenshot}
                 variant="outline"
@@ -324,6 +325,16 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             >
                 <Camera className="mr-2 h-4 w-4" />
                 Screenshot
+            </Button>
+            <Button
+                asChild
+                variant="outline"
+                className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+            >
+                <Link href="/">
+                    <X className="mr-2 h-4 w-4" />
+                    Exit
+                </Link>
             </Button>
         </div>
 
@@ -334,3 +345,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
