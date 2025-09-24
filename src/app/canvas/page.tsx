@@ -9,10 +9,13 @@ import type { CustomizationState } from "@/components/customization-panel";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Product, Environment } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Upload } from "lucide-react";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
-  loading: () => <Skeleton className="w-full aspect-[192/65] rounded-lg" />,
+  loading: () => <Skeleton className="w-full h-full" />,
 });
 
 const CustomizationPanel = dynamic(
@@ -25,17 +28,21 @@ const CustomizationPanel = dynamic(
 
 function CustomizationPanelSkeleton() {
   return (
-    <div className="p-4 md:p-8">
-      <div className="h-full shadow-lg rounded-lg p-6 space-y-6 bg-card">
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-6 w-1/2" />
-        <div className="space-y-4">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      </div>
+    <div className="h-full flex items-center justify-center p-4 md:p-8 border-t bg-card">
+        <Skeleton className="h-12 w-full max-w-sm" />
     </div>
   );
 }
+
+const formatPrice = (price?: number) => {
+    if (!price) return null;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
 
 
 export default function CanvasPage() {
@@ -59,6 +66,8 @@ export default function CanvasPage() {
         const envSnapshot = await getDocs(envQuery);
         if (!envSnapshot.empty) {
             setEnvironment(envSnapshot.docs[0].data() as Environment);
+        } else {
+             console.warn("No active environment found. Falling back to default.");
         }
 
         // Fetch product if ID exists
@@ -72,8 +81,7 @@ export default function CanvasPage() {
                 console.error("Product not found!");
             }
         }
-        // Loading will be set to false inside onModelLoad to ensure state is ready,
-        // or if there's no product ID
+        
         if (!productId) {
             setLoading(false);
         }
@@ -83,7 +91,6 @@ export default function CanvasPage() {
   }, [productId]);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
-    console.log("Discovered parts:", partNames);
     const initialMaterials: { [key: string]: string } = {};
     const initialLogos: { [key: string]: string | null } = {};
 
@@ -103,10 +110,24 @@ export default function CanvasPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
-      <main className="flex-1 flex flex-col">
-        <div className="w-full">
-          <div className="w-full aspect-[192/65]">
+    <div className="flex flex-col h-screen bg-background text-foreground font-body">
+        <header className="flex items-center justify-between p-4 border-b">
+            <div>
+                <h1 className="font-semibold text-lg">{product?.name || <Skeleton className="h-6 w-48" />}</h1>
+                <p className="text-muted-foreground">{product ? formatPrice(product.price) : <Skeleton className="h-5 w-32 mt-1" />}</p>
+            </div>
+            <div className="flex items-center gap-2">
+                 <Button variant="outline" size="icon" disabled>
+                    <Upload className="h-4 w-4" />
+                    <span className="sr-only">Share</span>
+                </Button>
+                <Button asChild>
+                    <Link href={productId ? `/products/${productId}` : '/products'}>Done</Link>
+                </Button>
+            </div>
+        </header>
+
+        <main className="flex-1 overflow-hidden">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 {...customization} 
@@ -115,21 +136,20 @@ export default function CanvasPage() {
                 onModelLoad={handleModelLoad}
               />
             </Suspense>
-          </div>
-        </div>
-        <div className="flex-grow">
+        </main>
+        
+        <footer className="w-full border-t bg-card">
            <Suspense fallback={<CustomizationPanelSkeleton />}>
-            {loading ? (
+            {loading || !product ? (
                 <CustomizationPanelSkeleton />
             ) : (
                 <CustomizationPanel
-                state={customization}
-                onStateChange={setCustomization}
+                    state={customization}
+                    onStateChange={setCustomization}
                 />
             )}
           </Suspense>
-        </div>
-      </main>
+        </footer>
     </div>
   );
 }

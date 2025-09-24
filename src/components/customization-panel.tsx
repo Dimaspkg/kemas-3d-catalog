@@ -3,12 +3,10 @@
 
 import * as React from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -18,17 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { X } from "lucide-react";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-  } from "@/components/ui/carousel"
+import { X, ArrowLeft, ArrowRight, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type CustomizationState = {
@@ -48,32 +38,27 @@ interface CustomizationPanelProps {
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
 }
 
-const ColorPickerInput = ({ value, onChange }: { value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
+const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, name: string }) => {
+    const id = `${name}-color-swatch`;
     return (
-        <div className="relative">
+        <div className="relative flex items-center">
             <input
+                id={id}
                 type="color"
                 value={value}
                 onChange={onChange}
-                className="w-10 h-10 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-md"
-                style={{'--swatch-color': value} as React.CSSProperties}
+                className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0"
             />
-            <style jsx>{`
-                input[type="color"]::-webkit-color-swatch-wrapper {
-                    padding: 0;
-                }
-                input[type="color"]::-webkit-color-swatch {
-                    border: 1px solid hsl(var(--border));
-                    border-radius: 0.375rem; /* rounded-md */
-                }
-                input[type="color"]::-moz-color-swatch {
-                    border: 1px solid hsl(var(--border));
-                    border-radius: 0.375rem; /* rounded-md */
-                }
-            `}</style>
+            <label htmlFor={id}
+                className="w-8 h-8 rounded-full border-2 border-white shadow-md cursor-pointer ring-1 ring-gray-300"
+                style={{ backgroundColor: value }}
+            >
+                <span className="sr-only">Change color</span>
+            </label>
         </div>
     );
-}
+};
+
 
 function cleanPartName(name: string): string {
     const match = name.match(/\(([^)]+)\)/);
@@ -92,13 +77,8 @@ export default function CustomizationPanel({
   onStateChange,
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
-  const [activePart, setActivePart] = React.useState<string | null>(parts[0] || null);
-
-  React.useEffect(() => {
-    if (!activePart && parts.length > 0) {
-      setActivePart(parts[0]);
-    }
-  }, [parts, activePart]);
+  const [activePartIndex, setActivePartIndex] = React.useState(0);
+  const activePart = parts[activePartIndex];
 
   const handleColorChange =
     (part: string) =>
@@ -141,127 +121,103 @@ export default function CustomizationPanel({
     }));
   };
 
+  const goToNextPart = () => {
+    setActivePartIndex((prevIndex) => (prevIndex + 1) % parts.length);
+  };
+
+  const goToPrevPart = () => {
+    setActivePartIndex((prevIndex) => (prevIndex - 1 + parts.length) % parts.length);
+  };
+
+
   if (parts.length === 0) {
     return (
-      <div className="h-full w-full p-4 md:p-8">
-        <Card className="h-full shadow-lg rounded-lg border-0">
-          <CardHeader>
-              <CardTitle className="font-headline">Customize Your Product</CardTitle>
-              <CardDescription>
-                Load a product to start customizing.
-              </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">No customizable parts found.</p>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="flex items-center justify-center h-24 p-4 text-muted-foreground">
+            <p>Loading customization options...</p>
+        </div>
     )
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-        <div className="space-y-2">
-            <h2 className="text-xl font-headline font-semibold">Select Part</h2>
-            <p className="text-sm text-muted-foreground">
-                Choose a product part to customize from the options below.
-            </p>
-        </div>
-        <Carousel
-            opts={{
-                align: "start",
-                dragFree: true,
-            }}
-            className="w-full"
-        >
-            <CarouselContent>
-                {parts.map((part) => (
-                <CarouselItem key={part} className="basis-auto">
-                    <Button
-                        variant={activePart === part ? "default" : "outline"}
-                        onClick={() => setActivePart(part)}
-                        className="capitalize"
-                    >
-                        {cleanPartName(part)}
+    <div className="p-4">
+        <Collapsible>
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 flex items-center justify-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={goToPrevPart}>
+                        <ArrowLeft />
                     </Button>
-                </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex" />
-            <CarouselNext className="hidden sm:flex" />
-        </Carousel>
+                    <div className="text-center">
+                        <p className="font-semibold text-lg capitalize">{cleanPartName(activePart)}</p>
+                        <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={goToNextPart}>
+                        <ArrowRight />
+                    </Button>
+                </div>
 
-        <Card className="shadow-lg rounded-lg border-0">
-        <CardContent className="pt-6">
-            {activePart && (
-              <div>
-                 <h3 className="capitalize text-lg font-semibold font-headline mb-4">
-                    Customizing: {cleanPartName(activePart)}
-                 </h3>
-                 <Tabs defaultValue="color-material" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="color-material">Appearance</TabsTrigger>
-                      <TabsTrigger value="logo">Logo</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="color-material">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
-                            <div className="space-y-2">
-                                <Label htmlFor={`${activePart}-color`}>Color</Label>
-                                <ColorPickerInput
-                                    value={state.colors[activePart]}
-                                    onChange={handleColorChange(activePart)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor={`${activePart}-material`}>Material</Label>
-                                <Select
-                                    value={state.materials[activePart]}
-                                    onValueChange={handleMaterialChange(activePart)}
-                                >
-                                    <SelectTrigger id={`${activePart}-material`} className="max-w-xs">
-                                        <SelectValue placeholder="Select material" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    {materialOptions.map((option) => (
-                                        <SelectItem key={option.key} value={option.key} className="capitalize">
-                                        {option.name}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="logo">
-                        <div className="pt-4 space-y-4">
-                            <Label htmlFor={`${activePart}-logo`}>Upload Logo (.png)</Label>
-                            <Input
-                                id={`${activePart}-logo`}
-                                type="file"
-                                accept="image/png"
-                                onChange={handleLogoChange(activePart)}
-                            />
-                            {state.logos[activePart] && (
-                                <div className="space-y-2">
-                                    <p className="text-sm text-muted-foreground">Current logo:</p>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-16 h-16 rounded-md border p-1 bg-white">
-                                            <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
-                                        </div>
-                                        <Button variant="outline" size="icon" onClick={handleRemoveLogo(activePart)}>
-                                            <X className="h-4 w-4" />
-                                            <span className="sr-only">Remove Logo</span>
-                                        </Button>
-                                    </div>
+                <div className="flex items-center gap-2">
+                    <ColorSwatch
+                        name={activePart}
+                        value={state.colors[activePart]}
+                        onChange={handleColorChange(activePart)}
+                    />
+
+                    <CollapsibleTrigger asChild>
+                        <Button variant="outline">
+                            <Menu className="mr-2 h-4 w-4" />
+                            Menu
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+            </div>
+
+            <CollapsibleContent className="mt-4 pt-4 border-t">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Material Selector */}
+                    <div className="space-y-2">
+                        <Label htmlFor={`${activePart}-material`}>Material</Label>
+                        <Select
+                            value={state.materials[activePart]}
+                            onValueChange={handleMaterialChange(activePart)}
+                        >
+                            <SelectTrigger id={`${activePart}-material`}>
+                                <SelectValue placeholder="Select material" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {materialOptions.map((option) => (
+                                <SelectItem key={option.key} value={option.key} className="capitalize">
+                                {option.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Logo Uploader */}
+                    <div className="space-y-2">
+                        <Label htmlFor={`${activePart}-logo`}>Logo</Label>
+                        <Input
+                            id={`${activePart}-logo`}
+                            type="file"
+                            accept="image/png"
+                            onChange={handleLogoChange(activePart)}
+                            className="max-w-xs"
+                        />
+                        {state.logos[activePart] && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className="w-12 h-12 rounded-md border p-1 bg-white">
+                                    <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
                                 </div>
-                            )}
-                        </div>
-                    </TabsContent>
-                 </Tabs>
-              </div>
-            )}
-        </CardContent>
-        </Card>
+                                <Button variant="ghost" size="icon" onClick={handleRemoveLogo(activePart)}>
+                                    <X className="h-4 w-4" />
+                                    <span className="sr-only">Remove Logo</span>
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </CollapsibleContent>
+        </Collapsible>
     </div>
   );
 }

@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { supabase } from '@/lib/supabase';
-import { collection, doc, getDoc, updateDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,11 +14,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Product } from '@/lib/types';
+import type { User } from 'firebase/auth';
 
 interface Category {
   id: string;
@@ -31,8 +31,14 @@ const productFormSchema = z.object({
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
-    productImage: z.any().optional(),
-    modelFile: z.any().optional(),
+    productImage: z.any().refine(
+        (files) => files?.length > 0,
+        "A product image is required."
+    ),
+    modelFile: z.any().refine(
+        (files) => files?.length > 0,
+        "A model file is required."
+    ),
     dimensions: z.string().optional(),
     godetSize: z.string().optional(),
     mechanism: z.string().optional(),
@@ -43,23 +49,21 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-export default function EditProductPage() {
-    const [product, setProduct] = useState<Product | null>(null);
-    const [loadingProduct, setLoadingProduct] = useState(true);
+export default function NewProductPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
     const { toast } = useToast();
     const router = useRouter();
-    const params = useParams();
-    const productId = params.id as string;
-
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
         defaultValues: {
             name: "",
             price: 0,
             categories: [],
+            productImage: undefined,
+            modelFile: undefined,
             dimensions: "",
             godetSize: "",
             mechanism: "",
@@ -68,78 +72,76 @@ export default function EditProductPage() {
             manufacturingLocation: "",
         },
     });
-
+    
     useEffect(() => {
-        if (!productId) return;
-        const fetchProduct = async () => {
-            const docRef = doc(db, 'products', productId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const productData = { id: docSnap.id, ...docSnap.data() } as Product;
-                setProduct(productData);
-                form.reset({
-                    ...productData,
-                    price: productData.price || 0,
-                });
+        const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUser(user);
             } else {
-                 toast({ variant: "destructive", title: "Error", description: "Product not found." });
-                 router.push('/admin/products');
+                router.push('/login');
             }
-            setLoadingProduct(false);
-        };
-        fetchProduct();
-    }, [productId, router, toast, form]);
-
-
-    useEffect(() => {
+        });
+        
         const q = query(collection(db, 'categories'), orderBy('name'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribeCategories = onSnapshot(q, (snapshot) => {
             const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
             setCategories(categoriesData);
             setLoadingCategories(false);
         });
 
-        return () => unsubscribe();
-    }, []);
+        return () => {
+            unsubscribeAuth();
+            unsubscribeCategories();
+        };
+    }, [router]);
 
     const onSubmit = async (data: ProductFormValues) => {
-        if (!product) return;
+        if (!user) {
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to add a product." });
+            return;
+        }
+
         setIsSubmitting(true);
-        
-        let imageURL = product.imageURL;
-        let modelURL = product.modelURL;
+        const productImageFile = data.productImage[0];
+        const modelFile = data.modelFile[0];
+
+        if (!productImageFile || !modelFile) {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Product image and model file are required.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
 
         try {
-            const productImageFile = data.productImage?.[0];
-            const modelFile = data.modelFile?.[0];
+            // Upload product image
+            const imageFileName = `${user.uid}/${uuidv4()}-${productImageFile.name}`;
+            const { error: imageError } = await supabase.storage
+                .from('product-images')
+                .upload(imageFileName, productImageFile);
 
-            // Upload new product image if provided
-            if (productImageFile) {
-                const imageFileName = `${uuidv4()}-${productImageFile.name}`;
-                const { error: imageError } = await supabase.storage
-                    .from('product-images')
-                    .upload(imageFileName, productImageFile);
+            if (imageError) throw new Error(`Image upload failed: ${imageError.message}`);
 
-                if (imageError) throw new Error(`Image upload failed: ${imageError.message}`);
-                const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(imageFileName);
-                imageURL = publicUrl;
-            }
+            const { data: { publicUrl: imageURL } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(imageFileName);
 
-            // Upload new 3D model file if provided
-            if (modelFile) {
-                const modelFileName = `${uuidv4()}-${modelFile.name}`;
-                const { error: modelError } = await supabase.storage
-                    .from('product-models')
-                    .upload(modelFileName, modelFile);
+            // Upload 3D model file
+            const modelFileName = `${user.uid}/${uuidv4()}-${modelFile.name}`;
+            const { error: modelError } = await supabase.storage
+                .from('product-models')
+                .upload(modelFileName, modelFile);
 
-                if (modelError) throw new Error(`Model upload failed: ${modelError.message}`);
-                const { data: { publicUrl } } = supabase.storage.from('product-models').getPublicUrl(modelFileName);
-                modelURL = publicUrl;
-            }
+            if (modelError) throw new Error(`Model upload failed: ${modelError.message}`);
 
-            // Update product data in Firestore
-            const productRef = doc(db, "products", product.id);
-            await updateDoc(productRef, {
+            const { data: { publicUrl: modelURL } } = supabase.storage
+                .from('product-models')
+                .getPublicUrl(modelFileName);
+
+            // Save product data to Firestore
+            await addDoc(collection(db, "products"), {
                 name: data.name,
                 price: data.price,
                 categories: data.categories,
@@ -151,77 +153,36 @@ export default function EditProductPage() {
                 material: data.material,
                 specialFeatures: data.specialFeatures,
                 manufacturingLocation: data.manufacturingLocation,
+                createdAt: new Date(),
+                userId: user.uid,
             });
             
             toast({
                 title: "Success",
-                description: "Product updated successfully.",
+                description: "Product added successfully.",
             });
             router.push('/admin/products');
 
         } catch (error: any) {
-            console.error("Error updating document: ", error);
+            console.error("Error adding document: ", error);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: error.message || "Failed to update product.",
+                description: error.message || "Failed to add product.",
             });
         } finally {
             setIsSubmitting(false);
         }
     };
     
-    if (loadingProduct) {
-        return (
-             <div className="space-y-8">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Edit Product</h1>
-                        <p className="text-muted-foreground">
-                            Update the details for your 3D product model.
-                        </p>
-                    </div>
-                </div>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="md:col-span-2 space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Product Details</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-20 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                            </CardContent>
-                        </Card>
-                    </div>
-                     <div className="md:col-span-1">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Specifications</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-10 w-full" />
-                            </CardContent>
-                        </Card>
-                    </div>
-                 </div>
-            </div>
-        )
-    }
-
     return (
         <Form {...form}>
             <form id="product-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Edit Product</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">Add New Product</h1>
                         <p className="text-muted-foreground">
-                           Update the details for <span className="font-semibold">{product?.name}</span>.
+                            Fill in the details for your new 3D product model.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -229,7 +190,7 @@ export default function EditProductPage() {
                             <Link href="/admin/products">Cancel</Link>
                         </Button>
                         <Button type="submit" form="product-form" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Changes'}
+                            {isSubmitting ? 'Saving...' : 'Save Product'}
                         </Button>
                     </div>
                 </div>
@@ -255,7 +216,7 @@ export default function EditProductPage() {
                                         </FormItem>
                                     )}
                                 />
-                                 <FormField
+                                <FormField
                                     control={form.control}
                                     name="price"
                                     render={({ field }) => (
@@ -283,6 +244,7 @@ export default function EditProductPage() {
                                             <div className="space-y-2">
                                                 <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-20" /></div>
                                                 <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-24" /></div>
+                                                <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-16" /></div>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
@@ -330,7 +292,7 @@ export default function EditProductPage() {
                                     name="productImage"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Replace Product Image (Optional)</FormLabel>
+                                            <FormLabel>Product Image</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 
@@ -338,7 +300,6 @@ export default function EditProductPage() {
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
-                                             <FormDescription>Current image: <a href={product?.imageURL} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -348,7 +309,7 @@ export default function EditProductPage() {
                                     name="modelFile"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Replace 3D Model File (Optional)</FormLabel>
+                                            <FormLabel>3D Model File (.glb, .gltf)</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 
@@ -356,7 +317,6 @@ export default function EditProductPage() {
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
-                                            <FormDescription>Current model: <a href={product?.modelURL} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
