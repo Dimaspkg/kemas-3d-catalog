@@ -38,6 +38,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   materials: materialKeys,
   logos,
   logoSizes,
+  logoOffsets,
   product,
   modelURL,
   environmentURL,
@@ -101,6 +102,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
+    scene.background = new THREE.Color(0xF8F8F8);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -136,7 +138,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
             scene.environment = envMap;
-            scene.background = new THREE.Color(0xF8F8F8);
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
@@ -271,7 +272,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   // Effect to update colors, materials, and logos
   useEffect(() => {
-    if (!modelRef.current || !colors || !materialKeys || !logos || !logoSizes) return;
+    if (!modelRef.current || !colors || !materialKeys || !logos || !logoSizes || !logoOffsets) return;
 
     const textureLoader = new THREE.TextureLoader();
 
@@ -282,6 +283,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         const partMaterialKey = materialKeys[partName];
         const partLogo = logos[partName];
         const partLogoSize = logoSizes[partName] || 1;
+        const partLogoOffset = logoOffsets[partName] || { x: 0, y: 0 };
 
 
         if (partColor && partMaterialKey) {
@@ -311,6 +313,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                         
                         const repeatValue = 1 / partLogoSize;
                         texture.repeat.set(repeatValue, repeatValue);
+                        texture.offset.set(partLogoOffset.x, partLogoOffset.y);
                         
                         if (material.map) {
                             material.map.dispose(); // Dispose old texture
@@ -319,10 +322,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                         material.needsUpdate = true;
                     });
                 } else {
-                    // If only the size changed
+                    // If only size or offset changed
                     const repeatValue = 1 / partLogoSize;
                     if (material.map.repeat.x !== repeatValue) {
                         material.map.repeat.set(repeatValue, repeatValue);
+                    }
+                    if (material.map.offset.x !== partLogoOffset.x || material.map.offset.y !== partLogoOffset.y) {
+                         material.map.offset.set(partLogoOffset.x, partLogoOffset.y);
                     }
                 }
             } else {
@@ -339,7 +345,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       }
     });
-  }, [colors, materialKeys, logos, logoSizes]);
+  }, [colors, materialKeys, logos, logoSizes, logoOffsets]);
 
 
   return (
@@ -378,8 +384,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
-
-    
-

@@ -40,6 +40,9 @@ export type CustomizationState = {
   };
   logoSizes: {
     [key: string]: number;
+  };
+  logoOffsets: {
+    [key: string]: { x: number, y: number };
   }
 };
 
@@ -138,6 +141,19 @@ export default function CustomizationPanel({
     }));
   }
 
+  const handleLogoOffsetChange = (part: string, axis: 'x' | 'y') => (value: number[]) => {
+    onStateChange(prev => ({
+        ...prev,
+        logoOffsets: { 
+            ...prev.logoOffsets, 
+            [part]: {
+                ...prev.logoOffsets[part],
+                [axis]: value[0]
+            }
+        }
+    }));
+  }
+
   const goToNextPart = () => {
     setActivePartIndex((prevIndex) => (prevIndex + 1) % parts.length);
   };
@@ -198,8 +214,8 @@ export default function CustomizationPanel({
             </div>
 
             <div className="overflow-hidden">
-                <CollapsibleContent className="transition-all duration-300 ease-in-out data-[state=closed]:max-h-0 data-[state=open]:max-h-96">
-                    <div className="mt-4 pt-4 border-t">
+                <CollapsibleContent>
+                    <div className="mt-4 pt-4 border-t data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Material Selector */}
                             <div className="space-y-2">
@@ -251,6 +267,28 @@ export default function CustomizationPanel({
                                                 step={0.05}
                                                 value={[state.logoSizes[activePart] || 1]}
                                                 onValueChange={handleLogoSizeChange(activePart)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`${activePart}-logo-offset-x`}>Logo Position X</Label>
+                                            <Slider 
+                                                id={`${activePart}-logo-offset-x`}
+                                                min={-0.5}
+                                                max={0.5}
+                                                step={0.01}
+                                                value={[state.logoOffsets[activePart]?.x || 0]}
+                                                onValueChange={handleLogoOffsetChange(activePart, 'x')}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`${activePart}-logo-offset-y`}>Logo Position Y</Label>
+                                            <Slider 
+                                                id={`${activePart}-logo-offset-y`}
+                                                min={-0.5}
+                                                max={0.5}
+                                                step={0.01}
+                                                value={[state.logoOffsets[activePart]?.y || 0]}
+                                                onValueChange={handleLogoOffsetChange(activePart, 'y')}
                                             />
                                         </div>
                                     </div>
