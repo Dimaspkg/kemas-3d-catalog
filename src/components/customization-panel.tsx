@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Slider } from "./ui/slider";
 
 
 export type CustomizationState = {
@@ -37,6 +38,9 @@ export type CustomizationState = {
   logos: {
     [key: string]: string | null;
   };
+  logoSizes: {
+    [key: string]: number;
+  }
 };
 
 interface CustomizationPanelProps {
@@ -127,6 +131,13 @@ export default function CustomizationPanel({
     }));
   };
 
+  const handleLogoSizeChange = (part: string) => (value: number[]) => {
+    onStateChange(prev => ({
+        ...prev,
+        logoSizes: { ...prev.logoSizes, [part]: value[0] }
+    }));
+  }
+
   const goToNextPart = () => {
     setActivePartIndex((prevIndex) => (prevIndex + 1) % parts.length);
   };
@@ -163,7 +174,7 @@ export default function CustomizationPanel({
                     </Tooltip>
                 </TooltipProvider>
                 
-                <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                <div className="flex flex-1 flex-col items-center justify-center gap-2">
                     <div className="flex items-baseline justify-center gap-2">
                         <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
                         <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
@@ -186,54 +197,69 @@ export default function CustomizationPanel({
                 <div className="w-10 h-10" />
             </div>
 
-            <CollapsibleContent className="overflow-hidden transition-all duration-300 ease-in-out data-[state=closed]:max-h-0 data-[state=open]:max-h-96">
-                <div className="mt-4 pt-4 border-t">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Material Selector */}
-                        <div className="space-y-2">
-                            <Label htmlFor={`${activePart}-material`}>Material</Label>
-                            <Select
-                                value={state.materials[activePart]}
-                                onValueChange={handleMaterialChange(activePart)}
-                            >
-                                <SelectTrigger id={`${activePart}-material`}>
-                                    <SelectValue placeholder="Select material" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                {materialOptions.map((option) => (
-                                    <SelectItem key={option.key} value={option.key} className="capitalize">
-                                    {option.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+            <div className="overflow-hidden">
+                <CollapsibleContent className="transition-all duration-300 ease-in-out data-[state=closed]:max-h-0 data-[state=open]:max-h-96">
+                    <div className="mt-4 pt-4 border-t">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Material Selector */}
+                            <div className="space-y-2">
+                                <Label htmlFor={`${activePart}-material`}>Material</Label>
+                                <Select
+                                    value={state.materials[activePart]}
+                                    onValueChange={handleMaterialChange(activePart)}
+                                >
+                                    <SelectTrigger id={`${activePart}-material`}>
+                                        <SelectValue placeholder="Select material" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {materialOptions.map((option) => (
+                                        <SelectItem key={option.key} value={option.key} className="capitalize">
+                                        {option.name}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                        {/* Logo Uploader */}
-                        <div className="space-y-2">
-                            <Label htmlFor={`${activePart}-logo`}>Logo</Label>
-                            <Input
-                                id={`${activePart}-logo`}
-                                type="file"
-                                accept="image/png"
-                                onChange={handleLogoChange(activePart)}
-                                className="max-w-xs"
-                            />
-                            {state.logos[activePart] && (
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="w-12 h-12 rounded-md border p-1 bg-white">
-                                        <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
+                            {/* Logo Uploader */}
+                            <div className="space-y-2">
+                                <Label htmlFor={`${activePart}-logo`}>Logo</Label>
+                                <Input
+                                    id={`${activePart}-logo`}
+                                    type="file"
+                                    accept="image/png"
+                                    onChange={handleLogoChange(activePart)}
+                                    className="max-w-xs"
+                                />
+                                {state.logos[activePart] && (
+                                    <div className="space-y-3 pt-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-12 h-12 rounded-md border p-1 bg-white">
+                                                <img src={state.logos[activePart]!} alt={`${cleanPartName(activePart)} logo`} className="w-full h-full object-contain" />
+                                            </div>
+                                            <Button variant="ghost" size="icon" onClick={handleRemoveLogo(activePart)}>
+                                                <X className="h-4 w-4" />
+                                                <span className="sr-only">Remove Logo</span>
+                                            </Button>
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor={`${activePart}-logo-size`}>Logo Size</Label>
+                                            <Slider 
+                                                id={`${activePart}-logo-size`}
+                                                min={0.25}
+                                                max={2}
+                                                step={0.05}
+                                                value={[state.logoSizes[activePart] || 1]}
+                                                onValueChange={handleLogoSizeChange(activePart)}
+                                            />
+                                        </div>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={handleRemoveLogo(activePart)}>
-                                        <X className="h-4 w-4" />
-                                        <span className="sr-only">Remove Logo</span>
-                                    </Button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </CollapsibleContent>
+                </CollapsibleContent>
+            </div>
         </Collapsible>
     </div>
   );

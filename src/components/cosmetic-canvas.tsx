@@ -37,6 +37,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   colors,
   materials: materialKeys,
   logos,
+  logoSizes,
   product,
   modelURL,
   environmentURL,
@@ -270,7 +271,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   // Effect to update colors, materials, and logos
   useEffect(() => {
-    if (!modelRef.current || !colors || !materialKeys || !logos) return;
+    if (!modelRef.current || !colors || !materialKeys || !logos || !logoSizes) return;
 
     const textureLoader = new THREE.TextureLoader();
 
@@ -280,6 +281,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         const partColor = colors[partName];
         const partMaterialKey = materialKeys[partName];
         const partLogo = logos[partName];
+        const partLogoSize = logoSizes[partName];
+
 
         if (partColor && partMaterialKey) {
             const materialProps = materials[partMaterialKey as MaterialKey];
@@ -291,7 +294,11 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 
                 if (partLogo) {
                     textureLoader.load(partLogo, (texture) => {
-                        texture.flipY = false; // Important for GLTF models
+                        texture.flipY = false;
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        const repeatValue = 1 / (partLogoSize || 1);
+                        texture.repeat.set(repeatValue, repeatValue);
                         child.material.map = texture;
                         child.material.needsUpdate = true;
                     });
@@ -314,6 +321,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (partLogo) {
                     textureLoader.load(partLogo, (texture) => {
                          texture.flipY = false;
+                         texture.wrapS = THREE.RepeatWrapping;
+                         texture.wrapT = THREE.RepeatWrapping;
+                         const repeatValue = 1 / (partLogoSize || 1);
+                         texture.repeat.set(repeatValue, repeatValue);
                          newMaterial.map = texture;
                          newMaterial.needsUpdate = true;
                     });
@@ -323,7 +334,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       }
     });
-  }, [colors, materialKeys, logos]);
+  }, [colors, materialKeys, logos, logoSizes]);
 
 
   return (
