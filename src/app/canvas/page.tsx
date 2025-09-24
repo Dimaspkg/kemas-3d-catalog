@@ -82,7 +82,7 @@ export default function CanvasPage() {
     
     partNames.forEach(part => {
         initialMaterials[part] = 'glossy'; // Default to glossy
-        newInitialColors[part] = '#FF0000'; // Default to red
+        newInitialColors[part] = '#000000'; // Default to black
     });
 
     setCustomization(prev => ({
