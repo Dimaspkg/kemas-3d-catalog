@@ -20,6 +20,9 @@ import {
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "./ui/separator";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Upload, X } from "lucide-react";
 
 export type CustomizationState = {
   colors: {
@@ -27,6 +30,9 @@ export type CustomizationState = {
   };
   materials: {
     [key: string]: MaterialKey;
+  };
+  logos: {
+    [key: string]: string | null;
   };
 };
 
@@ -97,6 +103,30 @@ export default function CustomizationPanel({
         materials: { ...prev.materials, [part]: value },
       }));
     };
+
+  const handleLogoChange = 
+    (part: string) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target?.result as string;
+                onStateChange((prev) => ({
+                    ...prev,
+                    logos: { ...prev.logos, [part]: dataUrl },
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+  const handleRemoveLogo = (part: string) => () => {
+    onStateChange((prev) => ({
+      ...prev,
+      logos: { ...prev.logos, [part]: null },
+    }));
+  };
   
   const parts = Object.keys(state.colors);
   const TABS_ID = React.useId();
@@ -126,7 +156,7 @@ export default function CustomizationPanel({
         <CardHeader>
             <CardTitle className="font-headline">Customize Your Product</CardTitle>
             <CardDescription>
-            Select a part and adjust colors and materials to create your perfect design.
+            Select a part and adjust colors, materials and logos to create your perfect design.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,33 +169,66 @@ export default function CustomizationPanel({
             
             {parts.map((part) => (
               <TabsContent key={`${TABS_ID}-${part}-content`} value={part}>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`${part}-color`}>Color</Label>
-                      <ColorPickerInput
-                          value={state.colors[part]}
-                          onChange={handleColorChange(part)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`${part}-material`}>Material</Label>
-                      <Select
-                          value={state.materials[part]}
-                          onValueChange={handleMaterialChange(part)}
-                      >
-                          <SelectTrigger id={`${part}-material`} className="max-w-xs">
-                            <SelectValue placeholder="Select material" />
-                          </SelectTrigger>
-                          <SelectContent>
-                          {materialOptions.map((option) => (
-                              <SelectItem key={option.key} value={option.key} className="capitalize">
-                              {option.name}
-                              </SelectItem>
-                          ))}
-                          </SelectContent>
-                      </Select>
-                    </div>
-                </div>
+                 <Tabs defaultValue="color-material" className="w-full pt-4">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="color-material">Appearance</TabsTrigger>
+                      <TabsTrigger value="logo">Logo</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="color-material">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4">
+                            <div className="space-y-2">
+                            <Label htmlFor={`${part}-color`}>Color</Label>
+                            <ColorPickerInput
+                                value={state.colors[part]}
+                                onChange={handleColorChange(part)}
+                            />
+                            </div>
+                            <div className="space-y-2">
+                            <Label htmlFor={`${part}-material`}>Material</Label>
+                            <Select
+                                value={state.materials[part]}
+                                onValueChange={handleMaterialChange(part)}
+                            >
+                                <SelectTrigger id={`${part}-material`} className="max-w-xs">
+                                    <SelectValue placeholder="Select material" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                {materialOptions.map((option) => (
+                                    <SelectItem key={option.key} value={option.key} className="capitalize">
+                                    {option.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="logo">
+                        <div className="pt-4 space-y-4">
+                            <Label htmlFor={`${part}-logo`}>Upload Logo (.png)</Label>
+                            <Input
+                                id={`${part}-logo`}
+                                type="file"
+                                accept="image/png"
+                                onChange={handleLogoChange(part)}
+                            />
+                            {state.logos[part] && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-muted-foreground">Current logo:</p>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-16 h-16 rounded-md border p-1">
+                                            <img src={state.logos[part]!} alt={`${cleanPartName(part)} logo`} className="w-full h-full object-contain" />
+                                        </div>
+                                        <Button variant="outline" size="icon" onClick={handleRemoveLogo(part)}>
+                                            <X className="h-4 w-4" />
+                                            <span className="sr-only">Remove Logo</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </TabsContent>
+                 </Tabs>
               </TabsContent>
             ))}
           </Tabs>

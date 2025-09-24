@@ -42,6 +42,7 @@ export default function CanvasPage() {
   const [customization, setCustomization] = useState<CustomizationState>({
     colors: {},
     materials: {},
+    logos: {},
   });
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
@@ -84,15 +85,18 @@ export default function CanvasPage() {
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     console.log("Discovered parts:", partNames);
     const initialMaterials: { [key: string]: string } = {};
+    const initialLogos: { [key: string]: string | null } = {};
 
     partNames.forEach(part => {
         initialMaterials[part] = 'glossy'; // Default to glossy
+        initialLogos[part] = null;
     });
 
     setCustomization(prev => ({
         ...prev,
         colors: initialColors,
         materials: initialMaterials,
+        logos: initialLogos,
     }));
 
     setLoading(false);
@@ -129,5 +133,3 @@ export default function CanvasPage() {
     </div>
   );
 }
-
-    

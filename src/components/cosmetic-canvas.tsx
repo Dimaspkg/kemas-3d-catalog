@@ -19,6 +19,7 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   colors,
   materials: materialKeys,
+  logos,
   modelURL,
   environmentURL,
   onModelLoad,
@@ -224,15 +225,18 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   }, [modelURL, onModelLoad, cleanup, environmentURL]); 
 
 
-  // Effect to update colors and materials
+  // Effect to update colors, materials, and logos
   useEffect(() => {
-    if (!modelRef.current || !colors || !materialKeys) return;
+    if (!modelRef.current || !colors || !materialKeys || !logos) return;
+
+    const textureLoader = new THREE.TextureLoader();
 
     modelRef.current.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const partName = child.name.trim();
         const partColor = colors[partName];
         const partMaterialKey = materialKeys[partName];
+        const partLogo = logos[partName];
 
         if (partColor && partMaterialKey) {
             const materialProps = materials[partMaterialKey as MaterialKey];
@@ -241,6 +245,20 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
                 child.material.color.set(partColor);
                 child.material.metalness = materialProps.metalness;
                 child.material.roughness = materialProps.roughness;
+                
+                if (partLogo) {
+                    textureLoader.load(partLogo, (texture) => {
+                        texture.flipY = false; // Important for GLTF models
+                        child.material.map = texture;
+                        child.material.needsUpdate = true;
+                    });
+                } else {
+                    if (child.material.map) {
+                        child.material.map.dispose();
+                    }
+                    child.material.map = null;
+                }
+                
                 child.material.needsUpdate = true;
             } else {
                  const newMaterial = new THREE.MeshStandardMaterial({
@@ -249,17 +267,23 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
                     roughness: materialProps.roughness,
                     envMap: environmentRef.current,
                 });
+
+                if (partLogo) {
+                    textureLoader.load(partLogo, (texture) => {
+                         texture.flipY = false;
+                         newMaterial.map = texture;
+                         newMaterial.needsUpdate = true;
+                    });
+                }
                 child.material = newMaterial;
             }
         }
       }
     });
-  }, [colors, materialKeys]);
+  }, [colors, materialKeys, logos]);
 
 
   return <div ref={mountRef} className="w-full h-full" />;
 };
 
 export default CosmeticCanvas;
-
-    
