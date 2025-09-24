@@ -72,27 +72,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     }
   }));
 
-
-  const cleanup = useCallback(() => {
-    if (animationFrameIdRef.current) {
-      cancelAnimationFrame(animationFrameIdRef.current);
-    }
-    if (rendererRef.current) {
-      rendererRef.current.dispose();
-      rendererRef.current = null;
-    }
-    if (mountRef.current) {
-        const canvas = mountRef.current.querySelector('canvas');
-        if (canvas) {
-            mountRef.current.removeChild(canvas);
-        }
-    }
-    if(modelRef.current && sceneRef.current) {
-        sceneRef.current.remove(modelRef.current);
-    }
-  }, []);
-
-
   useEffect(() => {
     if (!mountRef.current) return;
     
@@ -187,10 +166,18 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
         return () => {
             window.removeEventListener("resize", handleResize);
-            cleanup();
+            if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current);
+            // Full cleanup
+            if (rendererRef.current) {
+                rendererRef.current.dispose();
+                const canvas = currentMount.querySelector('canvas');
+                if (canvas) currentMount.removeChild(canvas);
+                rendererRef.current = null;
+            }
+            sceneRef.current = null;
         };
     }
-  }, [cleanup]);
+  }, []);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -198,22 +185,21 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
     // --- Load Environment ---
     if (environmentURL) {
-      // Logic for environment loading (currently commented out)
       console.warn("Environment loading is temporarily disabled to fix a 404 error. To re-enable, add the .hdr file and uncomment the loading logic in cosmetic-canvas.tsx");
     }
 
     // --- Load Model ---
-    const loadModel = (url: string) => {
-        const loader = new GLTFLoader();
-        const camera = cameraRef.current!;
-        const controls = controlsRef.current!;
+    const gltfLoader = new GLTFLoader();
+    const camera = cameraRef.current!;
+    const controls = controlsRef.current!;
 
-        // Remove previous model if it exists
-        if (modelRef.current) {
-            scene.remove(modelRef.current);
-        }
-
-        loader.load(url, (gltf) => {
+    // Remove previous model if it exists
+    if (modelRef.current) {
+        scene.remove(modelRef.current);
+    }
+    
+    if (modelURL) {
+        gltfLoader.load(modelURL, (gltf) => {
             const loadedModel = gltf.scene;
             modelRef.current = loadedModel;
 
@@ -263,10 +249,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }, undefined, (error) => {
             console.error("An error happened while loading the model:", error);
         });
-    }
-
-    if (modelURL) {
-      loadModel(modelURL);
     }
 
   }, [modelURL, environmentURL, onModelLoad]);
@@ -362,3 +344,4 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
