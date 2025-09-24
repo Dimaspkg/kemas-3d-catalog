@@ -57,7 +57,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(backgroundColor);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -84,13 +83,14 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Environment
     const loadEnvironment = (url: string) => {
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+        
         const isExr = url.toLowerCase().endsWith('.exr');
         const loader = isExr ? new EXRLoader() : new RGBELoader();
         
         loader.load(url, (texture) => {
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
-            // scene.background = envMap; // We now use a solid color
             scene.environment = envMap;
             texture.dispose();
             pmremGenerator.dispose();
@@ -155,6 +155,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             child.castShadow = true;
             child.receiveShadow = true;
             
+            // We still want to collect part names for potential future use
+            // or for a different mode of operation, but we won't apply materials.
             const partName = child.name.trim();
             if (partName && !partNames.includes(partName)) {
                 partNames.push(partName);
@@ -166,6 +168,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         
         const box = new THREE.Box3().setFromObject(loadedModel);
         const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
 
         loadedModel.position.y = -box.min.y;
         
@@ -226,28 +229,9 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !modelRef.current) return;
-    
-    // Handle part color and material updates
-    Object.keys(colors).forEach(partName => {
-        const object = modelRef.current?.getObjectByName(partName);
-        if (object) {
-            const color = colors[partName];
-            const materialKey = materialKeys[partName];
-            const materialProps = materialKey ? materials[materialKey] : null;
 
-            object.traverse(child => {
-                if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
-                    if (color) {
-                        child.material.color.set(color);
-                    }
-                    if (materialProps) {
-                        Object.assign(child.material, materialProps);
-                    }
-                    child.material.needsUpdate = true;
-                }
-            });
-        }
-    });
+    // NO LONGER APPLYING MATERIALS. This block is now intentionally left empty.
+    // The canvas will respect the materials baked into the GLB file.
   
   }, [colors, materialKeys]);
 
