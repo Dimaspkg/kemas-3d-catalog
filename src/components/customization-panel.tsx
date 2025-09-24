@@ -136,27 +136,27 @@ export default function CustomizationPanel({
                     </Tooltip>
                 </TooltipProvider>
 
-                <div className="flex-1 flex items-center justify-center gap-4">
+                <div className="flex flex-1 items-center justify-center gap-x-8">
                     <Button variant="ghost" size="icon" onClick={goToPrevPart}>
                         <ArrowLeft />
                     </Button>
                     
-                    <ColorSwatch
-                        name={activePart}
-                        value={state.colors[activePart]}
-                        onChange={handleColorChange(activePart)}
-                    />
-
-                    <div className="flex items-baseline gap-2">
-                        <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
-                        <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                    <div className="flex items-center gap-4">
+                        <ColorSwatch
+                            name={activePart}
+                            value={state.colors[activePart]}
+                            onChange={handleColorChange(activePart)}
+                        />
+                        <div className="flex items-baseline gap-2">
+                            <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
+                            <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                        </div>
                     </div>
                     
                     <Button variant="ghost" size="icon" onClick={goToNextPart}>
                         <ArrowRight />
                     </Button>
                 </div>
-
 
                 <div className="w-10 h-10" />
             </div>
