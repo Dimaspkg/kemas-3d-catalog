@@ -13,7 +13,7 @@ import { materials, type MaterialKey } from "@/lib/materials";
 type CosmeticCanvasProps = Omit<CustomizationState, "backgroundColor"> & { 
     modelURL?: string;
     environmentURL?: string;
-    onModelLoad: (partNames: string[]) => void;
+    onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
 };
 
 const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
@@ -151,6 +151,8 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
         modelRef.current = loadedModel;
 
         const partNames: string[] = [];
+        const initialColors: Record<string, string> = {};
+
         loadedModel.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
@@ -159,11 +161,16 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             const partName = child.name.trim();
             if (partName && !partNames.includes(partName)) {
                 partNames.push(partName);
+                if (child.material instanceof THREE.MeshStandardMaterial) {
+                    initialColors[partName] = `#${child.material.color.getHexString()}`;
+                } else {
+                    initialColors[partName] = '#C0C0C0'; // Fallback
+                }
             }
           }
         });
         
-        onModelLoad(partNames);
+        onModelLoad(partNames, initialColors);
         
         const box = new THREE.Box3().setFromObject(loadedModel);
         const size = box.getSize(new THREE.Vector3());
@@ -256,3 +263,6 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
 
 export default CosmeticCanvas;
 
+
+
+    

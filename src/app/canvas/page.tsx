@@ -81,13 +81,11 @@ export default function CanvasPage() {
     fetchData();
   }, [productId]);
 
-  const handleModelLoad = useCallback((partNames: string[]) => {
+  const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     console.log("Discovered parts:", partNames);
-    const initialColors: { [key: string]: string } = {};
     const initialMaterials: { [key: string]: string } = {};
 
     partNames.forEach(part => {
-        initialColors[part] = '#C0C0C0'; // Default to silver
         initialMaterials[part] = 'glossy'; // Default to glossy
     });
 
@@ -131,3 +129,5 @@ export default function CanvasPage() {
     </div>
   );
 }
+
+    
