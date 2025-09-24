@@ -135,7 +135,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
             scene.environment = envMap;
-            scene.background = new THREE.Color(0xaaaaaa);
+            scene.background = new THREE.Color(0xF8F8F8);
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
