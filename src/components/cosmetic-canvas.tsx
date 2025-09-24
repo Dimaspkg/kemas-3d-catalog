@@ -281,56 +281,61 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         const partColor = colors[partName];
         const partMaterialKey = materialKeys[partName];
         const partLogo = logos[partName];
-        const partLogoSize = logoSizes[partName];
+        const partLogoSize = logoSizes[partName] || 1;
 
 
         if (partColor && partMaterialKey) {
             const materialProps = materials[partMaterialKey as MaterialKey];
+            let material = child.material as THREE.MeshStandardMaterial;
+
+            // Ensure we have a MeshStandardMaterial
+            if (!(material instanceof THREE.MeshStandardMaterial)) {
+                material = new THREE.MeshStandardMaterial();
+                child.material = material;
+            }
             
-            if (child.material instanceof THREE.MeshStandardMaterial) {
-                child.material.color.set(partColor);
-                child.material.metalness = materialProps.metalness;
-                child.material.roughness = materialProps.roughness;
-                
-                if (partLogo) {
+            // Update basic properties
+            material.color.set(partColor);
+            material.metalness = materialProps.metalness;
+            material.roughness = materialProps.roughness;
+
+            // Update logo
+            if (partLogo) {
+                // If the logo URL is different from the current map, load the new one
+                if (!material.map || material.map.userData.url !== partLogo) {
                     textureLoader.load(partLogo, (texture) => {
                         texture.flipY = false;
                         texture.wrapS = THREE.RepeatWrapping;
                         texture.wrapT = THREE.RepeatWrapping;
-                        const repeatValue = 1 / (partLogoSize || 1);
+                        texture.userData.url = partLogo; // Store URL for comparison
+                        
+                        const repeatValue = 1 / partLogoSize;
                         texture.repeat.set(repeatValue, repeatValue);
-                        child.material.map = texture;
-                        child.material.needsUpdate = true;
+                        
+                        if (material.map) {
+                            material.map.dispose(); // Dispose old texture
+                        }
+                        material.map = texture;
+                        material.needsUpdate = true;
                     });
                 } else {
-                    if (child.material.map) {
-                        child.material.map.dispose();
+                    // If only the size changed
+                    const repeatValue = 1 / partLogoSize;
+                    if (material.map.repeat.x !== repeatValue) {
+                        material.map.repeat.set(repeatValue, repeatValue);
                     }
-                    child.material.map = null;
                 }
-                
-                child.material.needsUpdate = true;
             } else {
-                 const newMaterial = new THREE.MeshStandardMaterial({
-                    color: partColor,
-                    metalness: materialProps.metalness,
-                    roughness: materialProps.roughness,
-                    envMap: environmentRef.current,
-                });
-
-                if (partLogo) {
-                    textureLoader.load(partLogo, (texture) => {
-                         texture.flipY = false;
-                         texture.wrapS = THREE.RepeatWrapping;
-                         texture.wrapT = THREE.RepeatWrapping;
-                         const repeatValue = 1 / (partLogoSize || 1);
-                         texture.repeat.set(repeatValue, repeatValue);
-                         newMaterial.map = texture;
-                         newMaterial.needsUpdate = true;
-                    });
+                // If there's no logo, remove the map
+                if (material.map) {
+                    material.map.dispose();
+                    material.map = null;
+                    material.needsUpdate = true;
                 }
-                child.material = newMaterial;
             }
+            
+            material.envMap = environmentRef.current;
+            material.needsUpdate = true;
         }
       }
     });
@@ -377,3 +382,4 @@ export default CosmeticCanvas;
     
 
     
+
