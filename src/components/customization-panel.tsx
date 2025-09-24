@@ -16,16 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { X, ArrowLeft, ArrowRight, Menu } from "lucide-react";
+import { ArrowLeft, ArrowRight, Menu } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Slider } from "./ui/slider";
 
 
 export type CustomizationState = {
@@ -138,24 +136,25 @@ export default function CustomizationPanel({
                     </Tooltip>
                 </TooltipProvider>
 
-                <div className="flex items-center justify-center gap-4">
-                  <Button variant="ghost" size="icon" onClick={goToPrevPart}>
-                      <ArrowLeft />
-                  </Button>
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-baseline gap-2">
-                        <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
-                        <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
-                    </div>
+                <div className="flex-1 flex items-center justify-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={goToPrevPart}>
+                        <ArrowLeft />
+                    </Button>
+                    
                     <ColorSwatch
                         name={activePart}
                         value={state.colors[activePart]}
                         onChange={handleColorChange(activePart)}
                     />
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={goToNextPart}>
-                      <ArrowRight />
-                  </Button>
+
+                    <div className="flex items-baseline gap-2">
+                        <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
+                        <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
+                    </div>
+                    
+                    <Button variant="ghost" size="icon" onClick={goToNextPart}>
+                        <ArrowRight />
+                    </Button>
                 </div>
 
 
@@ -193,5 +192,3 @@ export default function CustomizationPanel({
     </div>
   );
 }
-
-    
