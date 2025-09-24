@@ -160,41 +160,44 @@ export default function CustomizationPanel({
   }
 
   return (
-    <div className="p-4 md:p-8">
+    <div className="p-4 md:p-8 space-y-6">
+        <div className="space-y-2">
+            <h2 className="text-xl font-headline font-semibold">Select Part</h2>
+            <p className="text-sm text-muted-foreground">
+                Choose a product part to customize from the options below.
+            </p>
+        </div>
+        <Carousel
+            opts={{
+                align: "start",
+                dragFree: true,
+            }}
+            className="w-full"
+        >
+            <CarouselContent>
+                {parts.map((part) => (
+                <CarouselItem key={part} className="basis-auto">
+                    <Button
+                        variant={activePart === part ? "default" : "outline"}
+                        onClick={() => setActivePart(part)}
+                        className="capitalize"
+                    >
+                        {cleanPartName(part)}
+                    </Button>
+                </CarouselItem>
+                ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
+        </Carousel>
+
         <Card className="shadow-lg rounded-lg border-0">
-        <CardHeader>
-            <CardTitle className="font-headline">Customize Your Product</CardTitle>
-            <CardDescription>
-            Select a part and adjust colors, materials and logos to create your perfect design.
-            </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <Carousel
-                opts={{
-                    align: "start",
-                    dragFree: true,
-                }}
-                className="w-full"
-            >
-                <CarouselContent>
-                    {parts.map((part) => (
-                    <CarouselItem key={part} className="basis-auto">
-                        <Button
-                            variant={activePart === part ? "default" : "outline"}
-                            onClick={() => setActivePart(part)}
-                            className="capitalize"
-                        >
-                            {cleanPartName(part)}
-                        </Button>
-                    </CarouselItem>
-                    ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden sm:flex" />
-                <CarouselNext className="hidden sm:flex" />
-            </Carousel>
-            
+        <CardContent className="pt-6">
             {activePart && (
-              <div className="mt-6">
+              <div>
+                 <h3 className="capitalize text-lg font-semibold font-headline mb-4">
+                    Customizing: {cleanPartName(activePart)}
+                 </h3>
                  <Tabs defaultValue="color-material" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="color-material">Appearance</TabsTrigger>
