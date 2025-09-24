@@ -127,10 +127,6 @@ export default function CanvasPage() {
                 )}
             </div>
             <div className="flex items-center gap-2">
-                 <Button variant="outline" size="icon" disabled>
-                    <Upload className="h-4 w-4" />
-                    <span className="sr-only">Share</span>
-                </Button>
                 <Button onClick={handleScreenshot}>
                     <Camera className="mr-2 h-4 w-4" />
                     Screenshot
