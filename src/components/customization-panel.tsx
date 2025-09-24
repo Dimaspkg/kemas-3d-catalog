@@ -118,7 +118,7 @@ export default function CustomizationPanel({
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 h-24 flex flex-col justify-center">
         <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <div className="flex items-center justify-between gap-4">
                  <TooltipProvider>
