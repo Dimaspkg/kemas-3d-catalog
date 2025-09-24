@@ -331,7 +331,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 variant="outline"
                 className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
             >
-                <Link href="/">
+                <Link href={`/products/${product?.id}`}>
                     <X className="mr-2 h-4 w-4" />
                     Exit
                 </Link>
@@ -346,4 +346,5 @@ CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
 
+    
     
