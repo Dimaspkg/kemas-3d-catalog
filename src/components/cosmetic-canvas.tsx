@@ -56,6 +56,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
     // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
+    scene.background = new THREE.Color(0xaaaaaa); // Set background to gray
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -91,7 +92,7 @@ const CosmeticCanvas: React.FC<CosmeticCanvasProps> = ({
             const envMap = pmremGenerator.fromEquirectangular(texture).texture;
             environmentRef.current = envMap;
             scene.environment = envMap;
-            scene.background = envMap; // Use env map for background as well
+            // scene.background is now set to gray initially
             texture.dispose();
             pmremGenerator.dispose();
         }, undefined, (error) => {
