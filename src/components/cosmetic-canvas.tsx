@@ -12,16 +12,6 @@ import { materials, type MaterialKey } from "@/lib/materials";
 import type { CanvasHandle, Product } from "@/lib/types";
 import { Skeleton } from "./ui/skeleton";
 
-const formatPrice = (price?: number) => {
-    if (!price) return null;
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-};
-
 type CosmeticCanvasProps = CustomizationState & { 
     product?: Product | null;
     modelURL?: string;
@@ -117,6 +107,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
+    keyLight.shadow.bias = -0.0001; // Fix for shadow acne
     scene.add(keyLight);
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
