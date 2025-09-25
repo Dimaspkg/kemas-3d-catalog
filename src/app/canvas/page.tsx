@@ -11,9 +11,6 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Brush } from "lucide-react";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -97,20 +94,20 @@ export default function CanvasPage() {
     // Only set initial state if it hasn't been set before
     // This prevents customization from being reset when switching models
     setCustomization(prev => {
-        const needsInitialization = Object.keys(prev.colors).length === 0;
+        const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors)) !== JSON.stringify(partNames);
         if (!needsInitialization) return prev;
 
-        const initialMaterials: { [key: string]: string } = {};
         const newInitialColors: Record<string, string> = {};
-        
+        const newInitialMaterials: { [key: string]: string } = {};
+
         partNames.forEach(part => {
-            initialMaterials[part] = 'glossy'; // Default to glossy
-            newInitialColors[part] = '#000000'; // Default to black
+            newInitialColors[part] = initialColors[part] || '#000000';
+            newInitialMaterials[part] = 'glossy'; // Default to glossy
         });
 
         return {
             colors: newInitialColors,
-            materials: initialMaterials,
+            materials: newInitialMaterials,
         };
     });
 
@@ -125,7 +122,7 @@ export default function CanvasPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-body">
-        <main className="flex-1 overflow-hidden relative">
+        <main className="flex-1 overflow-hidden">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 ref={canvasRef}
@@ -148,33 +145,19 @@ export default function CanvasPage() {
                     <Label htmlFor="open-state-switch" className="text-white text-sm">Show Open State</Label>
                 </div>
             )}
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button className="absolute bottom-6 left-1/2 -translate-x-1/2 shadow-lg" size="lg">
-                        <Brush className="mr-2" />
-                        Customize
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-3/4">
-                    <SheetHeader>
-                        <SheetTitle>Customize Product</SheetTitle>
-                        <SheetDescription>
-                            Change colors and materials for each part of the product.
-                        </SheetDescription>
-                    </SheetHeader>
-                    <Suspense fallback={<CustomizationPanelSkeleton />}>
-                        {loading || !product ? (
-                            <CustomizationPanelSkeleton />
-                        ) : (
-                            <CustomizationPanel
-                                state={customization}
-                                onStateChange={setCustomization}
-                            />
-                        )}
-                    </Suspense>
-                </SheetContent>
-            </Sheet>
         </main>
+        <footer className="shrink-0 bg-card border-t shadow-lg z-10">
+          <Suspense fallback={<CustomizationPanelSkeleton />}>
+            {loading || !product ? (
+              <CustomizationPanelSkeleton />
+            ) : (
+              <CustomizationPanel
+                state={customization}
+                onStateChange={setCustomization}
+              />
+            )}
+          </Suspense>
+        </footer>
     </div>
   );
 }
