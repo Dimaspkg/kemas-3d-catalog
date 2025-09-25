@@ -269,6 +269,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
+            material.dithering = true;
             
             if (sceneRef.current?.environment) {
                 material.envMap = sceneRef.current.environment;
