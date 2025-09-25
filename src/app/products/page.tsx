@@ -185,9 +185,6 @@ export default function ProductsPage() {
                                                     className="object-cover rounded-lg transition-transform group-hover:scale-105"
                                                 />
                                             )}
-                                             <div className="absolute top-3 right-3 bg-white p-1.5 rounded-full shadow-md">
-                                                <CustomiseIcon className="h-4 w-4" />
-                                            </div>
                                         </div>
                                     </CardContent>
                                 </Card>
