@@ -34,7 +34,7 @@ function FilterSidebar() {
     return (
         <aside className="w-full md:w-64 lg:w-72 space-y-6">
             <p className="font-semibold text-lg">Lifestyle</p>
-            <Accordion type="multiple" collapsible className="w-full">
+            <Accordion type="multiple" className="w-full">
                 {filters.map((filter, index) => (
                     <AccordionItem value={`item-${index}`} key={filter}>
                         <AccordionTrigger className="text-base font-medium py-4">{filter}</AccordionTrigger>
