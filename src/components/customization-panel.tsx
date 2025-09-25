@@ -2,11 +2,6 @@
 "use client";
 
 import * as React from "react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -17,13 +12,7 @@ import {
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { Button } from "./ui/button";
-import { ArrowLeft, ArrowRight, Menu } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 
 export type CustomizationState = {
@@ -81,7 +70,6 @@ export default function CustomizationPanel({
   const parts = Object.keys(state.colors);
   const [activePartIndex, setActivePartIndex] = React.useState(0);
   const activePart = parts[activePartIndex];
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const handleColorChange =
     (part: string) =>
@@ -108,6 +96,11 @@ export default function CustomizationPanel({
     setActivePartIndex((prevIndex) => (prevIndex - 1 + parts.length) % parts.length);
   };
 
+  React.useEffect(() => {
+    if (activePartIndex >= parts.length && parts.length > 0) {
+      setActivePartIndex(0);
+    }
+  }, [parts, activePartIndex]);
 
   if (parts.length === 0) {
     return (
@@ -118,77 +111,55 @@ export default function CustomizationPanel({
   }
 
   return (
-    <div className="p-4 h-24 flex flex-col justify-center">
-        <Collapsible open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <div className="flex items-center justify-between gap-4">
-                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                             <CollapsibleTrigger asChild>
-                                <Button variant="outline" size="icon">
-                                    <Menu className="h-4 w-4" />
-                                </Button>
-                             </CollapsibleTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Menu</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <div className="flex flex-1 items-center justify-center gap-x-8">
-                    <Button variant="ghost" size="icon" onClick={goToPrevPart}>
-                        <ArrowLeft />
-                    </Button>
-                    
-                    <div className="flex items-center gap-4">
-                        <ColorSwatch
-                            name={activePart}
-                            value={state.colors[activePart]}
-                            onChange={handleColorChange(activePart)}
-                        />
-                        <div className="flex items-baseline gap-2">
-                            <p className="font-semibold text-lg capitalize truncate">{cleanPartName(activePart)}</p>
-                            <p className="text-sm text-muted-foreground">{activePartIndex + 1}/{parts.length}</p>
-                        </div>
-                    </div>
-                    
-                    <Button variant="ghost" size="icon" onClick={goToNextPart}>
-                        <ArrowRight />
-                    </Button>
+    <div className="p-4 h-24 flex items-center justify-center">
+        <div className="flex w-full items-center justify-between gap-4 md:gap-8">
+            
+            {/* Part Navigation */}
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={goToPrevPart} aria-label="Previous Part">
+                    <ArrowLeft />
+                </Button>
+                <div className="flex items-baseline gap-2 text-center w-24 sm:w-32 md:w-40">
+                    <p className="font-semibold text-lg capitalize truncate" title={cleanPartName(activePart)}>{cleanPartName(activePart)}</p>
+                    <p className="text-sm text-muted-foreground flex-shrink-0">{activePartIndex + 1}/{parts.length}</p>
                 </div>
-
-                <div className="w-10 h-10" />
+                <Button variant="ghost" size="icon" onClick={goToNextPart} aria-label="Next Part">
+                    <ArrowRight />
+                </Button>
             </div>
 
-            <div className={`overflow-hidden transition-all duration-300 ${isMenuOpen ? 'max-h-96' : 'max-h-0'}`}>
-                <CollapsibleContent forceMount>
-                    <div className="mt-4 pt-4 border-t">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Material Selector */}
-                            <div className="space-y-2">
-                                <Label htmlFor={`${activePart}-material`}>Material</Label>
-                                <Select
-                                    value={state.materials[activePart]}
-                                    onValueChange={handleMaterialChange(activePart)}
-                                >
-                                    <SelectTrigger id={`${activePart}-material`}>
-                                        <SelectValue placeholder="Select material" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    {materialOptions.map((option) => (
-                                        <SelectItem key={option.key} value={option.key} className="capitalize">
-                                        {option.name}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </div>
-                </CollapsibleContent>
+            {/* Customization Controls */}
+            <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-1">
+                     <Label htmlFor={`${activePart}-color-swatch`} className="text-xs text-muted-foreground">Color</Label>
+                    <ColorSwatch
+                        name={activePart}
+                        value={state.colors[activePart]}
+                        onChange={handleColorChange(activePart)}
+                    />
+                </div>
+                
+                <div className="flex flex-col gap-1 w-32 md:w-40">
+                    <Label htmlFor={`${activePart}-material`} className="text-xs text-muted-foreground">Material</Label>
+                    <Select
+                        value={state.materials[activePart]}
+                        onValueChange={handleMaterialChange(activePart)}
+                    >
+                        <SelectTrigger id={`${activePart}-material`} className="h-8">
+                            <SelectValue placeholder="Select material" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {materialOptions.map((option) => (
+                            <SelectItem key={option.key} value={option.key} className="capitalize">
+                            {option.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
-        </Collapsible>
+        </div>
     </div>
   );
 }
+
