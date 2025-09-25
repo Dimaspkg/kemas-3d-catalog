@@ -179,8 +179,7 @@ export default function CanvasPage() {
   return (
     <div className="relative h-screen w-full bg-background text-foreground font-body overflow-hidden">
         <main className={cn(
-            "absolute inset-0 transition-[right] duration-300 ease-in-out",
-            isPanelVisible && !isMobile ? "right-80 lg:right-96" : "right-0"
+            "h-full w-full"
         )}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
@@ -318,8 +317,8 @@ export default function CanvasPage() {
           </Sheet>
         ) : (
           <aside className={cn(
-              "absolute top-0 bottom-0 right-0 bg-card/80 backdrop-blur-lg border-l shadow-lg z-10 overflow-y-auto transition-transform duration-300 ease-in-out",
-              isPanelVisible ? "translate-x-0 w-80 lg:w-96" : "translate-x-full w-80 lg:w-96"
+              "absolute top-0 bottom-0 right-0 w-80 lg:w-96 bg-card/80 backdrop-blur-lg border-l shadow-lg z-10 overflow-y-auto transition-transform duration-300 ease-in-out",
+              isPanelVisible ? "translate-x-0" : "translate-x-full"
           )}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 <div className={cn(!isPanelVisible && "hidden")}>
@@ -331,3 +330,5 @@ export default function CanvasPage() {
     </div>
   );
 }
+
+    
