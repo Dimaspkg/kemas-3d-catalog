@@ -338,7 +338,7 @@ export default function EditProductPage() {
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
-                                             <FormDescription>Current image: <a href={product?.imageURL} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
+                                             <FormDescription>Current image is set.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -356,7 +356,7 @@ export default function EditProductPage() {
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
-                                            <FormDescription>Current model: <a href={product?.modelURL} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
+                                            <FormDescription>Current closed model is set.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -375,7 +375,7 @@ export default function EditProductPage() {
                                                 />
                                             </FormControl>
                                             {product?.modelURLOpen ? (
-                                                <FormDescription>Current model: <a href={product.modelURLOpen} target="_blank" className="text-primary hover:underline">View</a></FormDescription>
+                                                <FormDescription>Current open model is set.</FormDescription>
                                             ) : (
                                                 <FormDescription>No open state model uploaded.</FormDescription>
                                             )}

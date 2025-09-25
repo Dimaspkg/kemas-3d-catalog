@@ -141,14 +141,6 @@ export default function ProductDetailPage() {
                                     <SpecificationRow label="Material" value={product.material} />
                                     <SpecificationRow label="Special Features" value={product.specialFeatures} />
                                     <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
-                                    <TableRow>
-                                         <TableCell className="font-medium text-muted-foreground">3D Model</TableCell>
-                                         <TableCell>
-                                             <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                                View/Download
-                                            </a>
-                                         </TableCell>
-                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </CardContent>

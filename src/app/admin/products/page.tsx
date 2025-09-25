@@ -124,15 +124,9 @@ export default function ProductManagementPage() {
                                 <TableCell className="font-medium">{product.name}</TableCell>
                                 <TableCell>{product.categories?.join(', ')}</TableCell>
                                  <TableCell>
-                                    <div className="flex flex-col gap-1">
-                                        <a href={product.modelURL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
-                                            View Closed
-                                        </a>
-                                        {product.modelURLOpen && (
-                                            <a href={product.modelURLOpen} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
-                                                View Open
-                                            </a>
-                                        )}
+                                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                                        <span>Closed: {product.modelURL ? 'Uploaded' : 'No'}</span>
+                                        <span>Open: {product.modelURLOpen ? 'Uploaded' : 'No'}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-right">
