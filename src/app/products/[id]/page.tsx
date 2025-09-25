@@ -14,7 +14,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CustomiseIcon } from '@/components/icons/customise-icon';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 function SpecificationRow({ label, value }: { label: string, value?: string }) {
     if (!value) return null;
@@ -56,7 +55,10 @@ export default function ProductDetailPage() {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                    <div className="w-full aspect-square bg-muted animate-pulse rounded-lg"></div>
+                    <div className="space-y-8">
+                        <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
+                        <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
+                    </div>
                     <div className="space-y-6 py-8">
                         <Skeleton className="h-10 w-3/4" />
                         <div className="flex flex-wrap gap-2">
@@ -92,24 +94,19 @@ export default function ProductDetailPage() {
     return (
         <div className="container mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                        {product.imageURLs.map((url, index) => (
-                            <CarouselItem key={index}>
-                                <div className="relative aspect-square w-full">
-                                    <Image
-                                        src={url}
-                                        alt={`${product.name} image ${index + 1}`}
-                                        fill
-                                        className="object-cover rounded-lg"
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-4" />
-                    <CarouselNext className="right-4" />
-                </Carousel>
+                <div className="flex flex-col gap-8">
+                    {product.imageURLs.map((url, index) => (
+                        <div key={index} className="relative aspect-square w-full">
+                            <Image
+                                src={url}
+                                alt={`${product.name} image ${index + 1}`}
+                                fill
+                                className="object-cover rounded-lg"
+                                priority={index === 0}
+                            />
+                        </div>
+                    ))}
+                </div>
                 <div className="md:sticky md:top-28 md:h-fit py-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
