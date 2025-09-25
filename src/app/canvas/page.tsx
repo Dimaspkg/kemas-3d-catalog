@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Brush, Camera, X, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { Brush, Camera, X, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -218,7 +218,7 @@ export default function CanvasPage() {
                         className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                     >
                         <Link href={`/products/${product.id}`}>
-                            <X className="h-4 w-4" />
+                            <LogOut className="h-4 w-4" />
                         </Link>
                     </Button>
                 ) : (
@@ -229,7 +229,7 @@ export default function CanvasPage() {
                         className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                     >
                         <Link href="/">
-                            <X className="h-4 w-4" />
+                            <LogOut className="h-4 w-4" />
                         </Link>
                     </Button>
                 )}
