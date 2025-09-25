@@ -176,12 +176,21 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   useEffect(() => {
     const scene = sceneRef.current;
-    if (!scene) return;
+    const renderer = rendererRef.current;
+    if (!scene || !renderer) return;
 
     // --- Load Environment ---
     if (environmentURL) {
-      console.warn("Environment loading is temporarily disabled to fix a 404 error. To re-enable, add the .hdr file and uncomment the loading logic in cosmetic-canvas.tsx");
+        const loader = environmentURL.endsWith('.hdr') ? new RGBELoader() : new EXRLoader();
+        loader.load(environmentURL, (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            environmentRef.current = texture;
+            scene.environment = texture;
+        }, undefined, (error) => {
+            console.error('An error occurred while loading the environment:', error);
+        });
     }
+
 
     // --- Load Model ---
     const gltfLoader = new GLTFLoader();
@@ -309,4 +318,6 @@ export default CosmeticCanvas;
 
 
     
+    
+
     
