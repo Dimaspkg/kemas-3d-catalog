@@ -127,7 +127,7 @@ export default function CustomizationPanel({
             <div className="p-4 pt-0 space-y-2">
                 <Accordion type="single" collapsible className="w-full">
                     {parts.map(part => (
-                        <AccordionItem value={part} key={part} className="bg-card rounded-lg shadow-sm border mb-2">
+                        <AccordionItem value={part} key={part} className="bg-card rounded-lg border mb-2">
                             <AccordionTrigger className="px-4">
                                 <span className="truncate" title={cleanPartName(part)}>
                                     {cleanPartName(part)}
