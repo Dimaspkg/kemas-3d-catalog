@@ -13,11 +13,11 @@ export default async function Header() {
         
       </Link>
       <div className="flex items-center gap-6">
-        <nav className="hidden md:flex items-center gap-6 font-medium">
-            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
+        <nav className="hidden md:flex items-center gap-6">
+            <Button variant="ghost" asChild className="text-base text-muted-foreground hover:text-foreground uppercase">
                 <Link href="/">Home</Link>
             </Button>
-            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
+            <Button variant="ghost" asChild className="text-base text-muted-foreground hover:text-foreground uppercase">
                 <Link href="/products">Products</Link>
             </Button>
             <HeaderClient />
