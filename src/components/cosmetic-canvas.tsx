@@ -58,12 +58,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       camera.position.set(center.x, center.y, center.z + cameraZ);
       controls.target.copy(center);
       
-      // Set the floor plane right below the model
-      const floor = sceneRef.current?.getObjectByName("floor");
-      if (floor) {
-          floor.position.y = box.min.y;
-      }
-
       controls.update();
   }, []);
 
@@ -116,22 +110,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
-
-    // Floor
-    const floorGeometry = new THREE.PlaneGeometry(20, 20);
-    const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0x808080,
-        metalness: 0,
-        roughness: 0.5,
-        transparent: true,
-        opacity: 0.2
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.name = "floor";
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0;
-    floor.receiveShadow = true;
-    scene.add(floor);
 
     // Animation loop
     let animationFrameId: number;
@@ -331,5 +309,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
 
     
