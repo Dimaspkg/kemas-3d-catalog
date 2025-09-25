@@ -69,6 +69,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     }
   }));
 
+  // Initialize Three.js scene, camera, renderer, etc.
   useEffect(() => {
     if (!mountRef.current) return;
     
@@ -169,30 +170,37 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             }
             if (rendererRef.current) {
               rendererRef.current.dispose();
+              // Clean up DOM element on unmount
+              if (currentMount && rendererRef.current.domElement) {
+                // currentMount.removeChild(rendererRef.current.domElement);
+              }
             }
         };
     }
   }, []);
 
+  // Effect for loading the environment
   useEffect(() => {
     const scene = sceneRef.current;
-    const renderer = rendererRef.current;
-    if (!scene || !renderer) return;
+    if (!scene || !environmentURL) return;
 
-    // --- Load Environment ---
-    if (environmentURL) {
-        const loader = environmentURL.endsWith('.hdr') ? new RGBELoader() : new EXRLoader();
-        loader.load(environmentURL, (texture) => {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            environmentRef.current = texture;
-            scene.environment = texture;
-        }, undefined, (error) => {
-            console.error('An error occurred while loading the environment:', error);
-        });
-    }
+    const loader = environmentURL.endsWith('.hdr') ? new RGBELoader() : new EXRLoader();
+    loader.load(environmentURL, (texture) => {
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        environmentRef.current = texture;
+        scene.environment = texture;
+    }, undefined, (error) => {
+        console.error('An error occurred while loading the environment:', error);
+    });
+
+  }, [environmentURL]);
 
 
-    // --- Load Model ---
+  // Effect for loading the 3D model
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene || !modelURL) return;
+
     const gltfLoader = new GLTFLoader();
     const camera = cameraRef.current!;
     const controls = controlsRef.current!;
@@ -202,60 +210,58 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         scene.remove(modelRef.current);
     }
     
-    if (modelURL) {
-        gltfLoader.load(modelURL, (gltf) => {
-            const loadedModel = gltf.scene;
-            modelRef.current = loadedModel;
+    gltfLoader.load(modelURL, (gltf) => {
+        const loadedModel = gltf.scene;
+        modelRef.current = loadedModel;
 
-            const partNames: string[] = [];
-            const initialColors: Record<string, string> = {};
+        const partNames: string[] = [];
+        const initialColors: Record<string, string> = {};
 
-            loadedModel.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    
-                    const partName = child.name.trim();
-                    if (partName && !partNames.includes(partName)) {
-                        partNames.push(partName);
-                        if (child.material instanceof THREE.MeshStandardMaterial) {
-                            initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
-                        } else {
-                            initialColors[partName] = '#C0C0C0';
-                        }
+        loadedModel.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                
+                const partName = child.name.trim();
+                if (partName && !partNames.includes(partName)) {
+                    partNames.push(partName);
+                    if (child.material instanceof THREE.MeshStandardMaterial) {
+                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
+                    } else {
+                        initialColors[partName] = '#C0C0C0';
                     }
                 }
-            });
-            
-            onModelLoad(partNames, initialColors);
-            
-            const box = new THREE.Box3().setFromObject(loadedModel);
-            const size = box.getSize(new THREE.Vector3());
-
-            loadedModel.position.y = -box.min.y;
-            
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const fov = camera.fov * (Math.PI / 180);
-            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            
-            cameraZ *= 1.5; 
-            camera.position.set(0, size.y / 2, cameraZ);
-            
-            const newTarget = new THREE.Vector3(0, size.y / 2, 0);
-            controls.target.copy(newTarget);
-
-            camera.near = maxDim / 100;
-            camera.far = maxDim * 100;
-            camera.updateProjectionMatrix();
-
-            scene.add(loadedModel);
-            controls.update();
-        }, undefined, (error) => {
-            console.error("An error happened while loading the model:", error);
+            }
         });
-    }
+        
+        onModelLoad(partNames, initialColors);
+        
+        const box = new THREE.Box3().setFromObject(loadedModel);
+        const size = box.getSize(new THREE.Vector3());
 
-  }, [modelURL, environmentURL, onModelLoad]);
+        loadedModel.position.y = -box.min.y;
+        
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+        
+        cameraZ *= 1.5; 
+        camera.position.set(0, size.y / 2, cameraZ);
+        
+        const newTarget = new THREE.Vector3(0, size.y / 2, 0);
+        controls.target.copy(newTarget);
+
+        camera.near = maxDim / 100;
+        camera.far = maxDim * 100;
+        camera.updateProjectionMatrix();
+
+        scene.add(loadedModel);
+        controls.update();
+    }, undefined, (error) => {
+        console.error("An error happened while loading the model:", error);
+    });
+
+  }, [modelURL, onModelLoad]);
 
 
   // Effect to update colors and materials
