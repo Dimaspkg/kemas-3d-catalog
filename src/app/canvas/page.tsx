@@ -193,7 +193,7 @@ export default function CanvasPage() {
         ) : (
           <aside className={cn(
               "bg-card border-l shadow-lg z-10 overflow-y-auto transition-all duration-300 ease-in-out",
-              isPanelVisible ? "w-96" : "w-0 p-0 border-none"
+              isPanelVisible ? "md:w-80 lg:w-96" : "w-0 p-0 border-none"
           )}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 <div className={cn(!isPanelVisible && "hidden")}>
