@@ -60,9 +60,20 @@ export default function CanvasPage() {
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
   const isMobile = useIsMobile();
+  const partTextRef = useRef<HTMLDivElement>(null);
+  const [isPartTextOverflowing, setIsPartTextOverflowing] = useState(false);
 
   const parts = Object.keys(customization.colors);
   const currentPart = parts[currentPartIndex];
+
+  useEffect(() => {
+    if (partTextRef.current) {
+      setIsPartTextOverflowing(
+        partTextRef.current.scrollWidth > partTextRef.current.clientWidth
+      );
+    }
+  }, [currentPart]);
+
 
   const handleNextPart = () => {
     setCurrentPartIndex((prev) => (prev + 1) % parts.length);
@@ -91,10 +102,27 @@ export default function CanvasPage() {
     }
   }, [isMobile]);
 
+  const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
+    const uniquePartNames = [...new Set(partNames)];
+    const newInitialColors: Record<string, string> = {};
+    const newInitialMaterials: { [key: string]: string } = {};
+
+    uniquePartNames.forEach(part => {
+        newInitialColors[part] = initialColors[part] || '#000000';
+        newInitialMaterials[part] = 'glossy'; 
+    });
+
+    setCustomization({
+        colors: newInitialColors,
+        materials: newInitialMaterials,
+    });
+    setLoading(false);
+    setIsModelLoading(false);
+  }, []);
+  
   useEffect(() => {
     const fetchData = async () => {
         setLoading(true);
-        setIsModelLoading(true);
 
         const envQuery = query(collection(db, 'environments'), where("isActive", "==", true));
         const envSnapshot = await getDocs(envQuery);
@@ -119,40 +147,17 @@ export default function CanvasPage() {
         
         if (!productId) {
             setLoading(false);
-            setIsModelLoading(false);
         }
     };
 
     fetchData();
   }, [productId]);
-
-  const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
-    setCustomization(prev => {
-        const uniquePartNames = [...new Set(partNames)];
-        const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors).sort()) !== JSON.stringify(uniquePartNames.sort());
-        if (!needsInitialization) return prev;
-
-        const newInitialColors: Record<string, string> = {};
-        const newInitialMaterials: { [key: string]: string } = {};
-
-        uniquePartNames.forEach(part => {
-            newInitialColors[part] = initialColors[part] || '#000000';
-            newInitialMaterials[part] = 'glossy'; 
-        });
-
-        return {
-            colors: newInitialColors,
-            materials: newInitialMaterials,
-        };
-    });
-    setLoading(false);
-    setIsModelLoading(false);
-  }, []);
   
   const handleLoadingChange = useCallback((loading: boolean) => {
-    setIsModelLoading(loading);
-  }, []);
-
+    if(loading !== isModelLoading) {
+      setIsModelLoading(loading);
+    }
+  }, [isModelLoading]);
 
   const handleScreenshot = () => {
     canvasRef.current?.takeScreenshot();
@@ -258,7 +263,7 @@ export default function CanvasPage() {
                     <ChevronLeft />
                   </Button>
 
-                  <div className="flex-1 flex justify-center items-center gap-4 text-center">
+                  <div className="flex-1 flex justify-center items-center gap-4 text-center overflow-hidden">
                       {currentPart && (
                         <div className="relative">
                           <input
@@ -282,8 +287,10 @@ export default function CanvasPage() {
                                     {currentPartIndex + 1}/{parts.length}
                                 </div>
                             )}
-                            <div className="text-sm font-semibold truncate max-w-[150px]">
-                              {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                            <div className="text-sm font-semibold max-w-[150px] overflow-hidden whitespace-nowrap">
+                              <div ref={partTextRef} className={cn(isPartTextOverflowing && "marquee")}>
+                                {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                              </div>
                             </div>
                         </div>
                     </SheetTrigger>
@@ -294,7 +301,7 @@ export default function CanvasPage() {
                   </Button>
                 </div>
             </div>
-            <SheetContent side="bottom" className="h-[75vh] p-0">
+            <SheetContent side="bottom" className="h-[50vh] p-0">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Customization Panel</SheetTitle>
                 </SheetHeader>
