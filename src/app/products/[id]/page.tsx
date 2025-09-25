@@ -94,7 +94,7 @@ export default function ProductDetailPage() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="relative aspect-square w-full md:aspect-auto md:h-screen md:sticky md:top-0">
+            <div className="relative aspect-square w-full md:aspect-auto md:h-screen">
                  <Image
                     src={product.imageURL}
                     alt={product.name}
@@ -102,7 +102,7 @@ export default function ProductDetailPage() {
                     className="object-cover"
                 />
             </div>
-            <div className="p-8 md:p-12 lg:p-16">
+            <div className="md:sticky md:top-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                 <div className="flex flex-wrap gap-2 mb-6">
                     {product.categories?.map(category => (
