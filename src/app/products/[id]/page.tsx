@@ -53,13 +53,13 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="w-full px-4 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2">
                     <div className="space-y-8">
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
                     </div>
-                    <div className="space-y-6 py-8">
+                    <div className="space-y-6 py-8 px-4 md:px-8">
                         <Skeleton className="h-10 w-3/4" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
@@ -92,8 +92,8 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="w-full py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+        <div className="w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2">
                 <div className="flex flex-col">
                     {product.imageURLs.map((url, index) => (
                         <div key={index} className="relative aspect-square w-full">
