@@ -94,6 +94,7 @@ export default function CanvasPage() {
   useEffect(() => {
     const fetchData = async () => {
         setLoading(true);
+        setIsModelLoading(true);
 
         const envQuery = query(collection(db, 'environments'), where("isActive", "==", true));
         const envSnapshot = await getDocs(envQuery);
@@ -118,6 +119,7 @@ export default function CanvasPage() {
         
         if (!productId) {
             setLoading(false);
+            setIsModelLoading(false);
         }
     };
 
@@ -125,7 +127,6 @@ export default function CanvasPage() {
   }, [productId]);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
-    setIsModelLoading(true);
     setCustomization(prev => {
         const uniquePartNames = [...new Set(partNames)];
         const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors).sort()) !== JSON.stringify(uniquePartNames.sort());
@@ -246,45 +247,52 @@ export default function CanvasPage() {
 
         {isMobile ? (
           <Sheet>
-            <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t z-20 flex items-center justify-between px-4">
-              <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
-                <ChevronLeft />
-              </Button>
+             <div className="fixed bottom-0 left-0 right-0 z-20">
+                {product && (
+                  <div className="bg-card/80 backdrop-blur-lg p-2 text-center text-sm font-semibold rounded-t-lg mx-auto w-fit">
+                    {product.name}
+                  </div>
+                )}
+                <div className="h-20 bg-card border-t flex items-center justify-between px-4">
+                  <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
+                    <ChevronLeft />
+                  </Button>
 
-              <div className="flex-1 flex justify-center items-center gap-4 text-center">
-                  {currentPart && (
-                    <div className="relative">
-                      <input
-                          id="mobile-color-picker"
-                          type="color"
-                          value={customization.colors[currentPart] || '#000000'}
-                          onChange={handleMobileColorChange}
-                          className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
-                      />
-                      <label 
-                        htmlFor="mobile-color-picker"
-                        className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
-                        style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
-                      />
-                    </div>
-                  )}
-                  <SheetTrigger asChild disabled={parts.length === 0}>
-                    <div className="flex items-center gap-2">
-                        {parts.length > 0 && (
-                            <div className="text-xs text-muted-foreground">
-                                {currentPartIndex + 1}/{parts.length}
-                            </div>
-                        )}
-                        <div className="text-sm font-semibold truncate max-w-[150px]">
-                          {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                  <div className="flex-1 flex justify-center items-center gap-4 text-center">
+                      {currentPart && (
+                        <div className="relative">
+                          <input
+                              id="mobile-color-picker"
+                              type="color"
+                              value={customization.colors[currentPart] || '#000000'}
+                              onChange={handleMobileColorChange}
+                              className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                          />
+                          <label 
+                            htmlFor="mobile-color-picker"
+                            className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
+                            style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
+                          />
                         </div>
-                    </div>
-                </SheetTrigger>
-              </div>
+                      )}
+                      <SheetTrigger asChild disabled={parts.length === 0}>
+                        <div className="flex items-center gap-2">
+                            {parts.length > 0 && (
+                                <div className="text-xs text-muted-foreground">
+                                    {currentPartIndex + 1}/{parts.length}
+                                </div>
+                            )}
+                            <div className="text-sm font-semibold truncate max-w-[150px]">
+                              {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                            </div>
+                        </div>
+                    </SheetTrigger>
+                  </div>
 
-              <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
-                <ChevronRight />
-              </Button>
+                  <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
+                    <ChevronRight />
+                  </Button>
+                </div>
             </div>
             <SheetContent side="bottom" className="h-[75vh] p-0">
                 <SheetHeader>
