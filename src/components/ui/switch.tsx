@@ -11,8 +11,8 @@ const switchRootVariants = cva(
   {
     variants: {
       size: {
-        default: "h-10 w-[90px]",
-        sm: "h-9 w-[90px]",
+        default: "h-6 w-11",
+        sm: "h-5 w-9",
       },
     },
     defaultVariants: {
@@ -22,12 +22,12 @@ const switchRootVariants = cva(
 );
 
 const switchThumbVariants = cva(
-    "pointer-events-none flex items-center justify-center rounded-full bg-background shadow-lg ring-0 transition-transform text-sm font-semibold",
+    "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform",
     {
       variants: {
         size: {
-          default: "h-9 w-12 data-[state=checked]:translate-x-9 data-[state=unchecked]:translate-x-0",
-          sm: "h-8 w-10 data-[state=checked]:translate-x-11 data-[state=unchecked]:translate-x-0",
+          default: "h-5 w-5 data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
+          sm: "h-4 w-4 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0",
         },
       },
       defaultVariants: {
@@ -48,10 +48,7 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(switchThumbVariants({size}))}
-    >
-      <span className="hidden group-data-[state=checked]:block text-primary">Open</span>
-      <span className="hidden group-data-[state=unchecked]:block text-muted-foreground">Close</span>
-    </SwitchPrimitives.Thumb>
+    />
   </SwitchPrimitives.Root>
 ))
 Switch.displayName = SwitchPrimitives.Root.displayName
