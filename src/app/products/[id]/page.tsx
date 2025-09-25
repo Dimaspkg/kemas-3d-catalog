@@ -95,7 +95,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div>
+        <div className="">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
                 <div className="md:col-span-3">
                     <div className="relative aspect-square w-full rounded-lg overflow-hidden border">
@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
                         />
                     </div>
                 </div>
-                <div className="md:col-span-2 self-start sticky top-8">
+                <div className="md:col-span-2 self-start sticky top-8 p-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
