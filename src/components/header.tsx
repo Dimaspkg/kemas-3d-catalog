@@ -6,7 +6,6 @@ import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { User as UserIcon, Search, ShoppingBag } from 'lucide-react';
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
@@ -24,7 +23,7 @@ export default function Header() {
         
       </Link>
       <div className="flex items-center gap-6">
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-6 font-medium">
             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
                 <Link href="/">Home</Link>
             </Button>
