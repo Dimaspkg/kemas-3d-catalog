@@ -44,8 +44,68 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
-  const modelRef = useRef<THREE.Group>();
+  const modelRef = useRef<THREE.Group | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fitCameraToModel = (model: THREE.Object3D, camera: THREE.PerspectiveCamera, controls: OrbitControls) => {
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      cameraZ *= 1.5; // Add some padding
+
+      camera.position.set(center.x, center.y, center.z + cameraZ);
+
+      const newTarget = center;
+      controls.target.copy(newTarget);
+      controls.update();
+
+      const floor = sceneRef.current?.getObjectByProperty("receiveShadow", true);
+      if (floor instanceof THREE.Mesh) {
+          floor.position.y = box.min.y;
+      }
+  };
+
+  const loadModel = useCallback((scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: OrbitControls, url: string) => {
+    setIsLoading(true);
+    const gltfLoader = new GLTFLoader();
+
+    gltfLoader.load(url, (gltf) => {
+        if (modelRef.current) {
+            scene.remove(modelRef.current);
+        }
+        const loadedModel = gltf.scene;
+        modelRef.current = loadedModel;
+
+        const partNames: string[] = [];
+        const initialColors: Record<string, string> = {};
+
+        loadedModel.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                const partName = child.name.trim();
+                if (partName && !partNames.includes(partName)) {
+                    partNames.push(partName);
+                    if (child.material instanceof THREE.MeshStandardMaterial) {
+                        initialColors[partName] = `#${child.material.color.getHexString()}`;
+                    }
+                }
+            }
+        });
+        
+        onModelLoad(partNames, initialColors);
+        scene.add(loadedModel);
+        fitCameraToModel(loadedModel, camera, controls);
+        setIsLoading(false);
+    }, undefined, (error) => {
+        console.error("An error happened while loading the model:", error);
+        setIsLoading(false);
+    });
+  }, [onModelLoad]);
 
   useImperativeHandle(ref, () => ({
     takeScreenshot: () => {
@@ -63,12 +123,11 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     }
   }));
 
-  // Main effect for initialization and model loading
+  // Main setup effect, runs only once
   useEffect(() => {
     const currentMount = mountRef.current;
     if (!currentMount) return;
 
-    // --- Core Initialization ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xF8F8F8);
     const camera = new THREE.PerspectiveCamera(
@@ -83,23 +142,17 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0; 
+    renderer.toneMappingExposure = 1.0;
+    currentMount.appendChild(renderer.domElement);
     
-    // Store references
     sceneRef.current = scene;
     cameraRef.current = camera;
     rendererRef.current = renderer;
-    currentMount.innerHTML = '';
-    currentMount.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 1;
-    controls.maxDistance = 50; 
     controlsRef.current = controls;
-    
-    // --- Lighting ---
+
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     keyLight.position.set(-5, 5, 5);
     keyLight.castShadow = true;
@@ -108,15 +161,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
     fillLight.position.set(5, 2, 5);
     scene.add(fillLight);
-
-    const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    backLight.position.set(0, 5, -8);
-    scene.add(backLight);
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    // --- Floor ---
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
     const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -125,7 +173,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // --- Animation Loop ---
     let animationFrameId: number;
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -133,8 +180,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       renderer.render(scene, camera);
     };
     animate();
-    
-    // --- Resize Handler ---
+
     const handleResize = () => {
         if (!rendererRef.current || !cameraRef.current || !mountRef.current) return;
         const newWidth = mountRef.current.clientWidth;
@@ -145,95 +191,33 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     };
     window.addEventListener("resize", handleResize);
 
-    // --- Cleanup ---
     return () => {
         window.removeEventListener("resize", handleResize);
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (controlsRef.current) controlsRef.current.dispose();
+        if (mountRef.current && rendererRef.current) {
+            mountRef.current.removeChild(rendererRef.current.domElement);
         }
-        controls.dispose();
-        if (modelRef.current) {
-            scene.remove(modelRef.current);
-        }
-        if (currentMount && renderer.domElement) {
-            currentMount.removeChild(renderer.domElement);
-        }
-        renderer.dispose();
+        if (rendererRef.current) rendererRef.current.dispose();
     };
   }, []);
 
   // Effect for loading model
   useEffect(() => {
     const scene = sceneRef.current;
-    if (!scene || !cameraRef.current || !controlsRef.current) return;
-    
-    if (!modelURL) {
-      setIsLoading(false);
-      if (modelRef.current) {
-          scene.remove(modelRef.current);
-      }
-      return;
-    }
-    
-    setIsLoading(true);
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load(modelURL, (gltf) => {
-      if (modelRef.current) {
-        scene.remove(modelRef.current);
-      }
-      const loadedModel = gltf.scene;
-      modelRef.current = loadedModel;
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
 
-      const partNames: string[] = [];
-      const initialColors: Record<string, string> = {};
-
-      loadedModel.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              const partName = child.name.trim();
-              if (partName && !partNames.includes(partName)) {
-                  partNames.push(partName);
-                  if (child.material instanceof THREE.MeshStandardMaterial) {
-                      initialColors[partName] = `#${child.material.color.getHexString()}`;
-                  }
-              }
-          }
-      });
-      
-      onModelLoad(partNames, initialColors);
-      
-      const box = new THREE.Box3().setFromObject(loadedModel);
-      const size = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
-
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const fov = cameraRef.current.fov * (Math.PI / 180);
-      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-      
-      cameraZ *= 1.5; 
-
-      loadedModel.position.sub(center); 
-
-      cameraRef.current.position.set(0, 0, cameraZ);
-      
-      const newTarget = new THREE.Vector3(0, 0, 0);
-      controlsRef.current.target.copy(newTarget);
-      controlsRef.current.update();
-
-      const floor = scene.getObjectByProperty("receiveShadow", true);
-      if (floor instanceof THREE.Mesh) {
-        floor.position.y = box.min.y - center.y;
-      }
-      
-      scene.add(loadedModel);
-      setIsLoading(false);
-    }, undefined, (error) => {
-        console.error("An error happened while loading the model:", error);
+    if (scene && camera && controls && modelURL) {
+      loadModel(scene, camera, controls, modelURL);
+    } else {
+        if (modelRef.current && scene) {
+            scene.remove(modelRef.current);
+            modelRef.current = null;
+        }
         setIsLoading(false);
-    });
-
-  }, [modelURL, onModelLoad]);
+    }
+  }, [modelURL, loadModel]);
   
   // Effect for environment
   useEffect(() => {
@@ -311,5 +295,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
