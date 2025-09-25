@@ -11,6 +11,10 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { PanelRightOpen, PanelRightClose, Brush } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -47,24 +51,30 @@ export default function CanvasPage() {
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [loading, setLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(true);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (isMobile) {
+      setIsPanelVisible(false);
+    } else {
+      setIsPanelVisible(true);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     const fetchData = async () => {
         setLoading(true);
 
-        // Fetch active environment
         const envQuery = query(collection(db, 'environments'), where("isActive", "==", true));
         const envSnapshot = await getDocs(envQuery);
         if (!envSnapshot.empty) {
             setEnvironment(envSnapshot.docs[0].data() as Environment);
-        } else {
-             console.warn("No active environment found. Falling back to default.");
         }
 
-        // Fetch product if ID exists
         if (productId) {
             const docRef = doc(db, 'products', productId);
             const docSnap = await getDoc(docRef);
@@ -72,7 +82,6 @@ export default function CanvasPage() {
             if (docSnap.exists()) {
                 const productData = { id: docSnap.id, ...docSnap.data() } as Product;
                 setProduct(productData);
-                // If the product doesn't have an open model, ensure the switch is off
                 if (!productData.modelURLOpen) {
                     setShowOpenModel(false);
                 }
@@ -81,7 +90,6 @@ export default function CanvasPage() {
             }
         }
         
-        // We set loading to false here, but the customization panel will wait for the model to load.
         if (!productId) {
             setLoading(false);
         }
@@ -91,18 +99,17 @@ export default function CanvasPage() {
   }, [productId]);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
-    // Only set initial state if it hasn't been set before
-    // This prevents customization from being reset when switching models
     setCustomization(prev => {
-        const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors)) !== JSON.stringify(partNames);
+        const uniquePartNames = [...new Set(partNames)];
+        const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors).sort()) !== JSON.stringify(uniquePartNames.sort());
         if (!needsInitialization) return prev;
 
         const newInitialColors: Record<string, string> = {};
         const newInitialMaterials: { [key: string]: string } = {};
 
-        partNames.forEach(part => {
+        uniquePartNames.forEach(part => {
             newInitialColors[part] = initialColors[part] || '#000000';
-            newInitialMaterials[part] = 'glossy'; // Default to glossy
+            newInitialMaterials[part] = 'glossy'; 
         });
 
         return {
@@ -110,7 +117,6 @@ export default function CanvasPage() {
             materials: newInitialMaterials,
         };
     });
-
     setLoading(false);
   }, []);
 
@@ -120,8 +126,19 @@ export default function CanvasPage() {
   
   const currentModelURL = showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL;
 
+  const customizationPanelContent = (
+    loading || !product ? (
+      <CustomizationPanelSkeleton />
+    ) : (
+      <CustomizationPanel
+        state={customization}
+        onStateChange={setCustomization}
+      />
+    )
+  );
+
   return (
-    <div className="flex flex-row h-screen bg-background text-foreground font-body">
+    <div className="flex flex-col md:flex-row h-screen bg-background text-foreground font-body">
         <main className="flex-1 overflow-hidden relative">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
@@ -145,19 +162,45 @@ export default function CanvasPage() {
                     <Label htmlFor="open-state-switch" className="text-white text-sm">Show Open State</Label>
                 </div>
             )}
-        </main>
-        <aside className="w-96 bg-card border-l shadow-lg z-10 overflow-y-auto">
-          <Suspense fallback={<CustomizationPanelSkeleton />}>
-            {loading || !product ? (
-              <CustomizationPanelSkeleton />
-            ) : (
-              <CustomizationPanel
-                state={customization}
-                onStateChange={setCustomization}
-              />
+            {!isMobile && (
+              <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute bottom-4 right-4 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                  onClick={() => setIsPanelVisible(!isPanelVisible)}
+                  aria-label="Toggle customization panel"
+              >
+                  {isPanelVisible ? <PanelRightClose /> : <PanelRightOpen />}
+              </Button>
             )}
-          </Suspense>
-        </aside>
+        </main>
+
+        {isMobile ? (
+          <Sheet>
+            <SheetTrigger asChild>
+                <Button className="fixed bottom-4 left-1/2 -translate-x-1/2 w-48 z-20" size="lg">
+                    <Brush className="mr-2 h-5 w-5" />
+                    Customize
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[75vh] p-0">
+                <Suspense fallback={<CustomizationPanelSkeleton />}>
+                    {customizationPanelContent}
+                </Suspense>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <aside className={cn(
+              "bg-card border-l shadow-lg z-10 overflow-y-auto transition-all duration-300 ease-in-out",
+              isPanelVisible ? "w-96" : "w-0 p-0 border-none"
+          )}>
+            <Suspense fallback={<CustomizationPanelSkeleton />}>
+                <div className={cn(!isPanelVisible && "hidden")}>
+                  {customizationPanelContent}
+                </div>
+            </Suspense>
+          </aside>
+        )}
     </div>
   );
 }
