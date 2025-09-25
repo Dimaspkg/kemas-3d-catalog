@@ -11,6 +11,9 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Brush } from "lucide-react";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -27,8 +30,13 @@ const CustomizationPanel = dynamic(
 
 function CustomizationPanelSkeleton() {
   return (
-    <div className="h-24 flex items-center justify-center p-4 md:p-8 border-t bg-card">
-        <Skeleton className="h-12 w-full max-w-sm" />
+    <div className="p-8 space-y-6">
+        <Skeleton className="h-8 w-1/3" />
+        <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+        </div>
     </div>
   );
 }
@@ -140,20 +148,33 @@ export default function CanvasPage() {
                     <Label htmlFor="open-state-switch" className="text-white text-sm">Show Open State</Label>
                 </div>
             )}
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button className="absolute bottom-6 left-1/2 -translate-x-1/2 shadow-lg" size="lg">
+                        <Brush className="mr-2" />
+                        Customize
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-3/4">
+                    <SheetHeader>
+                        <SheetTitle>Customize Product</SheetTitle>
+                        <SheetDescription>
+                            Change colors and materials for each part of the product.
+                        </SheetDescription>
+                    </SheetHeader>
+                    <Suspense fallback={<CustomizationPanelSkeleton />}>
+                        {loading || !product ? (
+                            <CustomizationPanelSkeleton />
+                        ) : (
+                            <CustomizationPanel
+                                state={customization}
+                                onStateChange={setCustomization}
+                            />
+                        )}
+                    </Suspense>
+                </SheetContent>
+            </Sheet>
         </main>
-        
-        <footer className="w-full border-t bg-card">
-           <Suspense fallback={<CustomizationPanelSkeleton />}>
-            {loading || !product ? (
-                <CustomizationPanelSkeleton />
-            ) : (
-                <CustomizationPanel
-                    state={customization}
-                    onStateChange={setCustomization}
-                />
-            )}
-          </Suspense>
-        </footer>
     </div>
   );
 }
