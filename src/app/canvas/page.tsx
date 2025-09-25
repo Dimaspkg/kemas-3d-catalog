@@ -153,7 +153,7 @@ export default function CanvasPage() {
               />
             </Suspense>
             {product?.modelURLOpen && (
-                <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/20 backdrop-blur-lg p-2 rounded-lg border border-white/20">
+                <div className="absolute top-4 left-4 flex items-center space-x-2">
                     <Switch
                         id="open-state-switch"
                         checked={showOpenModel}
