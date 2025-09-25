@@ -43,7 +43,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group>();
   const isInitialModelLoad = useRef(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +54,11 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       const camera = cameraRef.current;
       if (renderer && scene && camera) {
         // Force a synchronous render to a temporary buffer
-        renderer.domElement.getContext('webgl2', {preserveDrawingBuffer: true});
+        const drawingBufferContext = renderer.domElement.getContext('webgl2', {preserveDrawingBuffer: true});
+        if (!drawingBufferContext) {
+          console.error("Could not get a preserveDrawingBuffer context");
+          return;
+        }
         renderer.render(scene, camera);
         const dataURL = renderer.domElement.toDataURL('image/png');
         const link = document.createElement('a');
@@ -67,119 +70,192 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       }
     }
   }));
-
+  
   useEffect(() => {
-      const currentMount = mountRef.current;
-      if (!currentMount) return;
+    const currentMount = mountRef.current;
+    if (!currentMount) return;
 
-      // --- Scene Initialization ---
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xF8F8F8);
-      sceneRef.current = scene;
+    setIsLoading(true);
 
-      // --- Camera Initialization ---
-      const camera = new THREE.PerspectiveCamera(
-        12,
-        currentMount.clientWidth / currentMount.clientHeight,
-        0.1,
-        1000
-      );
-      camera.position.set(0, 1, 5);
-      cameraRef.current = camera;
+    // --- Scene Initialization ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xF8F8F8);
+    sceneRef.current = scene;
 
-      // --- Renderer Initialization ---
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false });
-      renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.0; 
-      currentMount.appendChild(renderer.domElement);
-      rendererRef.current = renderer;
+    // --- Camera Initialization ---
+    const camera = new THREE.PerspectiveCamera(
+      12,
+      currentMount.clientWidth / currentMount.clientHeight,
+      0.1,
+      1000
+    );
+    camera.position.set(0, 1, 5);
+    cameraRef.current = camera;
 
-      // --- Controls Initialization ---
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.minDistance = 2;
-      controls.maxDistance = 50; 
-      controls.target.set(0, 1, 0);
-      controls.update();
-      controlsRef.current = controls;
+    // --- Renderer Initialization ---
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0; 
+    rendererRef.current = renderer;
+    currentMount.appendChild(renderer.domElement);
 
-      // --- Lighting ---
-      const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
-      keyLight.position.set(-5, 5, 5);
-      keyLight.castShadow = true;
-      keyLight.shadow.mapSize.width = 2048;
-      keyLight.shadow.mapSize.height = 2048;
-      keyLight.shadow.radius = 8;
-      keyLight.shadow.bias = -0.001;
-      scene.add(keyLight);
+    // --- Controls Initialization ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 2;
+    controls.maxDistance = 50; 
+    controls.target.set(0, 1, 0);
+    controls.update();
 
-      const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
-      fillLight.position.set(5, 2, 5);
-      scene.add(fillLight);
+    // --- Lighting ---
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    keyLight.position.set(-5, 5, 5);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.radius = 8;
+    keyLight.shadow.bias = -0.001;
+    scene.add(keyLight);
 
-      const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
-      backLight.position.set(0, 5, -8);
-      scene.add(backLight);
-      
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      scene.add(ambientLight);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    fillLight.position.set(5, 2, 5);
+    scene.add(fillLight);
 
-      // --- Floor ---
-      const floorGeometry = new THREE.PlaneGeometry(20, 20);
-      const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
-      const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = 0;
-      floor.receiveShadow = true;
-      scene.add(floor);
-      
-      // --- Animation Loop ---
-      let animationFrameId: number;
-      const animate = () => {
-        animationFrameId = requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      };
-      animate();
-      
-      // --- Resize Handler ---
-      const handleResize = () => {
-        if (!mountRef.current || !rendererRef.current) return;
-        const newWidth = mountRef.current.clientWidth;
-        const newHeight = mountRef.current.clientHeight;
-        camera.aspect = newWidth / newHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(newWidth, newHeight);
-      };
-      window.addEventListener("resize", handleResize);
+    const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    backLight.position.set(0, 5, -8);
+    scene.add(backLight);
+    
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
-      // --- Cleanup ---
-      return () => {
-          window.removeEventListener("resize", handleResize);
-          cancelAnimationFrame(animationFrameId);
-          if (mountRef.current && rendererRef.current) {
-            mountRef.current.removeChild(rendererRef.current.domElement);
+    // --- Floor ---
+    const floorGeometry = new THREE.PlaneGeometry(20, 20);
+    const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = 0;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // --- Model Loading ---
+    if (modelURL) {
+      const gltfLoader = new GLTFLoader();
+      gltfLoader.load(modelURL, (gltf) => {
+          if (modelRef.current) {
+              scene.remove(modelRef.current);
           }
-          renderer.dispose();
-          scene.traverse((object: any) => {
-              if (object.isMesh) {
-                  if (object.geometry) object.geometry.dispose();
-                  if (object.material) {
-                      if (Array.isArray(object.material)) {
-                          object.material.forEach(material => material.dispose());
+          const loadedModel = gltf.scene;
+          modelRef.current = loadedModel;
+
+          const partNames: string[] = [];
+          const initialColors: Record<string, string> = {};
+
+          loadedModel.traverse((child) => {
+              if (child instanceof THREE.Mesh) {
+                  child.castShadow = true;
+                  child.receiveShadow = true;
+                  
+                  const partName = child.name.trim();
+                  if (partName && !partNames.includes(partName)) {
+                      partNames.push(partName);
+                      if (child.material instanceof THREE.MeshStandardMaterial) {
+                          initialColors[partName] = `#${child.material.color.getHexString()}`;
                       } else {
-                          object.material.dispose();
+                          initialColors[partName] = '#C0C0C0';
                       }
                   }
               }
           });
-      };
-  }, []);
+          
+          onModelLoad(partNames, initialColors);
+          
+          const box = new THREE.Box3().setFromObject(loadedModel);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+
+          loadedModel.position.y = -box.min.y;
+          
+          if (isInitialModelLoad.current) {
+              const maxDim = Math.max(size.x, size.y, size.z);
+              const fov = camera.fov * (Math.PI / 180);
+              let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+              cameraZ *= 2.5; 
+              
+              camera.position.set(0, center.y > 0 ? center.y : size.y / 2, cameraZ);
+              
+              controls.target.copy(center);
+              controls.target.y = size.y / 2;
+
+              camera.near = maxDim / 100;
+              camera.far = maxDim * 100;
+              camera.updateProjectionMatrix();
+
+              isInitialModelLoad.current = false;
+          }
+
+          scene.add(loadedModel);
+          controls.update();
+          setIsLoading(false);
+
+      }, undefined, (error) => {
+          console.error("An error happened while loading the model:", error);
+          setIsLoading(false);
+      });
+    } else {
+      setIsLoading(false);
+    }
+    
+    // --- Animation Loop ---
+    let animationFrameId: number;
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+    
+    // --- Resize Handler ---
+    const handleResize = () => {
+      if (!mountRef.current || !rendererRef.current) return;
+      const newWidth = mountRef.current.clientWidth;
+      const newHeight = mountRef.current.clientHeight;
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newWidth, newHeight);
+    };
+    window.addEventListener("resize", handleResize);
+
+    // --- Cleanup ---
+    return () => {
+        window.removeEventListener("resize", handleResize);
+        cancelAnimationFrame(animationFrameId);
+        if (currentMount && rendererRef.current) {
+            currentMount.removeChild(rendererRef.current.domElement);
+        }
+        renderer.dispose();
+        scene.traverse((object: any) => {
+            if (object.isMesh) {
+                if (object.geometry) object.geometry.dispose();
+                if (object.material) {
+                    if (Array.isArray(object.material)) {
+                        object.material.forEach(material => material.dispose());
+                    } else {
+                        object.material.dispose();
+                    }
+                }
+            }
+        });
+        sceneRef.current = null;
+        cameraRef.current = null;
+        rendererRef.current = null;
+        modelRef.current = undefined;
+    };
+  }, [modelURL, onModelLoad]);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -195,79 +271,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   }, [environmentURL]);
 
-  useEffect(() => {
-    const scene = sceneRef.current;
-    const camera = cameraRef.current;
-    const controls = controlsRef.current;
-    if (!scene || !camera || !controls || !modelURL) return;
-
-    setIsLoading(true);
-
-    if (modelRef.current) {
-        scene.remove(modelRef.current);
-    }
-    
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load(modelURL, (gltf) => {
-        const loadedModel = gltf.scene;
-        modelRef.current = loadedModel;
-
-        const partNames: string[] = [];
-        const initialColors: Record<string, string> = {};
-
-        loadedModel.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-                
-                const partName = child.name.trim();
-                if (partName && !partNames.includes(partName)) {
-                    partNames.push(partName);
-                    if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${child.material.color.getHexString()}`;
-                    } else {
-                        initialColors[partName] = '#C0C0C0';
-                    }
-                }
-            }
-        });
-        
-        onModelLoad(partNames, initialColors);
-        
-        const box = new THREE.Box3().setFromObject(loadedModel);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
-        loadedModel.position.y = -box.min.y;
-        
-        if (isInitialModelLoad.current) {
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const fov = camera.fov * (Math.PI / 180);
-            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 2.5; 
-            
-            camera.position.set(0, center.y > 0 ? center.y : size.y / 2, cameraZ);
-            
-            controls.target.copy(center);
-            controls.target.y = size.y / 2;
-
-            camera.near = maxDim / 100;
-            camera.far = maxDim * 100;
-            camera.updateProjectionMatrix();
-
-            isInitialModelLoad.current = false;
-        }
-
-        scene.add(loadedModel);
-        controls.update();
-        setIsLoading(false);
-
-    }, undefined, (error) => {
-        console.error("An error happened while loading the model:", error);
-        setIsLoading(false);
-    });
-
-  }, [modelURL, onModelLoad]);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -311,7 +314,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             className="w-full h-full"
         />
 
-        {(isLoading && !modelRef.current) && <Skeleton className="absolute inset-0 w-full h-full" />}
+        {(isLoading || !modelURL) && <Skeleton className="absolute inset-0 w-full h-full" />}
 
         <div className="absolute bottom-0 left-0 p-6 pointer-events-none text-foreground/80">
             <h1 className="font-semibold text-lg drop-shadow-sm">{product?.name || <Skeleton className="h-6 w-48 bg-black/10" />}</h1>
@@ -329,3 +332,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
