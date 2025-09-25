@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
+import { X } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -45,12 +46,33 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
+// Extracts the file path from a Supabase storage URL
+function getPathFromUrl(url: string): string | null {
+    if (!url) return null;
+    try {
+        const urlObject = new URL(url);
+        // The path is typically /storage/v1/object/public/bucket-name/file-path
+        const pathSegments = urlObject.pathname.split('/');
+        const bucketNameIndex = pathSegments.findIndex(segment => segment === 'public') + 1;
+        if (bucketNameIndex > 0 && bucketNameIndex + 1 < pathSegments.length) {
+             return pathSegments.slice(bucketNameIndex + 1).join('/');
+        }
+        return null;
+    } catch (error) {
+        console.error("Invalid URL:", error);
+        return null;
+    }
+}
+
+
 export default function EditProductPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [loadingProduct, setLoadingProduct] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [currentImageURLs, setCurrentImageURLs] = useState<string[]>([]);
+    const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
     const { toast } = useToast();
     const router = useRouter();
     const params = useParams();
@@ -79,6 +101,7 @@ export default function EditProductPage() {
             if (docSnap.exists()) {
                 const productData = { id: docSnap.id, ...docSnap.data() } as Product;
                 setProduct(productData);
+                setCurrentImageURLs(productData.imageURLs || []);
                 form.reset({
                     ...productData,
                     price: productData.price || 0,
@@ -104,6 +127,11 @@ export default function EditProductPage() {
         return () => unsubscribe();
     }, []);
 
+    const handleRemoveImage = (urlToRemove: string) => {
+        setCurrentImageURLs(currentImageURLs.filter(url => url !== urlToRemove));
+        setImagesToDelete(prev => [...prev, urlToRemove]);
+    };
+
     const uploadFile = async (file: File, bucket: string): Promise<string> => {
         const safeFileName = file.name.replace(/\s+/g, '-');
         const fileName = `${uuidv4()}-${safeFileName}`;
@@ -117,11 +145,19 @@ export default function EditProductPage() {
         if (!product) return;
         setIsSubmitting(true);
         
-        let imageURLs = product.imageURLs || [];
+        let finalImageURLs = [...currentImageURLs];
         let modelURL = product.modelURL;
         let modelURLOpen = product.modelURLOpen;
 
         try {
+             // Delete images marked for deletion from Supabase
+             if (imagesToDelete.length > 0) {
+                const pathsToDelete = imagesToDelete.map(getPathFromUrl).filter(Boolean) as string[];
+                if(pathsToDelete.length > 0) {
+                    await supabase.storage.from('product-images').remove(pathsToDelete);
+                }
+            }
+
             const productImageFiles = data.productImages;
             const modelFile = data.modelFile?.[0];
             const modelFileOpen = data.modelFileOpen?.[0];
@@ -132,7 +168,7 @@ export default function EditProductPage() {
                     uploadPromises.push(uploadFile(file, 'product-images'));
                 }
                 const newImageURLs = await Promise.all(uploadPromises);
-                imageURLs = [...imageURLs, ...newImageURLs];
+                finalImageURLs = [...finalImageURLs, ...newImageURLs];
             }
 
 
@@ -150,7 +186,7 @@ export default function EditProductPage() {
                 name: data.name,
                 price: data.price,
                 categories: data.categories,
-                imageURLs,
+                imageURLs: finalImageURLs,
                 modelURL,
                 modelURLOpen,
                 dimensions: data.dimensions,
@@ -335,9 +371,21 @@ export default function EditProductPage() {
                                 />
                                 <div>
                                     <FormLabel>Current Images</FormLabel>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {product?.imageURLs?.map(url => (
-                                            <Image key={url} src={url} alt="Product image" width={80} height={80} className="rounded-md object-cover" />
+                                    <div className="flex flex-wrap gap-4 mt-2">
+                                        {currentImageURLs.map(url => (
+                                            <div key={url} className="relative group">
+                                                <Image src={url} alt="Product image" width={80} height={80} className="rounded-md object-cover" />
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => handleRemoveImage(url)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                    <span className="sr-only">Remove image</span>
+                                                </Button>
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
@@ -495,4 +543,5 @@ export default function EditProductPage() {
             </form>
         </Form>
     );
-}
+
+    
