@@ -53,7 +53,7 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="container mx-auto py-8">
+            <div className="px-8 py-8">
                 <Skeleton className="h-8 w-40 mb-8" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Skeleton className="w-full aspect-square rounded-lg" />
@@ -81,7 +81,7 @@ export default function ProductDetailPage() {
 
     if (!product) {
         return (
-            <div className="container mx-auto py-8 text-center">
+            <div className="px-8 py-8 text-center">
                  <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
                  <p className="text-muted-foreground">The product you are looking for does not exist.</p>
                  <Button asChild variant="link" className="mt-4">
@@ -95,7 +95,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="container mx-auto py-8">
+        <div className="px-8 py-8">
             <Button asChild variant="ghost" className="mb-6">
                 <Link href="/products">
                     <ArrowLeft className="mr-2 h-4 w-4"/>
