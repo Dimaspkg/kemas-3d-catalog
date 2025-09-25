@@ -33,7 +33,7 @@ function FilterSidebar() {
 
     return (
         <aside className="w-full md:w-64 lg:w-72 space-y-6">
-            <p className="font-semibold text-lg">Lifestyle</p>
+            <p className="font-semibold text-lg">Categories</p>
             <Accordion type="multiple" className="w-full">
                 {filters.map((filter, index) => (
                     <AccordionItem value={`item-${index}`} key={filter}>
