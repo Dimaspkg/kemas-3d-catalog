@@ -1,21 +1,11 @@
 
-'use client';
+'use server';
 
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import HeaderClient from "./header-client";
 
-export default function Header() {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+export default async function Header() {
 
   return (
     <header className="px-4 lg:px-8 py-8 border-b flex items-center justify-end bg-background z-20 sticky top-0">
@@ -33,6 +23,7 @@ export default function Header() {
             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
                 <Link href="/canvas">Customize</Link>
             </Button>
+            <HeaderClient />
         </nav>
       </div>
     </header>
