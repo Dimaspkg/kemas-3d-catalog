@@ -160,7 +160,7 @@ export default function CanvasPage() {
                         onCheckedChange={setShowOpenModel}
                         aria-label="Toggle open/closed model view"
                     />
-                    <Label htmlFor="open-state-switch" className="text-white text-sm">Open</Label>
+                    <Label htmlFor="open-state-switch" className="text-foreground text-sm">Open</Label>
                 </div>
             )}
             {!isMobile && (
