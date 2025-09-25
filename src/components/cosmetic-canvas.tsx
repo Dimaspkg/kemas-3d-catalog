@@ -97,7 +97,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     controls.dampingFactor = 0.05;
     controls.minDistance = 2;
     controls.maxDistance = 50; 
-    controls.target.set(0, 1, 0);
+    controls.target.set(0, 0, 0);
     controls.update();
     controlsRef.current = controls;
     
@@ -237,27 +237,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         onModelLoad(partNames, initialColors);
         
         const box = new THREE.Box3().setFromObject(loadedModel);
-        const size = box.getSize(new THREE.Vector3());
-        
         loadedModel.position.y = -box.min.y;
         
         if (isInitialModelLoad.current && cameraRef.current && controlsRef.current) {
-            const camera = cameraRef.current;
             const controls = controlsRef.current;
-            
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const fov = camera.fov * (Math.PI / 180);
-            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 1.5; 
-            
-            camera.position.z = cameraZ;
-            
+            const size = box.getSize(new THREE.Vector3());
             controls.target.y = size.y / 2;
-
-            camera.near = maxDim / 100;
-            camera.far = maxDim * 100;
-            camera.updateProjectionMatrix();
-
             isInitialModelLoad.current = false;
             controls.update();
         }
