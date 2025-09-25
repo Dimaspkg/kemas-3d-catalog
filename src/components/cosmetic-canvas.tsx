@@ -98,6 +98,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     currentMount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -320,5 +321,7 @@ CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
 
+
+    
 
     
