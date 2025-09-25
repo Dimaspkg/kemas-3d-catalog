@@ -167,15 +167,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
         return () => {
             window.removeEventListener("resize", handleResize);
-            if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current);
-            // Full cleanup
-            if (rendererRef.current) {
-                rendererRef.current.dispose();
-                const canvas = currentMount.querySelector('canvas');
-                if (canvas) currentMount.removeChild(canvas);
-                rendererRef.current = null;
+            if (animationFrameIdRef.current) {
+              cancelAnimationFrame(animationFrameIdRef.current);
             }
-            sceneRef.current = null;
+            if (rendererRef.current) {
+              rendererRef.current.dispose();
+            }
         };
     }
   }, []);
@@ -317,22 +314,22 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                  <Button
                     asChild
                     variant="outline"
+                    size="icon"
                     className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                 >
                     <Link href={`/products/${product.id}`}>
-                        <X className="mr-2 h-4 w-4" />
-                        Exit
+                        <X className="h-4 w-4" />
                     </Link>
                 </Button>
             ) : (
                  <Button
                     asChild
                     variant="outline"
+                    size="icon"
                     className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                 >
                     <Link href="/">
-                        <X className="mr-2 h-4 w-4" />
-                        Exit
+                        <X className="h-4 w-4" />
                     </Link>
                 </Button>
             )}
@@ -348,4 +345,5 @@ export default CosmeticCanvas;
 
 
 
+    
     
