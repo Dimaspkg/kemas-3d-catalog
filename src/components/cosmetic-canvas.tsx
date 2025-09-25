@@ -207,22 +207,27 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
         const partNames: string[] = [];
         const initialColors: Record<string, string> = {};
+        let i = 0;
 
         loadedModel.traverse((child) => {
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
-                const partName = child.name.trim();
-                if (partName) { // Don't check for uniqueness here, just add all
-                    partNames.push(partName);
-                    if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${child.material.color.getHexString()}`;
-                    }
+                
+                // Assign a unique ID to each mesh part to allow individual customization
+                // even if they have the same name in the GLTF file.
+                const originalName = child.name.trim() || 'unnamed_part';
+                const uniquePartName = `${originalName}_${i++}`;
+                child.name = uniquePartName;
+
+                partNames.push(uniquePartName);
+                if (child.material instanceof THREE.MeshStandardMaterial) {
+                    initialColors[uniquePartName] = `#${child.material.color.getHexString()}`;
                 }
             }
         });
         
-        onModelLoad([...new Set(partNames)], initialColors); // Send unique names to parent
+        onModelLoad(partNames, initialColors);
         scene.add(loadedModel);
         fitCameraToModel(loadedModel, camera, controls);
         setIsLoading(false);
