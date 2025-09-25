@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Brush } from 'lucide-react';
+import { CustomiseIcon } from '@/components/icons/customise-icon';
 
 function SpecificationRow({ label, value }: { label: string, value?: string }) {
     if (!value) return null;
@@ -54,9 +54,9 @@ export default function ProductDetailPage() {
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen gap-8">
-                    <div className="w-full h-full bg-muted animate-pulse rounded-lg"></div>
-                    <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                    <div className="w-full aspect-square bg-muted animate-pulse rounded-lg"></div>
+                    <div className="space-y-6 py-8">
                         <Skeleton className="h-10 w-3/4" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
@@ -84,20 +84,14 @@ export default function ProductDetailPage() {
             <div className="container mx-auto px-4 py-20 text-center">
                  <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
                  <p className="text-muted-foreground">The product you are looking for does not exist.</p>
-                 <Button asChild variant="link" className="mt-4">
-                    <Link href="/products">
-                        <ArrowLeft className="mr-2 h-4 w-4"/>
-                        Back to Products
-                    </Link>
-                 </Button>
             </div>
         );
     }
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative aspect-square w-full md:aspect-auto md:h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                <div className="relative aspect-square w-full">
                      <Image
                         src={product.imageURL}
                         alt={product.name}
@@ -105,7 +99,7 @@ export default function ProductDetailPage() {
                         className="object-cover rounded-lg"
                     />
                 </div>
-                <div className="md:sticky md:top-28 md:h-fit">
+                <div className="md:sticky md:top-28 md:h-fit py-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
@@ -113,10 +107,10 @@ export default function ProductDetailPage() {
                         ))}
                     </div>
                     
-                    <Button asChild size="lg" className="w-full mb-6">
+                    <Button asChild size="lg" variant="outline" className="w-full mb-6 rounded-full py-6 text-lg hover:shadow-md transition-shadow">
                         <Link href={`/canvas?productId=${product.id}`}>
-                            <Brush className="mr-2 h-5 w-5" />
-                            Customize This Product
+                            <span className="mr-2">Customise</span>
+                            <CustomiseIcon className="h-5 w-5" />
                         </Link>
                     </Button>
 
