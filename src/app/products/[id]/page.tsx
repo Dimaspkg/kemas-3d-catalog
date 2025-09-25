@@ -89,7 +89,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                 <div className="relative aspect-square w-full">
                      <Image
@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
                         ))}
                     </div>
                     
-                    <Button asChild size="lg" variant="outline" className="w-full mb-6 rounded-full py-6 text-lg hover:shadow-md transition-shadow">
+                    <Button asChild size="lg" variant="outline" className="w-full mb-6 rounded-full py-8 text-lg hover:shadow-md transition-shadow">
                         <Link href={`/canvas?productId=${product.id}`}>
                             <span className="mr-2">Customise</span>
                             <CustomiseIcon className="h-5 w-5" />
