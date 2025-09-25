@@ -160,6 +160,7 @@ export default function CanvasPage() {
       <CustomizationPanelSkeleton />
     ) : (
       <CustomizationPanel
+        product={product}
         state={customization}
         onStateChange={setCustomization}
       />

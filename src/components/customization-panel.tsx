@@ -14,6 +14,7 @@ import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { ScrollArea } from "./ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cleanPartName } from "@/lib/utils";
+import type { Product } from "@/lib/types";
 
 
 export type CustomizationState = {
@@ -26,6 +27,7 @@ export type CustomizationState = {
 };
 
 interface CustomizationPanelProps {
+  product: Product;
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
 }
@@ -52,6 +54,7 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: R
 };
 
 export default function CustomizationPanel({
+  product,
   state,
   onStateChange,
 }: CustomizationPanelProps) {
@@ -84,8 +87,11 @@ export default function CustomizationPanel({
 
   return (
     <ScrollArea className="h-full w-full">
-        <div className="p-4 space-y-2">
-            <h2 className="text-xl font-bold px-2 mb-4">Customize</h2>
+        <div className="p-4 space-y-4">
+             <div className="px-2">
+                <h2 className="text-xl font-bold">{product.name}</h2>
+                <p className="text-sm text-muted-foreground">Customize your product</p>
+            </div>
             <Accordion type="single" collapsible className="w-full">
                 {parts.map(part => (
                     <AccordionItem value={part} key={part}>
