@@ -91,69 +91,6 @@ export default function CustomizationPanel({
       }));
     };
 
-  const panelContent = (
-     <div className="p-4 space-y-4">
-        <div className="px-2 flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">{product.name}</h2>
-            <p className="text-sm text-muted-foreground">Customize your product</p>
-          </div>
-           {product?.id ? (
-              <Button asChild variant="ghost" size="icon">
-                  <Link href={`/products/${product.id}`}>
-                      <LogOut className="h-5 w-5" />
-                  </Link>
-              </Button>
-            ) : (
-                <Button asChild variant="ghost" size="icon">
-                    <Link href="/">
-                        <LogOut className="h-5 w-5" />
-                    </Link>
-                </Button>
-            )}
-        </div>
-        <Separator />
-        <Accordion type="single" collapsible className="w-full space-y-2">
-            {parts.map(part => (
-                <AccordionItem value={part} key={part} className="bg-card rounded-lg shadow-sm border">
-                    <AccordionTrigger className="px-4">
-                        <span className="truncate" title={cleanPartName(part)}>
-                            {cleanPartName(part)}
-                        </span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="flex items-center justify-between gap-4 p-4 border-t">
-                            <div className="flex items-center gap-2">
-                                <ColorSwatch
-                                    name={part}
-                                    value={state.colors[part]}
-                                    onChange={handleColorChange(part)}
-                                />
-                                <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
-                            </div>
-                            <Select
-                                value={state.materials[part]}
-                                onValueChange={handleMaterialChange(part)}
-                            >
-                                <SelectTrigger id={`${part}-material`} className="flex-grow">
-                                    <SelectValue placeholder="Select material" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                {materialOptions.map((option) => (
-                                    <SelectItem key={option.key} value={option.key} className="capitalize">
-                                    {option.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-            ))}
-        </Accordion>
-    </div>
-  );
-
   if (parts.length === 0) {
     return (
         <div className="flex items-center justify-center h-full p-4 text-muted-foreground">
@@ -164,8 +101,69 @@ export default function CustomizationPanel({
 
   return (
     <div className="flex flex-col h-full">
+        <div className="p-4 space-y-4">
+            <div className="px-2 flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-bold">{product.name}</h2>
+                    <p className="text-sm text-muted-foreground">Customize your product</p>
+                </div>
+                {product?.id ? (
+                    <Button asChild variant="ghost" size="icon">
+                        <Link href={`/products/${product.id}`}>
+                            <LogOut className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                ) : (
+                    <Button asChild variant="ghost" size="icon">
+                        <Link href="/">
+                            <LogOut className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                )}
+            </div>
+            <Separator />
+        </div>
         <ScrollArea className="flex-1">
-            {panelContent}
+            <div className="p-4 pt-0 space-y-2">
+                <Accordion type="single" collapsible className="w-full">
+                    {parts.map(part => (
+                        <AccordionItem value={part} key={part} className="bg-card rounded-lg shadow-sm border mb-2">
+                            <AccordionTrigger className="px-4">
+                                <span className="truncate" title={cleanPartName(part)}>
+                                    {cleanPartName(part)}
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="flex items-center justify-between gap-4 p-4 border-t">
+                                    <div className="flex items-center gap-2">
+                                        <ColorSwatch
+                                            name={part}
+                                            value={state.colors[part]}
+                                            onChange={handleColorChange(part)}
+                                        />
+                                        <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
+                                    </div>
+                                    <Select
+                                        value={state.materials[part]}
+                                        onValueChange={handleMaterialChange(part)}
+                                    >
+                                        <SelectTrigger id={`${part}-material`} className="flex-grow">
+                                            <SelectValue placeholder="Select material" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                        {materialOptions.map((option) => (
+                                            <SelectItem key={option.key} value={option.key} className="capitalize">
+                                            {option.name}
+                                            </SelectItem>
+                                        ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            </div>
         </ScrollArea>
         <div className="p-4 border-t">
             <div className="flex justify-between items-center mb-4">
