@@ -20,9 +20,6 @@ export default async function Header() {
             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
                 <Link href="/products">Products</Link>
             </Button>
-            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
-                <Link href="/canvas">Customize</Link>
-            </Button>
             <HeaderClient />
         </nav>
       </div>
