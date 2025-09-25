@@ -238,21 +238,19 @@ export default function CanvasPage() {
                     <Camera className="mr-2 h-4 w-4" />
                     Screenshot
                 </Button>
-            </div>
-            
-            <div className="absolute bottom-4 right-4 flex items-center gap-4 z-20">
-              {!isMobile && (
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                    onClick={() => setIsPanelVisible(!isPanelVisible)}
-                    aria-label="Toggle customization panel"
-                >
-                    <Menu />
-                </Button>
+                 {!isMobile && (
+                    <Button
+                        variant="outline"
+                        size="icon-sm"
+                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                        onClick={() => setIsPanelVisible(!isPanelVisible)}
+                        aria-label="Toggle customization panel"
+                    >
+                        <Menu />
+                    </Button>
               )}
             </div>
+            
         </main>
 
         {isMobile ? (
@@ -330,5 +328,3 @@ export default function CanvasPage() {
     </div>
   );
 }
-
-    
