@@ -52,7 +52,7 @@ export default function CanvasPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isModelLoading, setIsModelLoading] = useState(isModelLoading);
+  const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const searchParams = useSearchParams();
@@ -366,6 +366,3 @@ export default function CanvasPage() {
     </div>
   );
 }
-
-
-    
