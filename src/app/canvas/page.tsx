@@ -304,7 +304,7 @@ export default function CanvasPage() {
                   </Button>
                 </div>
             </div>
-            <SheetContent side="bottom" className="h-[60vh] p-0">
+            <SheetContent side="bottom" className="h-[60vh] p-0 bg-background/80 backdrop-blur-lg">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Customization Panel</SheetTitle>
                 </SheetHeader>
@@ -315,7 +315,7 @@ export default function CanvasPage() {
           </Sheet>
         ) : (
           <aside className={cn(
-              "bg-card border-l shadow-lg z-10 overflow-y-auto transition-all duration-300 ease-in-out",
+              "bg-card/80 backdrop-blur-lg border-l shadow-lg z-10 overflow-y-auto transition-all duration-300 ease-in-out",
               isPanelVisible ? "md:w-80 lg:w-96" : "w-0 p-0 border-none"
           )}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
