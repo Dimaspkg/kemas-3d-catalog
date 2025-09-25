@@ -125,6 +125,7 @@ export default function CanvasPage() {
   }, [productId]);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
+    setIsModelLoading(true);
     setCustomization(prev => {
         const uniquePartNames = [...new Set(partNames)];
         const needsInitialization = Object.keys(prev.colors).length === 0 || JSON.stringify(Object.keys(prev.colors).sort()) !== JSON.stringify(uniquePartNames.sort());
