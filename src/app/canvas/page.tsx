@@ -193,25 +193,7 @@ export default function CanvasPage() {
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
-             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
-               {product?.modelURLOpen && (
-                  <Switch
-                      id="open-state-switch"
-                      checked={showOpenModel}
-                      onCheckedChange={setShowOpenModel}
-                      aria-label="Toggle open/closed model view"
-                      size="sm"
-                  />
-              )}
-                <Button
-                    onClick={handleScreenshot}
-                    variant="outline"
-                    size="sm"
-                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Screenshot
-                </Button>
+            <div className="absolute top-4 left-4 z-20">
                 {product?.id ? (
                     <Button
                         asChild
@@ -235,6 +217,27 @@ export default function CanvasPage() {
                         </Link>
                     </Button>
                 )}
+            </div>
+            
+             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+               {product?.modelURLOpen && (
+                  <Switch
+                      id="open-state-switch"
+                      checked={showOpenModel}
+                      onCheckedChange={setShowOpenModel}
+                      aria-label="Toggle open/closed model view"
+                      size="sm"
+                  />
+              )}
+                <Button
+                    onClick={handleScreenshot}
+                    variant="outline"
+                    size="sm"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Screenshot
+                </Button>
             </div>
             
             <div className="absolute bottom-4 right-4 flex items-center gap-4 z-20">
@@ -327,3 +330,5 @@ export default function CanvasPage() {
     </div>
   );
 }
+
+    
