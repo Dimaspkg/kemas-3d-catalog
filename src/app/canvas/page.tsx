@@ -301,7 +301,7 @@ export default function CanvasPage() {
                   </Button>
                 </div>
             </div>
-            <SheetContent side="bottom" className="h-[50vh] p-0">
+            <SheetContent side="bottom" className="h-[60vh] p-0">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Customization Panel</SheetTitle>
                 </SheetHeader>
