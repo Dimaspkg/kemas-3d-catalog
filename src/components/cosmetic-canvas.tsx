@@ -124,63 +124,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // --- Model Loading ---
-    if (modelURL) {
-      setIsLoading(true);
-      const gltfLoader = new GLTFLoader();
-      gltfLoader.load(modelURL, (gltf) => {
-        if (modelRef.current) {
-          scene.remove(modelRef.current);
-        }
-        const loadedModel = gltf.scene;
-        modelRef.current = loadedModel;
-
-        const partNames: string[] = [];
-        const initialColors: Record<string, string> = {};
-
-        loadedModel.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-                const partName = child.name.trim();
-                if (partName && !partNames.includes(partName)) {
-                    partNames.push(partName);
-                    if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
-                    }
-                }
-            }
-        });
-        
-        onModelLoad(partNames, initialColors);
-        
-        const box = new THREE.Box3().setFromObject(loadedModel);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const fov = camera.fov * (Math.PI / 180);
-        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        
-        cameraZ *= 1.5; // Zoom out a bit to fit the model nicely
-
-        loadedModel.position.y = -box.min.y;
-
-        camera.position.set(center.x, center.y, center.z + cameraZ);
-        
-        const newTarget = new THREE.Vector3(center.x, center.y + size.y / 2, center.z);
-        controls.target.copy(newTarget);
-        
-        scene.add(loadedModel);
-        setIsLoading(false);
-      }, undefined, (error) => {
-          console.error("An error happened while loading the model:", error);
-          setIsLoading(false);
-      });
-    } else {
-        setIsLoading(false);
-    }
-
     // --- Animation Loop ---
     let animationFrameId: number;
     const animate = () => {
@@ -211,6 +154,71 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         currentMount.removeChild(renderer.domElement);
         renderer.dispose();
     };
+  }, []);
+
+  // Effect for loading model
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+
+    if (!scene || !camera || !controls || !modelURL) {
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsLoading(true);
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(modelURL, (gltf) => {
+      if (modelRef.current) {
+        scene.remove(modelRef.current);
+      }
+      const loadedModel = gltf.scene;
+      modelRef.current = loadedModel;
+
+      const partNames: string[] = [];
+      const initialColors: Record<string, string> = {};
+
+      loadedModel.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              const partName = child.name.trim();
+              if (partName && !partNames.includes(partName)) {
+                  partNames.push(partName);
+                  if (child.material instanceof THREE.MeshStandardMaterial) {
+                      initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
+                  }
+              }
+          }
+      });
+      
+      onModelLoad(partNames, initialColors);
+      
+      const box = new THREE.Box3().setFromObject(loadedModel);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      
+      cameraZ *= 0; // Zoom out a bit to fit the model nicely
+
+      loadedModel.position.y = -box.min.y;
+
+      camera.position.set(center.x, center.y, center.z + cameraZ);
+      
+      const newTarget = new THREE.Vector3(center.x, center.y + size.y / 2, center.z);
+      controls.target.copy(newTarget);
+      
+      scene.add(loadedModel);
+      setIsLoading(false);
+    }, undefined, (error) => {
+        console.error("An error happened while loading the model:", error);
+        setIsLoading(false);
+    });
+
   }, [modelURL, onModelLoad]);
   
   // Effect for environment
