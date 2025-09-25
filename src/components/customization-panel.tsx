@@ -15,6 +15,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cleanPartName } from "@/lib/utils";
 import type { Product } from "@/lib/types";
+import { Separator } from "./ui/separator";
 
 
 export type CustomizationState = {
@@ -92,6 +93,7 @@ export default function CustomizationPanel({
                 <h2 className="text-xl font-bold">{product.name}</h2>
                 <p className="text-sm text-muted-foreground">Customize your product</p>
             </div>
+            <Separator />
             <Accordion type="single" collapsible className="w-full">
                 {parts.map(part => (
                     <AccordionItem value={part} key={part}>
