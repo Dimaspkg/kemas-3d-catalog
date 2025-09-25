@@ -22,7 +22,7 @@ export default function Header() {
   return (
     <header className="px-4 lg:px-8 py-4 border-b flex items-center justify-between bg-background shadow-sm z-50 sticky top-0">
       <Link href="/" className="flex items-center gap-4">
-        <Logo className="h-10 w-auto" />
+        
       </Link>
       <div className="flex items-center gap-6">
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
