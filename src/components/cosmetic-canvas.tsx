@@ -27,6 +27,7 @@ type CosmeticCanvasProps = CustomizationState & {
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
+    onLoadingChange: (isLoading: boolean) => void;
     onScreenshot: () => void;
 };
 
@@ -37,6 +38,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   modelURL,
   environmentURL,
   onModelLoad,
+  onLoadingChange,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -47,6 +49,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const [isLoading, setIsLoading] = useState(true);
   const [hasCustomized, setHasCustomized] = useState(false);
 
+  useEffect(() => {
+    onLoadingChange(isLoading);
+  }, [isLoading, onLoadingChange]);
+  
   // Function to fit camera to the loaded model
   const fitCameraToModel = useCallback((model: THREE.Object3D, camera: THREE.PerspectiveCamera, controls: OrbitControls) => {
       const box = new THREE.Box3().setFromObject(model);
@@ -240,6 +246,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         loader.load(environmentURL, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
+            scene.background = null; // Use environment for background
         }, undefined, (error) => {
             console.error('An error occurred while loading the environment:', error);
             scene.environment = null;
@@ -317,9 +324,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             ref={mountRef} 
             className="w-full h-full"
         />
-
-        {(isLoading || !modelURL) && <Skeleton className="absolute inset-0 w-full h-full" />}
-
         <div className="absolute bottom-0 left-0 p-6 pointer-events-none text-foreground/80">
             <h1 className="font-semibold text-lg drop-shadow-sm">{product?.name || <Skeleton className="h-6 w-48 bg-black/10" />}</h1>
             {product && product.price ? (

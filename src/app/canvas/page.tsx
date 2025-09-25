@@ -52,6 +52,7 @@ export default function CanvasPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(true);
   const searchParams = useSearchParams();
@@ -120,7 +121,13 @@ export default function CanvasPage() {
         };
     });
     setLoading(false);
+    setIsModelLoading(false);
   }, []);
+  
+  const handleLoadingChange = useCallback((loading: boolean) => {
+    setIsModelLoading(loading);
+  }, []);
+
 
   const handleScreenshot = () => {
     canvasRef.current?.takeScreenshot();
@@ -150,11 +157,14 @@ export default function CanvasPage() {
                 modelURL={currentModelURL}
                 environmentURL={environment?.fileURL}
                 onModelLoad={handleModelLoad}
+                onLoadingChange={handleLoadingChange}
                 onScreenshot={handleScreenshot}
               />
             </Suspense>
             
-             <div className="absolute top-4 right-4 flex items-center gap-4">
+            {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
+
+             <div className="absolute top-4 right-4 flex items-center gap-4 z-20">
                {product?.modelURLOpen && (
                   <Switch
                       id="open-state-switch"
@@ -196,7 +206,7 @@ export default function CanvasPage() {
                 )}
             </div>
             
-            <div className="absolute bottom-4 right-4 flex items-center gap-4">
+            <div className="absolute bottom-4 right-4 flex items-center gap-4 z-20">
               {!isMobile && (
                 <Button
                     variant="outline"
