@@ -113,16 +113,16 @@ export default function CustomizationPanel({
             )}
         </div>
         <Separator />
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full space-y-2">
             {parts.map(part => (
-                <AccordionItem value={part} key={part}>
-                    <AccordionTrigger>
+                <AccordionItem value={part} key={part} className="bg-card rounded-lg shadow-sm border">
+                    <AccordionTrigger className="px-4">
                         <span className="truncate" title={cleanPartName(part)}>
                             {cleanPartName(part)}
                         </span>
                     </AccordionTrigger>
                     <AccordionContent>
-                        <div className="flex items-center justify-between gap-4 p-2">
+                        <div className="flex items-center justify-between gap-4 p-4 border-t">
                             <div className="flex items-center gap-2">
                                 <ColorSwatch
                                     name={part}
