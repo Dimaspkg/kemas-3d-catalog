@@ -94,7 +94,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.minDistance = 2;
+    controls.minDistance = 1;
     controls.maxDistance = 50; 
     controlsRef.current = controls;
     
@@ -151,7 +151,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         if (modelRef.current) {
             scene.remove(modelRef.current);
         }
-        currentMount.removeChild(renderer.domElement);
+        if (currentMount && renderer.domElement) {
+            currentMount.removeChild(renderer.domElement);
+        }
         renderer.dispose();
     };
   }, []);
@@ -162,8 +164,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const camera = cameraRef.current;
     const controls = controlsRef.current;
 
-    if (!scene || !camera || !controls || !modelURL) {
+    if (!scene || !camera || !controls) return;
+    
+    if (!modelURL) {
       setIsLoading(false);
+      if (modelRef.current) {
+          scene.remove(modelRef.current);
+      }
       return;
     }
     
@@ -187,7 +194,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
               if (partName && !partNames.includes(partName)) {
                   partNames.push(partName);
                   if (child.material instanceof THREE.MeshStandardMaterial) {
-                      initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
+                      initialColors[partName] = `#${child.material.color.getHexString()}`;
                   }
               }
           }
@@ -203,14 +210,20 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       const fov = camera.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
       
-      cameraZ *= 0; // Zoom out a bit to fit the model nicely
+      cameraZ *= 1.5; // Zoom out a bit to fit the model nicely
 
-      loadedModel.position.y = -box.min.y;
+      loadedModel.position.sub(center); // Center the model at the origin
 
-      camera.position.set(center.x, center.y, center.z + cameraZ);
+      camera.position.set(0, 0, cameraZ);
       
-      const newTarget = new THREE.Vector3(center.x, center.y + size.y / 2, center.z);
+      const newTarget = new THREE.Vector3(0, 0, 0);
       controls.target.copy(newTarget);
+
+      // Adjust floor position
+      const floor = scene.getObjectByProperty("receiveShadow", true);
+      if (floor) {
+        floor.position.y = box.min.y - center.y;
+      }
       
       scene.add(loadedModel);
       setIsLoading(false);
