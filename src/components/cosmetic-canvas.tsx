@@ -39,7 +39,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   modelURL,
   environmentURL,
   onModelLoad,
-  onScreenshot,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -49,6 +48,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const modelRef = useRef<THREE.Group>();
   const controlsRef = useRef<OrbitControls | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
+  const isInitialModelLoad = useRef(true);
 
   useImperativeHandle(ref, () => ({
     takeScreenshot: () => {
@@ -65,10 +65,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }));
 
   useEffect(() => {
-    if (!mountRef.current) return;
-    
     const currentMount = mountRef.current;
+    if (!currentMount) return;
     
+    // Only initialize the scene once
     if (!sceneRef.current) {
         const scene = new THREE.Scene();
         sceneRef.current = scene;
@@ -82,7 +82,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         );
         cameraRef.current = camera;
         camera.position.set(0, 1, 5);
-        camera.lookAt(0, 1, 0);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
         rendererRef.current = renderer;
@@ -98,7 +97,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         controlsRef.current = controls;
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 0.02;
+        controls.minDistance = 2; // Adjusted minDistance
         controls.maxDistance = 50; 
         controls.target.set(0, 1, 0);
         controls.update();
@@ -119,7 +118,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         const backLight = new THREE.DirectionalLight(0xffffff, 1.5);
         backLight.position.set(0, 5, -8);
         scene.add(backLight);
-
+        
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
@@ -130,7 +129,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         floor.position.y = 0;
         floor.receiveShadow = true;
         scene.add(floor);
-
+        
         const animate = () => {
           animationFrameIdRef.current = requestAnimationFrame(animate);
           if (rendererRef.current && sceneRef.current && cameraRef.current && controlsRef.current) {
@@ -139,23 +138,24 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
           }
         };
         animate();
-
+        
         const handleResize = () => {
-          if (!currentMount || !cameraRef.current || !rendererRef.current) return;
-          cameraRef.current.aspect = currentMount.clientWidth / currentMount.clientHeight;
+          if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
+          const newWidth = mountRef.current.clientWidth;
+          const newHeight = mountRef.current.clientHeight;
+          cameraRef.current.aspect = newWidth / newHeight;
           cameraRef.current.updateProjectionMatrix();
-          rendererRef.current.setSize(currentMount.clientWidth, currentMount.clientHeight);
+          rendererRef.current.setSize(newWidth, newHeight);
         };
         window.addEventListener("resize", handleResize);
 
-        // This is the cleanup function that runs when the component unmounts.
+        // Cleanup function for when the component unmounts
         return () => {
             window.removeEventListener("resize", handleResize);
             if (animationFrameIdRef.current) {
               cancelAnimationFrame(animationFrameIdRef.current);
             }
             if (rendererRef.current) {
-              // Check if the renderer's DOM element is still a child before removing it.
               if (currentMount && rendererRef.current.domElement.parentNode === currentMount) {
                 currentMount.removeChild(rendererRef.current.domElement);
               }
@@ -216,29 +216,38 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             }
         });
         
-        onModelLoad(partNames, initialColors);
+        if (isInitialModelLoad.current) {
+            onModelLoad(partNames, initialColors);
+        }
         
         const box = new THREE.Box3().setFromObject(loadedModel);
         const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
 
         loadedModel.position.y = -box.min.y;
         
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const fov = camera.fov * (Math.PI / 180);
-        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-        
-        cameraZ *= 1.5; 
-        camera.position.set(0, size.y / 2, cameraZ);
-        
-        const newTarget = new THREE.Vector3(0, size.y / 2, 0);
-        controls.target.copy(newTarget);
+        // This camera/controls adjustment should only happen on the first load
+        if (isInitialModelLoad.current) {
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+            cameraZ *= 2.5; // Zoom out a bit
+            
+            camera.position.set(0, center.y, cameraZ);
+            
+            controls.target.copy(center);
+            controls.target.y = size.y / 2;
 
-        camera.near = maxDim / 100;
-        camera.far = maxDim * 100;
-        camera.updateProjectionMatrix();
+            camera.near = maxDim / 100;
+            camera.far = maxDim * 100;
+            camera.updateProjectionMatrix();
+
+            isInitialModelLoad.current = false;
+        }
 
         scene.add(loadedModel);
         controls.update();
+
     }, undefined, (error) => {
         console.error("An error happened while loading the model:", error);
     });
@@ -258,9 +267,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             const materialProps = materials[partMaterialKey as MaterialKey];
             let material = child.material as THREE.MeshStandardMaterial;
 
+            // Ensure we have a standard material to work with
             if (!(material instanceof THREE.MeshStandardMaterial)) {
+                const oldMaterial = child.material;
                 material = new THREE.MeshStandardMaterial();
                 child.material = material;
+                if(oldMaterial) oldMaterial.dispose();
             }
             
             material.color.set(partColor);
@@ -300,5 +312,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
