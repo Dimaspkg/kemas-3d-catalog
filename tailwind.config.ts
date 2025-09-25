@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Montserrat', 'sans-serif'],
+        body: ['Jost', 'sans-serif'],
         headline: ['Playfair Display', 'serif'],
         code: ['monospace'],
       },
