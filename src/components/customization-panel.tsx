@@ -37,10 +37,10 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: R
                 type="color"
                 value={value}
                 onChange={onChange}
-                className="w-10 h-10 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0"
+                className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0"
             />
             <label htmlFor={id}
-                className="w-10 h-10 rounded-full border-2 border-white shadow-md cursor-pointer ring-1 ring-gray-300"
+                className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
                 style={{ backgroundColor: value }}
             >
                 <span className="sr-only">Change color</span>
@@ -89,14 +89,14 @@ export default function CustomizationPanel({
   return (
     <ScrollArea className="h-full w-full">
         <div className="p-4 space-y-4">
-            <h2 className="text-xl font-bold px-3">Customize</h2>
+            <h2 className="text-xl font-bold px-2">Customize</h2>
             {parts.map(part => (
-                <div key={part} className="space-y-2 p-3 border rounded-lg">
-                    <Label className="text-base font-semibold" title={cleanPartName(part)}>
+                <div key={part} className="space-y-2 p-2 border rounded-lg">
+                    <Label className="text-sm font-semibold px-1" title={cleanPartName(part)}>
                         {cleanPartName(part)}
                     </Label>
-                    <div className="flex items-center justify-between gap-4">
-                        <ColorSwatch
+                    <div className="flex items-center justify-between gap-2">
+                         <ColorSwatch
                             name={part}
                             value={state.colors[part]}
                             onChange={handleColorChange(part)}
@@ -105,7 +105,7 @@ export default function CustomizationPanel({
                             value={state.materials[part]}
                             onValueChange={handleMaterialChange(part)}
                         >
-                            <SelectTrigger id={`${part}-material`} className="flex-grow">
+                            <SelectTrigger id={`${part}-material`} className="flex-grow h-9">
                                 <SelectValue placeholder="Select material" />
                             </SelectTrigger>
                             <SelectContent>
