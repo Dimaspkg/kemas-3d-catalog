@@ -156,15 +156,12 @@ export default function CanvasPage() {
             
              <div className="absolute top-4 right-4 flex items-center gap-4">
                {product?.modelURLOpen && (
-                  <div className="flex items-center space-x-2">
-                      <Switch
-                          id="open-state-switch"
-                          checked={showOpenModel}
-                          onCheckedChange={setShowOpenModel}
-                          aria-label="Toggle open/closed model view"
-                      />
-                      <Label htmlFor="open-state-switch" className="text-foreground text-sm sr-only">Open</Label>
-                  </div>
+                  <Switch
+                      id="open-state-switch"
+                      checked={showOpenModel}
+                      onCheckedChange={setShowOpenModel}
+                      aria-label="Toggle open/closed model view"
+                  />
               )}
                 <Button
                     onClick={handleScreenshot}
