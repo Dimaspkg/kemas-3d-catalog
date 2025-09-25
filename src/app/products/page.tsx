@@ -53,12 +53,14 @@ export default function ProductsPage() {
               <Card>
                   <CardHeader className="p-0">
                       <div className="relative aspect-square w-full">
-                          <Image 
-                              src={product.imageURL}
-                              alt={product.name}
-                              fill
-                              className="object-cover rounded-t-lg transition-transform group-hover:scale-105"
-                          />
+                          {product.imageURLs && product.imageURLs.length > 0 && (
+                            <Image 
+                                src={product.imageURLs[0]}
+                                alt={product.name}
+                                fill
+                                className="object-cover rounded-t-lg transition-transform group-hover:scale-105"
+                            />
+                          )}
                       </div>
                   </CardHeader>
                 <CardContent className="pt-4">

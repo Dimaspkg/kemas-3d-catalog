@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Product } from '@/lib/types';
+import Image from 'next/image';
 
 interface Category {
   id: string;
@@ -31,7 +32,7 @@ const productFormSchema = z.object({
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
-    productImage: z.any().optional(),
+    productImages: z.any().optional(),
     modelFile: z.any().optional(),
     modelFileOpen: z.any().optional(),
     dimensions: z.string().optional(),
@@ -116,18 +117,24 @@ export default function EditProductPage() {
         if (!product) return;
         setIsSubmitting(true);
         
-        let imageURL = product.imageURL;
+        let imageURLs = product.imageURLs;
         let modelURL = product.modelURL;
         let modelURLOpen = product.modelURLOpen;
 
         try {
-            const productImageFile = data.productImage?.[0];
+            const productImageFiles = data.productImages;
             const modelFile = data.modelFile?.[0];
             const modelFileOpen = data.modelFileOpen?.[0];
 
-            if (productImageFile) {
-                imageURL = await uploadFile(productImageFile, 'product-images');
+            if (productImageFiles && productImageFiles.length > 0) {
+                const uploadPromises: Promise<string>[] = [];
+                for (const file of productImageFiles) {
+                    uploadPromises.push(uploadFile(file, 'product-images'));
+                }
+                const newImageURLs = await Promise.all(uploadPromises);
+                imageURLs = [...imageURLs, ...newImageURLs];
             }
+
 
             if (modelFile) {
                 modelURL = await uploadFile(modelFile, 'product-models');
@@ -143,7 +150,7 @@ export default function EditProductPage() {
                 name: data.name,
                 price: data.price,
                 categories: data.categories,
-                imageURL,
+                imageURLs,
                 modelURL,
                 modelURLOpen,
                 dimensions: data.dimensions,
@@ -326,20 +333,28 @@ export default function EditProductPage() {
                                         </FormItem>
                                     )}
                                 />
+                                <div>
+                                    <FormLabel>Current Images</FormLabel>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {product?.imageURLs?.map(url => (
+                                            <Image key={url} src={url} alt="Product image" width={80} height={80} className="rounded-md object-cover" />
+                                        ))}
+                                    </div>
+                                </div>
                                 <FormField
                                     control={form.control}
-                                    name="productImage"
+                                    name="productImages"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Replace Product Image (Optional)</FormLabel>
+                                            <FormLabel>Add More Product Images</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 
                                                     accept="image/png, image/jpeg, image/webp"
+                                                    multiple
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
-                                             <FormDescription>Current image is set.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -481,7 +496,3 @@ export default function EditProductPage() {
         </Form>
     );
 }
-
-    
-
-    

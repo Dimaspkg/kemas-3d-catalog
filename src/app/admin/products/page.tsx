@@ -113,13 +113,15 @@ export default function ProductManagementPage() {
                             {products.map((product) => (
                             <TableRow key={product.id}>
                                 <TableCell>
-                                    <Image 
-                                        src={product.imageURL} 
-                                        alt={product.name}
-                                        width={64}
-                                        height={64}
-                                        className="rounded-md object-cover"
-                                    />
+                                    {product.imageURLs && product.imageURLs.length > 0 && (
+                                        <Image 
+                                            src={product.imageURLs[0]} 
+                                            alt={product.name}
+                                            width={64}
+                                            height={64}
+                                            className="rounded-md object-cover"
+                                        />
+                                    )}
                                 </TableCell>
                                 <TableCell className="font-medium">{product.name}</TableCell>
                                 <TableCell>{product.categories?.join(', ')}</TableCell>

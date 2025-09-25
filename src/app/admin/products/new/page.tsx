@@ -30,9 +30,9 @@ const productFormSchema = z.object({
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
-    productImage: z.any().refine(
+    productImages: z.any().refine(
         (files) => files?.length > 0,
-        "A product image is required."
+        "At least one product image is required."
     ),
     modelFile: z.any().refine(
         (files) => files?.length > 0,
@@ -61,7 +61,7 @@ export default function NewProductPage() {
         defaultValues: {
             name: "",
             categories: [],
-            productImage: undefined,
+            productImages: undefined,
             modelFile: undefined,
             modelFileOpen: undefined,
             dimensions: "",
@@ -117,28 +117,33 @@ export default function NewProductPage() {
         }
 
         setIsSubmitting(true);
-        const productImageFile = data.productImage?.[0];
+        const productImageFiles = data.productImages;
         const modelFile = data.modelFile?.[0];
         const modelFileOpen = data.modelFileOpen?.[0];
 
-        if (!productImageFile || !modelFile) {
+        if (!productImageFiles || productImageFiles.length === 0 || !modelFile) {
              toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Product image and closed state model file are required.",
+                description: "Product images and closed state model file are required.",
             });
             setIsSubmitting(false);
             return;
         }
 
         try {
-            const imageURL = await uploadFile(productImageFile, 'product-images', user.uid);
+            const uploadPromises: Promise<string>[] = [];
+            for (const file of productImageFiles) {
+                uploadPromises.push(uploadFile(file, 'product-images', user.uid));
+            }
+            const imageURLs = await Promise.all(uploadPromises);
+
             const modelURL = await uploadFile(modelFile, 'product-models', user.uid);
             
             const productData: any = {
                 name: data.name,
                 categories: data.categories,
-                imageURL,
+                imageURLs,
                 modelURL,
                 dimensions: data.dimensions,
                 godetSize: data.godetSize,
@@ -276,17 +281,19 @@ export default function NewProductPage() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="productImage"
+                                    name="productImages"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Product Image</FormLabel>
+                                            <FormLabel>Product Images</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="file" 
                                                     accept="image/png, image/jpeg, image/webp"
+                                                    multiple
                                                     onChange={(e) => field.onChange(e.target.files)}
                                                 />
                                             </FormControl>
+                                            <FormDescription>You can upload multiple images.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -422,7 +429,3 @@ export default function NewProductPage() {
         </Form>
     );
 }
-
-    
-
-    
