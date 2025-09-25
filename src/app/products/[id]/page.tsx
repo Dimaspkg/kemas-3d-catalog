@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:px-8">
+                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:px-8 py-8 md:py-12">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
