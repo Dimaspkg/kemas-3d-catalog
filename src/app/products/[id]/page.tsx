@@ -59,7 +59,7 @@ export default function ProductDetailPage() {
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
                     </div>
-                    <div className="space-y-6 py-8 px-4 md:px-8">
+                    <div className="space-y-6 px-4 md:px-8">
                         <Skeleton className="h-10 w-3/4" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:pt-8 md:px-8">
+                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:px-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
