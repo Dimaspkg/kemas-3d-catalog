@@ -28,7 +28,6 @@ type CosmeticCanvasProps = CustomizationState & {
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
     onLoadingChange: (isLoading: boolean) => void;
-    onScreenshot: () => void;
 };
 
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
@@ -324,14 +323,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             ref={mountRef} 
             className="w-full h-full"
         />
-        <div className="absolute bottom-0 left-0 p-6 pointer-events-none text-foreground/80">
-            <h1 className="font-semibold text-lg drop-shadow-sm">{product?.name || <Skeleton className="h-6 w-48 bg-black/10" />}</h1>
-            {product && product.price ? (
-                <p className="drop-shadow-sm">{formatPrice(product.price)}</p>
-            ) : (
-                product ? null : <Skeleton className="h-5 w-32 mt-1 bg-black/10" />
-            )}
-        </div>
     </div>
   );
 });
@@ -339,7 +330,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
-
-    
