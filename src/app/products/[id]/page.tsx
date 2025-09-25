@@ -55,9 +55,9 @@ export default function ProductDetailPage() {
         return (
             <div className="w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="space-y-8">
-                        <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
-                        <Skeleton className="w-full aspect-square bg-muted rounded-lg" />
+                    <div className="flex overflow-x-auto md:flex-col">
+                        <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
+                        <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
                     </div>
                     <div className="space-y-6 py-8 px-4 md:px-8">
                         <Skeleton className="h-10 w-3/4" />
@@ -94,9 +94,9 @@ export default function ProductDetailPage() {
     return (
         <div className="w-full">
             <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="flex flex-col">
+                <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto">
                     {product.imageURLs.map((url, index) => (
-                        <div key={index} className="relative aspect-square w-full">
+                        <div key={index} className="relative aspect-square w-full shrink-0 snap-start">
                             <Image
                                 src={url}
                                 alt={`${product.name} image ${index + 1}`}
@@ -107,7 +107,7 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-28 md:h-fit py-8 px-4 md:px-8">
+                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:px-8 py-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
