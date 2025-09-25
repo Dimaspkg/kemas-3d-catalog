@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
+import { ScrollArea } from "./ui/scroll-area";
 
 
 export type CustomizationState = {
@@ -86,37 +87,39 @@ export default function CustomizationPanel({
   }
 
   return (
-    <div className="p-4 space-y-4">
-        <h2 className="text-xl font-bold">Customize</h2>
-        {parts.map(part => (
-            <div key={part} className="space-y-2 p-3 border rounded-lg">
-                <Label className="text-base font-semibold" title={cleanPartName(part)}>
-                    {cleanPartName(part)}
-                </Label>
-                <div className="flex items-center justify-between gap-4">
-                     <ColorSwatch
-                        name={part}
-                        value={state.colors[part]}
-                        onChange={handleColorChange(part)}
-                    />
-                    <Select
-                        value={state.materials[part]}
-                        onValueChange={handleMaterialChange(part)}
-                    >
-                        <SelectTrigger id={`${part}-material`} className="flex-grow">
-                            <SelectValue placeholder="Select material" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        {materialOptions.map((option) => (
-                            <SelectItem key={option.key} value={option.key} className="capitalize">
-                            {option.name}
-                            </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
+    <ScrollArea className="h-full w-full">
+        <div className="p-4 space-y-4">
+            <h2 className="text-xl font-bold px-3">Customize</h2>
+            {parts.map(part => (
+                <div key={part} className="space-y-2 p-3 border rounded-lg">
+                    <Label className="text-base font-semibold" title={cleanPartName(part)}>
+                        {cleanPartName(part)}
+                    </Label>
+                    <div className="flex items-center justify-between gap-4">
+                        <ColorSwatch
+                            name={part}
+                            value={state.colors[part]}
+                            onChange={handleColorChange(part)}
+                        />
+                        <Select
+                            value={state.materials[part]}
+                            onValueChange={handleMaterialChange(part)}
+                        >
+                            <SelectTrigger id={`${part}-material`} className="flex-grow">
+                                <SelectValue placeholder="Select material" />
+                            </SelectTrigger>
+                            <SelectContent>
+                            {materialOptions.map((option) => (
+                                <SelectItem key={option.key} value={option.key} className="capitalize">
+                                {option.name}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
-            </div>
-        ))}
-    </div>
+            ))}
+        </div>
+    </ScrollArea>
   );
 }
