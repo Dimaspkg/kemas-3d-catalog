@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Brush, Camera, X, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,6 @@ export default function CanvasPage() {
   const [loading, setLoading] = useState(true);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
@@ -92,15 +91,6 @@ export default function CanvasPage() {
       }));
     }
   };
-
-
-  useEffect(() => {
-    if (isMobile) {
-      setIsPanelVisible(false);
-    } else {
-      setIsPanelVisible(true);
-    }
-  }, [isMobile]);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -176,11 +166,137 @@ export default function CanvasPage() {
     )
   );
 
+  if (isMobile) {
+    return (
+        <div className="relative h-screen w-full bg-background text-foreground font-body overflow-hidden">
+            <main className="h-full w-full">
+                <Suspense fallback={<Skeleton className="w-full h-full" />}>
+                  <CosmeticCanvas 
+                    ref={canvasRef}
+                    {...customization} 
+                    product={product}
+                    modelURL={currentModelURL}
+                    environmentURL={environment?.fileURL}
+                    onModelLoad={handleModelLoad}
+                    onLoadingChange={handleLoadingChange}
+                  />
+                </Suspense>
+                
+                {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
+
+                <div className="absolute top-4 left-4 z-20">
+                    {product?.id ? (
+                        <Button
+                            asChild
+                            variant="outline"
+                            size="icon-sm"
+                            className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                        >
+                            <Link href={`/products/${product.id}`}>
+                                <LogOut className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    ) : (
+                        <Button
+                            asChild
+                            variant="outline"
+                            size="icon-sm"
+                            className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                        >
+                            <Link href="/">
+                                <LogOut className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                    )}
+                </div>
+                
+                 <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                   {product?.modelURLOpen && (
+                      <Switch
+                          id="open-state-switch"
+                          checked={showOpenModel}
+                          onCheckedChange={setShowOpenModel}
+                          aria-label="Toggle open/closed model view"
+                          size="sm"
+                      />
+                  )}
+                    <Button
+                        onClick={handleScreenshot}
+                        variant="outline"
+                        size="sm"
+                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                    >
+                        <Camera className="mr-2 h-4 w-4" />
+                        Screenshot
+                    </Button>
+                </div>
+            </main>
+             <Sheet>
+                 <div className="fixed bottom-0 left-0 right-0 z-20">
+                    {product && (
+                      <div className="bg-card/80 backdrop-blur-lg p-2 text-center text-sm font-semibold rounded-t-lg mx-auto w-fit">
+                        {product.name}
+                      </div>
+                    )}
+                    <div className="h-20 bg-card border-t flex items-center justify-between px-4">
+                      <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
+                        <ChevronLeft />
+                      </Button>
+    
+                      <div className="flex-1 flex justify-center items-center gap-4 text-center overflow-hidden">
+                          {currentPart && (
+                            <div className="relative">
+                              <input
+                                  id="mobile-color-picker"
+                                  type="color"
+                                  value={customization.colors[currentPart] || '#000000'}
+                                  onChange={handleMobileColorChange}
+                                  className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                              />
+                              <label 
+                                htmlFor="mobile-color-picker"
+                                className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
+                                style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
+                              />
+                            </div>
+                          )}
+                          <SheetTrigger asChild disabled={parts.length === 0}>
+                            <div className="flex items-center gap-2">
+                                {parts.length > 0 && (
+                                    <div className="text-xs text-muted-foreground">
+                                        {currentPartIndex + 1}/{parts.length}
+                                    </div>
+                                )}
+                                <div className="text-sm font-semibold max-w-[150px] overflow-hidden whitespace-nowrap">
+                                  <div ref={partTextRef} className={cn(isPartTextOverflowing && "marquee")}>
+                                    {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                                  </div>
+                                </div>
+                            </div>
+                        </SheetTrigger>
+                      </div>
+    
+                      <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
+                        <ChevronRight />
+                      </Button>
+                    </div>
+                </div>
+                <SheetContent side="bottom" className="h-[60vh] p-0 bg-background/80 backdrop-blur-lg">
+                    <SheetHeader>
+                      <SheetTitle className="sr-only">Customization Panel</SheetTitle>
+                    </SheetHeader>
+                    <Suspense fallback={<CustomizationPanelSkeleton />}>
+                        {customizationPanelContent}
+                    </Suspense>
+                </SheetContent>
+              </Sheet>
+        </div>
+    );
+  }
+
   return (
-    <div className="relative h-screen w-full bg-background text-foreground font-body overflow-hidden">
-        <main className={cn(
-            "h-full w-full"
-        )}>
+    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden md:grid md:grid-cols-3">
+        <main className="h-full w-full md:col-span-2 relative">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 ref={canvasRef}
@@ -240,93 +356,14 @@ export default function CanvasPage() {
                     <Camera className="mr-2 h-4 w-4" />
                     Screenshot
                 </Button>
-                 {!isMobile && (
-                    <Button
-                        variant="outline"
-                        size="icon-sm"
-                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                        onClick={() => setIsPanelVisible(!isPanelVisible)}
-                        aria-label="Toggle customization panel"
-                    >
-                        <Menu />
-                    </Button>
-              )}
             </div>
-            
         </main>
-
-        {isMobile ? (
-          <Sheet>
-             <div className="fixed bottom-0 left-0 right-0 z-20">
-                {product && (
-                  <div className="bg-card/80 backdrop-blur-lg p-2 text-center text-sm font-semibold rounded-t-lg mx-auto w-fit">
-                    {product.name}
-                  </div>
-                )}
-                <div className="h-20 bg-card border-t flex items-center justify-between px-4">
-                  <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
-                    <ChevronLeft />
-                  </Button>
-
-                  <div className="flex-1 flex justify-center items-center gap-4 text-center overflow-hidden">
-                      {currentPart && (
-                        <div className="relative">
-                          <input
-                              id="mobile-color-picker"
-                              type="color"
-                              value={customization.colors[currentPart] || '#000000'}
-                              onChange={handleMobileColorChange}
-                              className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
-                          />
-                          <label 
-                            htmlFor="mobile-color-picker"
-                            className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
-                            style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
-                          />
-                        </div>
-                      )}
-                      <SheetTrigger asChild disabled={parts.length === 0}>
-                        <div className="flex items-center gap-2">
-                            {parts.length > 0 && (
-                                <div className="text-xs text-muted-foreground">
-                                    {currentPartIndex + 1}/{parts.length}
-                                </div>
-                            )}
-                            <div className="text-sm font-semibold max-w-[150px] overflow-hidden whitespace-nowrap">
-                              <div ref={partTextRef} className={cn(isPartTextOverflowing && "marquee")}>
-                                {currentPart ? cleanPartName(currentPart) : 'Customize'}
-                              </div>
-                            </div>
-                        </div>
-                    </SheetTrigger>
-                  </div>
-
-                  <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
-                    <ChevronRight />
-                  </Button>
-                </div>
-            </div>
-            <SheetContent side="bottom" className="h-[60vh] p-0 bg-background/80 backdrop-blur-lg">
-                <SheetHeader>
-                  <SheetTitle className="sr-only">Customization Panel</SheetTitle>
-                </SheetHeader>
-                <Suspense fallback={<CustomizationPanelSkeleton />}>
-                    {customizationPanelContent}
-                </Suspense>
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <aside className={cn(
-              "absolute top-0 bottom-0 right-0 w-80 lg:w-96 bg-card/80 backdrop-blur-lg border-l shadow-lg z-10 overflow-y-auto transition-transform duration-300 ease-in-out",
-              isPanelVisible ? "translate-x-0" : "translate-x-full"
-          )}>
+        <aside className="hidden md:block h-full bg-card border-l overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
-                <div className={cn(!isPanelVisible && "hidden")}>
-                  {customizationPanelContent}
-                </div>
+              {customizationPanelContent}
             </Suspense>
-          </aside>
-        )}
+        </aside>
     </div>
   );
 }
+
