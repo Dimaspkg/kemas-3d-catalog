@@ -113,7 +113,7 @@ export default function ProductDetailPage() {
                         />
                     </div>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 self-start sticky top-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
                     <div className="flex flex-wrap gap-2 mb-6">
                         {product.categories?.map(category => (
