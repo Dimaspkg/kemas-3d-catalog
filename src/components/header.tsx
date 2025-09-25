@@ -1,27 +1,58 @@
 
-'use server';
+'use client';
 
 import Link from "next/link";
 import { Button } from "./ui/button";
 import HeaderClient from "./header-client";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { Menu } from "lucide-react";
+import { Logo } from "./icons/logo";
+import { usePathname } from "next/navigation";
 
-export default async function Header() {
-
-  return (
-    <header className="px-4 lg:px-8 py-4 border-b flex items-center justify-end bg-background z-20 sticky top-0">
-      <Link href="/" className="flex items-center gap-4">
-        
-      </Link>
-      <div className="flex items-center gap-6">
-        <nav className="hidden md:flex items-center gap-6">
-            <Button variant="ghost" asChild className="text-base text-muted-foreground hover:text-foreground uppercase">
+function NavLinks() {
+    const pathname = usePathname();
+    return (
+        <>
+            <Button variant={pathname === '/' ? 'secondary' : 'ghost'} asChild className="justify-start">
                 <Link href="/">Home</Link>
             </Button>
-            <Button variant="ghost" asChild className="text-base text-muted-foreground hover:text-foreground uppercase">
+            <Button variant={pathname.startsWith('/products') ? 'secondary' : 'ghost'} asChild className="justify-start">
                 <Link href="/products">Products</Link>
             </Button>
             <HeaderClient />
-        </nav>
+        </>
+    )
+}
+
+export default function Header() {
+
+  return (
+    <header className="px-4 lg:px-8 py-3 border-b flex items-center justify-between bg-background z-20 sticky top-0">
+      <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Logo className="h-7 w-7 text-primary" />
+        <span className="hidden sm:inline-block">KEMAS Innovations</span>
+      </Link>
+      
+      {/* Desktop Nav */}
+      <nav className="hidden md:flex items-center gap-2">
+        <NavLinks />
+      </nav>
+
+      {/* Mobile Nav */}
+      <div className="md:hidden">
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Menu />
+                    <span className="sr-only">Open Menu</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left">
+                <div className="flex flex-col gap-4 mt-8">
+                    <NavLinks />
+                </div>
+            </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

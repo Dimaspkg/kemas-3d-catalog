@@ -6,9 +6,11 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function HeaderClient() {
   const [user, setUser] = useState<User | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -20,7 +22,7 @@ export default function HeaderClient() {
   return (
     <>
       {user && (
-        <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground uppercase">
+        <Button variant={pathname.startsWith('/admin') ? 'secondary' : 'ghost'} asChild className="justify-start">
             <Link href="/admin">Admin</Link>
         </Button>
        )}

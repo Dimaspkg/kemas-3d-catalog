@@ -1,10 +1,8 @@
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
-      <main className="flex-1">
+    <div className="flex flex-col flex-1">
         {/* Konten halaman utama telah dikosongkan */}
-      </main>
     </div>
   );
 }
