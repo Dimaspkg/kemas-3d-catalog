@@ -54,7 +54,7 @@ export default function ProductDetailPage() {
     if (loading) {
         return (
             <div className="px-8 py-8">
-                <Skeleton className="h-8 w-40 mb-8" />
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <Skeleton className="w-full aspect-square rounded-lg" />
                     <div className="space-y-6">
@@ -96,12 +96,6 @@ export default function ProductDetailPage() {
 
     return (
         <div className="px-8 py-8">
-            <Button asChild variant="ghost" className="mb-6">
-                <Link href="/products">
-                    <ArrowLeft className="mr-2 h-4 w-4"/>
-                    Back to All Products
-                </Link>
-            </Button>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
                 <div className="md:col-span-3">
                     <div className="relative aspect-square w-full rounded-lg overflow-hidden border">
