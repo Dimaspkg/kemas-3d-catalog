@@ -233,19 +233,19 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const scene = sceneRef.current;
     if (!scene) return;
 
+    scene.background = new THREE.Color(0xF8F8F8);
+
     if (environmentURL) {
         const loader = environmentURL.endsWith('.hdr') ? new RGBELoader() : new EXRLoader();
         loader.load(environmentURL, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
-            scene.background = texture;
         }, undefined, (error) => {
             console.error('An error occurred while loading the environment:', error);
-            scene.background = new THREE.Color(0xF8F8F8);
+            scene.environment = null;
         });
     } else {
         scene.environment = null;
-        scene.background = new THREE.Color(0xF8F8F8);
     }
   }, [environmentURL]);
 
@@ -285,12 +285,14 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   useEffect(() => {
     if (Object.keys(colors).length > 0 || Object.keys(materialKeys).length > 0) {
-      // Check if the current state is different from the initial potential state
-      // This is a simple way to detect if a user has interacted.
-      // A more robust way might involve tracking initial state vs. current state.
-      setHasCustomized(true);
+      if(!hasCustomized) {
+        const isCustomized = Object.entries(colors).some(([key, value]) => value !== '#000000') || Object.entries(materialKeys).some(([key, value]) => value !== 'glossy');
+        if(isCustomized) {
+          setHasCustomized(true);
+        }
+      }
     }
-  }, [colors, materialKeys]);
+  }, [colors, materialKeys, hasCustomized]);
 
   // Expose screenshot function via ref
   useImperativeHandle(ref, () => ({
@@ -333,5 +335,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
 
     
