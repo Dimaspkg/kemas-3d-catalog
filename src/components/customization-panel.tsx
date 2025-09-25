@@ -17,7 +17,7 @@ import { cleanPartName } from "@/lib/utils";
 import type { Product } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
-import { Brush } from "lucide-react";
+import { Brush, LogOut } from "lucide-react";
 import Link from "next/link";
 
 const formatPrice = (price?: number) => {
@@ -93,9 +93,24 @@ export default function CustomizationPanel({
 
   const panelContent = (
      <div className="p-4 space-y-4">
-        <div className="px-2">
+        <div className="px-2 flex justify-between items-center">
+          <div>
             <h2 className="text-xl font-bold">{product.name}</h2>
             <p className="text-sm text-muted-foreground">Customize your product</p>
+          </div>
+           {product?.id ? (
+              <Button asChild variant="ghost" size="icon">
+                  <Link href={`/products/${product.id}`}>
+                      <LogOut className="h-5 w-5" />
+                  </Link>
+              </Button>
+            ) : (
+                <Button asChild variant="ghost" size="icon">
+                    <Link href="/">
+                        <LogOut className="h-5 w-5" />
+                    </Link>
+                </Button>
+            )}
         </div>
         <Separator />
         <Accordion type="single" collapsible className="w-full">

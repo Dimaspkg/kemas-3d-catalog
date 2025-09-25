@@ -312,32 +312,6 @@ export default function CanvasPage() {
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
-            <div className="absolute top-4 left-4 z-20">
-                {product?.id ? (
-                    <Button
-                        asChild
-                        variant="outline"
-                        size="icon-sm"
-                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                    >
-                        <Link href={`/products/${product.id}`}>
-                            <LogOut className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                ) : (
-                    <Button
-                        asChild
-                        variant="outline"
-                        size="icon-sm"
-                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                    >
-                        <Link href="/">
-                            <LogOut className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                )}
-            </div>
-            
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
                   <Switch
