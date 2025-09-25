@@ -117,7 +117,7 @@ export default function EditProductPage() {
         if (!product) return;
         setIsSubmitting(true);
         
-        let imageURLs = product.imageURLs;
+        let imageURLs = product.imageURLs || [];
         let modelURL = product.modelURL;
         let modelURLOpen = product.modelURLOpen;
 
