@@ -25,7 +25,7 @@ const Switch = React.forwardRef<
       )}
     >
       <span className="data-[state=unchecked]:hidden text-primary">Open</span>
-      <span className="data-[state=checked]:hidden text-muted-foreground">Off</span>
+      <span className="data-[state=checked]:hidden text-muted-foreground">Close</span>
     </SwitchPrimitives.Thumb>
   </SwitchPrimitives.Root>
 ))
