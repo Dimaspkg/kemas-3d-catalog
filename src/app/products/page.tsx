@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { CustomiseIcon } from '@/components/icons/customise-icon';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
+interface Category {
+    id: string;
+    name: string;
+}
 
 function ProductCardSkeleton() {
     return (
@@ -25,27 +32,47 @@ function ProductCardSkeleton() {
     )
 }
 
-function FilterSidebar() {
-    const filters = [
-        "Gender", "Shop By Price", "Colour", "Collections", "Shoe Height",
-        "Air Max (1)", "Brand (1)", "Technology"
-    ];
-
+function FilterSidebar({ 
+    categories, 
+    selectedCategories, 
+    onCategoryChange,
+    loading 
+}: { 
+    categories: Category[], 
+    selectedCategories: string[], 
+    onCategoryChange: (categoryId: string, checked: boolean) => void,
+    loading: boolean
+}) {
     return (
         <aside className="w-full md:w-64 lg:w-72 space-y-6">
             <p className="font-semibold text-lg">Categories</p>
-            <Accordion type="multiple" className="w-full">
-                {filters.map((filter, index) => (
-                    <AccordionItem value={`item-${index}`} key={filter}>
-                        <AccordionTrigger className="text-base font-medium py-4">{filter}</AccordionTrigger>
-                        <AccordionContent>
-                           {/* Placeholder for filter options */}
-                           <div className="p-2 text-muted-foreground text-sm">
-                                Filter options for {filter} will be here.
-                           </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
+            <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
+                <AccordionItem value="item-0">
+                    <AccordionTrigger className="text-base font-medium py-4">Product Type</AccordionTrigger>
+                    <AccordionContent>
+                        <div className="space-y-2 p-2">
+                           {loading ? (
+                                <>
+                                    <div className="flex items-center space-x-2"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-24" /></div>
+                                    <div className="flex items-center space-x-2"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-20" /></div>
+                                </>
+                           ) : (
+                               categories.map(category => (
+                                   <div key={category.id} className="flex items-center space-x-2">
+                                       <Checkbox
+                                           id={`cat-${category.id}`}
+                                           checked={selectedCategories.includes(category.name)}
+                                           onCheckedChange={(checked) => onCategoryChange(category.name, !!checked)}
+                                       />
+                                       <Label htmlFor={`cat-${category.id}`} className="font-normal cursor-pointer">
+                                           {category.name}
+                                       </Label>
+                                   </div>
+                               ))
+                           )}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
             </Accordion>
         </aside>
     )
@@ -63,18 +90,51 @@ const formatPrice = (price?: number) => {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
       setProducts(productsData);
-      setLoading(false);
+      setLoadingProducts(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'categories'), orderBy('name'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+        setCategories(categoriesData);
+        setLoadingCategories(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleCategoryChange = (categoryName: string, checked: boolean) => {
+    setSelectedCategories(prev => 
+        checked 
+            ? [...prev, categoryName] 
+            : prev.filter(name => name !== categoryName)
+    );
+  };
+
+  const filteredProducts = useMemo(() => {
+    if (selectedCategories.length === 0) {
+        return products;
+    }
+    return products.filter(product =>
+        selectedCategories.every(category => product.categories?.includes(category))
+    );
+  }, [products, selectedCategories]);
+
+  const loading = loadingProducts || loadingCategories;
 
   return (
     <div className="flex flex-col">
@@ -83,7 +143,7 @@ export default function ProductsPage() {
                 <p>KEMAS Innovations / Products</p>
             </div>
             <div className="flex justify-between items-center mt-2">
-                <h1 className="text-3xl font-bold">Our Products ({loading ? "..." : products.length})</h1>
+                <h1 className="text-3xl font-bold">Our Products ({loading ? "..." : filteredProducts.length})</h1>
                 <div className="flex items-center gap-4">
                     <Button variant="ghost">
                         <SlidersHorizontal className="h-4 w-4 mr-2" />
@@ -98,15 +158,20 @@ export default function ProductsPage() {
         </header>
 
         <div className="flex flex-col md:flex-row gap-12">
-            <FilterSidebar />
+            <FilterSidebar 
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onCategoryChange={handleCategoryChange}
+                loading={loadingCategories}
+            />
             <main className="flex-1">
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
                         {[...Array(6)].map((_, i) => <ProductCardSkeleton key={i} />)}
                     </div>
-                ) : products.length > 0 ? (
+                ) : filteredProducts.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-                    {products.map((product) => (
+                    {filteredProducts.map((product) => (
                         <div key={product.id} className="group">
                              <Link href={`/products/${product.id}`} className="block">
                                 <Card className="border-none shadow-none rounded-none bg-transparent">
@@ -139,7 +204,7 @@ export default function ProductsPage() {
                 ) : (
                     <div className="flex items-center justify-center h-full col-span-3">
                         <div className="text-center py-12 border-2 border-dashed rounded-lg w-full">
-                            <p className="text-muted-foreground">No products found.</p>
+                            <p className="text-muted-foreground">No products found matching your filter.</p>
                         </div>
                     </div>
                 )}
