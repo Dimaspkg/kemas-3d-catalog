@@ -74,7 +74,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
-      12,
+      25,
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
@@ -154,33 +154,32 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     // --- Cleanup ---
     return () => {
         window.removeEventListener("resize", handleResize);
-        cancelAnimationFrame(animationFrameId);
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        if (modelRef.current) {
+            scene.remove(modelRef.current);
+            modelRef.current.traverse((object: any) => {
+                if (object.isMesh) {
+                    if (object.geometry) object.geometry.dispose();
+                    if (object.material) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(material => material.dispose());
+                        } else {
+                            object.material.dispose();
+                        }
+                    }
+                }
+            });
+        }
+
+        controls.dispose();
+
         if (currentMount && rendererRef.current) {
             currentMount.removeChild(rendererRef.current.domElement);
         }
-        
-        // Dispose of scene objects
-        scene.traverse((object: any) => {
-            if (object.isMesh) {
-                if (object.geometry) object.geometry.dispose();
-                if (object.material) {
-                    if (Array.isArray(object.material)) {
-                        object.material.forEach(material => material.dispose());
-                    } else {
-                        object.material.dispose();
-                    }
-                }
-            }
-        });
-
         renderer.dispose();
-        controls.dispose();
-
-        sceneRef.current = null;
-        cameraRef.current = null;
-        rendererRef.current = null;
-        controlsRef.current = null;
-        modelRef.current = undefined;
     };
   }, []); // Empty dependency array ensures this runs only once on mount
 
@@ -198,6 +197,18 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         // Remove previous model if it exists
         if (modelRef.current) {
             scene.remove(modelRef.current);
+             modelRef.current.traverse((object: any) => {
+                if (object.isMesh) {
+                    if (object.geometry) object.geometry.dispose();
+                    if (object.material) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(material => material.dispose());
+                        } else {
+                            object.material.dispose();
+                        }
+                    }
+                }
+            });
         }
         
         const loadedModel = gltf.scene;
@@ -215,7 +226,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (partName && !partNames.includes(partName)) {
                     partNames.push(partName);
                     if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${child.material.color.getHexString()}`;
+                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
                     } else {
                         initialColors[partName] = '#C0C0C0';
                     }
@@ -238,7 +249,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 2.5; 
+            cameraZ *= 1.5; 
             
             camera.position.set(0, center.y > 0 ? center.y : size.y / 2, cameraZ);
             
@@ -339,7 +350,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
 
     
