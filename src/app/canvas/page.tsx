@@ -12,7 +12,7 @@ import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { PanelRightOpen, PanelRightClose, Brush, Camera, X } from "lucide-react";
+import { Brush, Camera, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -215,7 +215,7 @@ export default function CanvasPage() {
                     onClick={() => setIsPanelVisible(!isPanelVisible)}
                     aria-label="Toggle customization panel"
                 >
-                    {isPanelVisible ? <PanelRightClose /> : <PanelRightOpen />}
+                    <Brush />
                 </Button>
               )}
             </div>
