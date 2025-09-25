@@ -238,8 +238,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         
         const box = new THREE.Box3().setFromObject(loadedModel);
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-
+        
         loadedModel.position.y = -box.min.y;
         
         if (isInitialModelLoad.current && cameraRef.current && controlsRef.current) {
@@ -251,9 +250,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
             cameraZ *= 1.5; 
             
-            camera.position.set(0, center.y > 0 ? center.y : size.y / 2, cameraZ);
+            camera.position.z = cameraZ;
             
-            controls.target.copy(center);
             controls.target.y = size.y / 2;
 
             camera.near = maxDim / 100;
