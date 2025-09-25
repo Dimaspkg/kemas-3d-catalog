@@ -53,13 +53,12 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="w-full">
-                <div className="grid grid-cols-1 md:grid-cols-2">
-                    <div className="flex overflow-x-auto md:flex-col">
-                        <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
+            <div className="container mx-auto py-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto gap-4">
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
                     </div>
-                    <div className="space-y-6 px-4 md:px-8">
+                    <div className="space-y-6">
                         <Skeleton className="h-10 w-3/4" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
@@ -84,7 +83,7 @@ export default function ProductDetailPage() {
 
     if (!product) {
         return (
-            <div className="text-center px-4 py-20">
+            <div className="container mx-auto text-center px-4 py-20">
                  <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
                  <p className="text-muted-foreground">The product you are looking for does not exist.</p>
             </div>
@@ -92,30 +91,30 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="w-full">
-            <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto">
+        <div className="container mx-auto py-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto gap-4">
                     {product.imageURLs.map((url, index) => (
                         <div key={index} className="relative aspect-square w-full shrink-0 snap-start">
                             <Image
                                 src={url}
                                 alt={`${product.name} image ${index + 1}`}
                                 fill
-                                className="object-cover"
+                                className="object-cover rounded-lg"
                                 priority={index === 0}
                             />
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-0 md:h-screen md:overflow-y-auto px-4 md:px-8 py-8 md:py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
-                    <div className="flex flex-wrap gap-2 mb-6">
+                <div className="md:sticky md:top-[70px] md:h-screen md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6">
+                    <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
+                    <div className="flex flex-wrap gap-2">
                         {product.categories?.map(category => (
                             <Badge key={category} variant="secondary">{category}</Badge>
                         ))}
                     </div>
                     
-                    <Button asChild size="lg" variant="outline" className="w-full mb-6 rounded-full py-8 text-lg hover:shadow-md transition-shadow">
+                    <Button asChild size="lg" variant="outline" className="w-full rounded-full py-8 text-lg hover:shadow-md transition-shadow">
                         <Link href={`/canvas?productId=${product.id}`}>
                             <span className="mr-2">Customise</span>
                             <CustomiseIcon className="h-5 w-5" />

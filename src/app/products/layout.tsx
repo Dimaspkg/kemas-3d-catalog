@@ -5,6 +5,6 @@ export default function ProductsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full">{children}</div>
+    <div className="container mx-auto px-4 py-8">{children}</div>
   );
 }
