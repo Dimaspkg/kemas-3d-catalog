@@ -89,6 +89,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     sceneRef.current = scene;
     cameraRef.current = camera;
     rendererRef.current = renderer;
+    currentMount.innerHTML = '';
     currentMount.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -135,18 +136,21 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     
     // --- Resize Handler ---
     const handleResize = () => {
-        const newWidth = currentMount.clientWidth;
-        const newHeight = currentMount.clientHeight;
-        camera.aspect = newWidth / newHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(newWidth, newHeight);
+        if (!rendererRef.current || !cameraRef.current || !mountRef.current) return;
+        const newWidth = mountRef.current.clientWidth;
+        const newHeight = mountRef.current.clientHeight;
+        cameraRef.current.aspect = newWidth / newHeight;
+        cameraRef.current.updateProjectionMatrix();
+        rendererRef.current.setSize(newWidth, newHeight);
     };
     window.addEventListener("resize", handleResize);
 
     // --- Cleanup ---
     return () => {
         window.removeEventListener("resize", handleResize);
-        cancelAnimationFrame(animationFrameId);
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
         controls.dispose();
         if (modelRef.current) {
             scene.remove(modelRef.current);
@@ -161,10 +165,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   // Effect for loading model
   useEffect(() => {
     const scene = sceneRef.current;
-    const camera = cameraRef.current;
-    const controls = controlsRef.current;
-
-    if (!scene || !camera || !controls) return;
+    if (!scene || !cameraRef.current || !controlsRef.current) return;
     
     if (!modelURL) {
       setIsLoading(false);
@@ -207,21 +208,21 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       const center = box.getCenter(new THREE.Vector3());
 
       const maxDim = Math.max(size.x, size.y, size.z);
-      const fov = camera.fov * (Math.PI / 180);
+      const fov = cameraRef.current.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
       
-      cameraZ *= 1.5; // Zoom out a bit to fit the model nicely
+      cameraZ *= 1.5; 
 
-      loadedModel.position.sub(center); // Center the model at the origin
+      loadedModel.position.sub(center); 
 
-      camera.position.set(0, 0, cameraZ);
+      cameraRef.current.position.set(0, 0, cameraZ);
       
       const newTarget = new THREE.Vector3(0, 0, 0);
-      controls.target.copy(newTarget);
+      controlsRef.current.target.copy(newTarget);
+      controlsRef.current.update();
 
-      // Adjust floor position
       const floor = scene.getObjectByProperty("receiveShadow", true);
-      if (floor) {
+      if (floor instanceof THREE.Mesh) {
         floor.position.y = box.min.y - center.y;
       }
       
