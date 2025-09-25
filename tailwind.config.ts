@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['europa', 'sans-serif'],
-        headline: ['mrs-eaves', 'serif'],
+        body: ['Montserrat', 'sans-serif'],
+        headline: ['Playfair Display', 'serif'],
         code: ['monospace'],
       },
       colors: {
