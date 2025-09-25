@@ -121,8 +121,8 @@ export default function CanvasPage() {
   const currentModelURL = showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL;
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground font-body">
-        <main className="flex-1 overflow-hidden">
+    <div className="flex flex-row h-screen bg-background text-foreground font-body">
+        <main className="flex-1 overflow-hidden relative">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 ref={canvasRef}
@@ -146,7 +146,7 @@ export default function CanvasPage() {
                 </div>
             )}
         </main>
-        <footer className="shrink-0 bg-card border-t shadow-lg z-10">
+        <aside className="w-96 bg-card border-l shadow-lg z-10 overflow-y-auto">
           <Suspense fallback={<CustomizationPanelSkeleton />}>
             {loading || !product ? (
               <CustomizationPanelSkeleton />
@@ -157,7 +157,7 @@ export default function CanvasPage() {
               />
             )}
           </Suspense>
-        </footer>
+        </aside>
     </div>
   );
 }

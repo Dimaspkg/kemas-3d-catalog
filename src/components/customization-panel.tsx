@@ -10,10 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
-import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 
 export type CustomizationState = {
@@ -62,21 +59,6 @@ export default function CustomizationPanel({
   onStateChange,
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
-  const [currentPartIndex, setCurrentPartIndex] = React.useState(0);
-  const currentPart = parts[currentPartIndex];
-
-  React.useEffect(() => {
-    // Reset index if parts change (e.g. new model loaded)
-    setCurrentPartIndex(0);
-  }, [parts.length]);
-
-  const goToNextPart = () => {
-    setCurrentPartIndex((prev) => (prev + 1) % parts.length);
-  };
-
-  const goToPrevPart = () => {
-    setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
-  };
 
   const handleColorChange =
     (part: string) =>
@@ -97,89 +79,44 @@ export default function CustomizationPanel({
 
   if (parts.length === 0) {
     return (
-        <div className="flex items-center justify-center h-24 p-4 text-muted-foreground">
+        <div className="flex items-center justify-center h-full p-4 text-muted-foreground">
             <p>Loading customization options...</p>
         </div>
     )
   }
 
   return (
-    <Collapsible className="p-4">
-        <div className="grid grid-cols-5 items-center gap-4">
-            <div className="col-span-2 flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={goToPrevPart} aria-label="Previous part">
-                    <ChevronLeft />
-                </Button>
-                <Label className="text-lg font-semibold truncate text-center" title={cleanPartName(currentPart)}>
-                    {cleanPartName(currentPart)}
+    <div className="p-4 space-y-4">
+        <h2 className="text-xl font-bold">Customize</h2>
+        {parts.map(part => (
+            <div key={part} className="space-y-2 p-3 border rounded-lg">
+                <Label className="text-base font-semibold" title={cleanPartName(part)}>
+                    {cleanPartName(part)}
                 </Label>
-                <Button variant="ghost" size="icon" onClick={goToNextPart} aria-label="Next part">
-                    <ChevronRight />
-                </Button>
+                <div className="flex items-center justify-between gap-4">
+                     <ColorSwatch
+                        name={part}
+                        value={state.colors[part]}
+                        onChange={handleColorChange(part)}
+                    />
+                    <Select
+                        value={state.materials[part]}
+                        onValueChange={handleMaterialChange(part)}
+                    >
+                        <SelectTrigger id={`${part}-material`} className="flex-grow">
+                            <SelectValue placeholder="Select material" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {materialOptions.map((option) => (
+                            <SelectItem key={option.key} value={option.key} className="capitalize">
+                            {option.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
-            <div className="col-span-1 flex justify-center">
-                <ColorSwatch
-                    name={currentPart}
-                    value={state.colors[currentPart]}
-                    onChange={handleColorChange(currentPart)}
-                />
-            </div>
-             <div className="col-span-2 flex items-center justify-end gap-2">
-                <Select
-                    value={state.materials[currentPart]}
-                    onValueChange={handleMaterialChange(currentPart)}
-                >
-                    <SelectTrigger id={`${currentPart}-material`} className="w-[180px]">
-                        <SelectValue placeholder="Select material" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {materialOptions.map((option) => (
-                        <SelectItem key={option.key} value={option.key} className="capitalize">
-                        {option.name}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-                 <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <Menu />
-                        <span className="sr-only">Toggle materials</span>
-                    </Button>
-                </CollapsibleTrigger>
-            </div>
-        </div>
-
-         <CollapsibleContent className="mt-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {parts.map(part => (
-                    <div key={part} className="p-2 rounded-lg border flex flex-col items-center gap-2">
-                        <Label className="text-sm truncate" title={cleanPartName(part)}>{cleanPartName(part)}</Label>
-                        <div className="flex items-center gap-4">
-                             <ColorSwatch
-                                name={`${part}-all`}
-                                value={state.colors[part]}
-                                onChange={handleColorChange(part)}
-                            />
-                            <Select
-                                value={state.materials[part]}
-                                onValueChange={handleMaterialChange(part)}
-                            >
-                                <SelectTrigger id={`${part}-material-all`} className="w-[120px]">
-                                    <SelectValue placeholder="Material" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                {materialOptions.map((option) => (
-                                    <SelectItem key={option.key} value={option.key} className="capitalize">
-                                    {option.name}
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </CollapsibleContent>
-    </Collapsible>
+        ))}
+    </div>
   );
 }
