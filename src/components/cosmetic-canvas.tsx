@@ -79,7 +79,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       0.1,
       1000
     );
-    camera.position.set(0, 1, 5);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -97,7 +96,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     controls.dampingFactor = 0.05;
     controls.minDistance = 2;
     controls.maxDistance = 50; 
-    controls.target.set(0, 0, 0);
     controls.update();
     controlsRef.current = controls;
     
@@ -181,16 +179,19 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
         renderer.dispose();
     };
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   // Effect for loading the model
   useEffect(() => {
     const scene = sceneRef.current;
-    if (!scene || !modelURL) {
+    if (!scene || !modelURL || !cameraRef.current || !controlsRef.current) {
         setIsLoading(false);
         return;
     };
     setIsLoading(true);
+
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
 
     const gltfLoader = new GLTFLoader();
     gltfLoader.load(modelURL, (gltf) => {
@@ -236,16 +237,25 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         
         onModelLoad(partNames, initialColors);
         
+        // --- Fit camera to model ---
         const box = new THREE.Box3().setFromObject(loadedModel);
-        loadedModel.position.y = -box.min.y;
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        const fov = camera.fov * (Math.PI / 180);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+        cameraZ *= 1.5; // zoom out a little so model is not edge to edge
+
+        loadedModel.position.y = -box.min.y; // Center model on the floor
+
+        camera.position.set(center.x, center.y + size.y * 0.5, center.z + cameraZ);
         
-        if (isInitialModelLoad.current && cameraRef.current && controlsRef.current) {
-            const controls = controlsRef.current;
-            const size = box.getSize(new THREE.Vector3());
-            controls.target.y = size.y / 2;
-            isInitialModelLoad.current = false;
-            controls.update();
-        }
+        const newTarget = new THREE.Vector3(center.x, center.y, center.z);
+        newTarget.y = size.y / 2; // Target the vertical center of the model
+        controls.target.copy(newTarget);
+        
+        controls.update();
 
         scene.add(loadedModel);
         setIsLoading(false);
