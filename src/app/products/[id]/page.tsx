@@ -84,7 +84,7 @@ export default function ProductDetailPage() {
 
     if (!product) {
         return (
-            <div className="container mx-auto px-4 py-20 text-center">
+            <div className="text-center px-4 py-20">
                  <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
                  <p className="text-muted-foreground">The product you are looking for does not exist.</p>
             </div>
@@ -94,7 +94,7 @@ export default function ProductDetailPage() {
     return (
         <div className="w-full py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col">
                     {product.imageURLs.map((url, index) => (
                         <div key={index} className="relative aspect-square w-full">
                             <Image
