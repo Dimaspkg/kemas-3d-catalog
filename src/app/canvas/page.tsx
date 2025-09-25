@@ -12,10 +12,11 @@ import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { PanelRightOpen, PanelRightClose, Brush } from "lucide-react";
+import { PanelRightOpen, PanelRightClose, Brush, Camera, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -153,8 +154,8 @@ export default function CanvasPage() {
               />
             </Suspense>
             
-            <div className="absolute bottom-4 right-4 flex items-center gap-4">
-              {product?.modelURLOpen && (
+             <div className="absolute top-4 right-4 flex items-center gap-4">
+               {product?.modelURLOpen && (
                   <div className="flex items-center space-x-2">
                       <Switch
                           id="open-state-switch"
@@ -165,6 +166,40 @@ export default function CanvasPage() {
                       <Label htmlFor="open-state-switch" className="text-foreground text-sm sr-only">Open</Label>
                   </div>
               )}
+                <Button
+                    onClick={handleScreenshot}
+                    variant="outline"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Screenshot
+                </Button>
+                {product?.id ? (
+                    <Button
+                        asChild
+                        variant="outline"
+                        size="icon"
+                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                    >
+                        <Link href={`/products/${product.id}`}>
+                            <X className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                ) : (
+                    <Button
+                        asChild
+                        variant="outline"
+                        size="icon"
+                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                    >
+                        <Link href="/">
+                            <X className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                )}
+            </div>
+            
+            <div className="absolute bottom-4 right-4 flex items-center gap-4">
               {!isMobile && (
                 <Button
                     variant="outline"
