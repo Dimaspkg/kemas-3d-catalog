@@ -12,7 +12,7 @@ const Switch = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitives.Root
     className={cn(
-      "peer inline-flex h-8 w-[72px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+      "group peer inline-flex h-8 w-[72px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
       className
     )}
     {...props}
@@ -24,8 +24,8 @@ const Switch = React.forwardRef<
         "text-xs font-semibold"
       )}
     >
-      <span className="data-[state=unchecked]:hidden text-primary">Open</span>
-      <span className="data-[state=checked]:hidden text-muted-foreground">Close</span>
+      <span className="hidden group-data-[state=checked]:block text-primary">Open</span>
+      <span className="hidden group-data-[state=unchecked]:block text-muted-foreground">Close</span>
     </SwitchPrimitives.Thumb>
   </SwitchPrimitives.Root>
 ))
