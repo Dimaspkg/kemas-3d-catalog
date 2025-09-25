@@ -119,7 +119,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
     // Floor
     const floorGeometry = new THREE.PlaneGeometry(20, 20);
-    const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        color: 0x808080,
+        metalness: 0,
+        roughness: 0.5,
+        transparent: true,
+        opacity: 0.2
+    });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.name = "floor";
     floor.rotation.x = -Math.PI / 2;
