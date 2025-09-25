@@ -54,13 +54,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     takeScreenshot: () => {
       const renderer = rendererRef.current;
       if (renderer) {
-        // Force a render of the current frame
         renderer.render(sceneRef.current!, cameraRef.current!);
-        
-        // Capture the canvas content
         const dataURL = renderer.domElement.toDataURL('image/png');
-        
-        // Trigger a download
         const link = document.createElement('a');
         link.download = 'product-customization.png';
         link.href = dataURL;
@@ -69,20 +64,16 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     }
   }));
 
-  // Initialize Three.js scene, camera, renderer, etc.
   useEffect(() => {
     if (!mountRef.current) return;
     
     const currentMount = mountRef.current;
     
-    // --- Initialize scene, camera, renderer if they don't exist ---
     if (!sceneRef.current) {
-        // Scene
         const scene = new THREE.Scene();
         sceneRef.current = scene;
         scene.background = new THREE.Color(0xF8F8F8);
 
-        // Camera
         const camera = new THREE.PerspectiveCamera(
           12,
           currentMount.clientWidth / currentMount.clientHeight,
@@ -93,7 +84,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         camera.position.set(0, 1, 5);
         camera.lookAt(0, 1, 0);
 
-        // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
         rendererRef.current = renderer;
         renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
@@ -104,7 +94,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         renderer.toneMappingExposure = 1.0; 
         currentMount.appendChild(renderer.domElement);
 
-        // Controls
         const controls = new OrbitControls(camera, renderer.domElement);
         controlsRef.current = controls;
         controls.enableDamping = true;
@@ -114,7 +103,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         controls.target.set(0, 1, 0);
         controls.update();
 
-        // Lighting
         const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
         keyLight.position.set(-5, 5, 5);
         keyLight.castShadow = true;
@@ -135,7 +123,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
-        // Floor
         const floorGeometry = new THREE.PlaneGeometry(20, 20);
         const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -144,7 +131,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         floor.receiveShadow = true;
         scene.add(floor);
 
-        // Animation loop
         const animate = () => {
           animationFrameIdRef.current = requestAnimationFrame(animate);
           if (rendererRef.current && sceneRef.current && cameraRef.current && controlsRef.current) {
@@ -154,7 +140,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         };
         animate();
 
-        // Resize handler
         const handleResize = () => {
           if (!currentMount || !cameraRef.current || !rendererRef.current) return;
           cameraRef.current.aspect = currentMount.clientWidth / currentMount.clientHeight;
@@ -163,23 +148,23 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         };
         window.addEventListener("resize", handleResize);
 
+        // This is the cleanup function that runs when the component unmounts.
         return () => {
             window.removeEventListener("resize", handleResize);
             if (animationFrameIdRef.current) {
               cancelAnimationFrame(animationFrameIdRef.current);
             }
             if (rendererRef.current) {
-              rendererRef.current.dispose();
-              // Clean up DOM element on unmount
-              if (currentMount && rendererRef.current.domElement) {
-                // currentMount.removeChild(rendererRef.current.domElement);
+              // Check if the renderer's DOM element is still a child before removing it.
+              if (currentMount && rendererRef.current.domElement.parentNode === currentMount) {
+                currentMount.removeChild(rendererRef.current.domElement);
               }
+              rendererRef.current.dispose();
             }
         };
     }
   }, []);
 
-  // Effect for loading the environment
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !environmentURL) return;
@@ -195,8 +180,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   }, [environmentURL]);
 
-
-  // Effect for loading the 3D model
   useEffect(() => {
     const scene = sceneRef.current;
     if (!scene || !modelURL) return;
@@ -205,7 +188,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const camera = cameraRef.current!;
     const controls = controlsRef.current!;
 
-    // Remove previous model if it exists
     if (modelRef.current) {
         scene.remove(modelRef.current);
     }
@@ -226,7 +208,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (partName && !partNames.includes(partName)) {
                     partNames.push(partName);
                     if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
+                        initialColors[partName] = `#${child.material.color.getHexString()}`;
                     } else {
                         initialColors[partName] = '#C0C0C0';
                     }
@@ -263,8 +245,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   }, [modelURL, onModelLoad]);
 
-
-  // Effect to update colors and materials
   useEffect(() => {
     if (!modelRef.current || !colors || !materialKeys) return;
 
@@ -320,10 +300,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-
-
-    
-    
 
     
