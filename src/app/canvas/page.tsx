@@ -152,28 +152,31 @@ export default function CanvasPage() {
                 onScreenshot={handleScreenshot}
               />
             </Suspense>
-            {product?.modelURLOpen && (
-                <div className="absolute top-4 left-4 flex items-center space-x-2">
-                    <Switch
-                        id="open-state-switch"
-                        checked={showOpenModel}
-                        onCheckedChange={setShowOpenModel}
-                        aria-label="Toggle open/closed model view"
-                    />
-                    <Label htmlFor="open-state-switch" className="text-foreground text-sm">Open</Label>
-                </div>
-            )}
-            {!isMobile && (
-              <Button
-                  variant="outline"
-                  size="icon"
-                  className="absolute bottom-4 right-4 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                  onClick={() => setIsPanelVisible(!isPanelVisible)}
-                  aria-label="Toggle customization panel"
-              >
-                  {isPanelVisible ? <PanelRightClose /> : <PanelRightOpen />}
-              </Button>
-            )}
+            
+            <div className="absolute bottom-4 right-4 flex items-center gap-4">
+              {product?.modelURLOpen && (
+                  <div className="flex items-center space-x-2">
+                      <Switch
+                          id="open-state-switch"
+                          checked={showOpenModel}
+                          onCheckedChange={setShowOpenModel}
+                          aria-label="Toggle open/closed model view"
+                      />
+                      <Label htmlFor="open-state-switch" className="text-foreground text-sm sr-only">Open</Label>
+                  </div>
+              )}
+              {!isMobile && (
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                    onClick={() => setIsPanelVisible(!isPanelVisible)}
+                    aria-label="Toggle customization panel"
+                >
+                    {isPanelVisible ? <PanelRightClose /> : <PanelRightOpen />}
+                </Button>
+              )}
+            </div>
         </main>
 
         {isMobile ? (
