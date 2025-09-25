@@ -45,6 +45,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasCustomized, setHasCustomized] = useState(false);
 
   // Function to fit camera to the loaded model
   const fitCameraToModel = useCallback((model: THREE.Object3D, camera: THREE.PerspectiveCamera, controls: OrbitControls) => {
@@ -187,6 +188,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         scene.remove(modelRef.current);
     }
     
+    setHasCustomized(false);
     if (!modelURL) {
       setIsLoading(false);
       return;
@@ -249,6 +251,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   // Effect for applying customizations
   useEffect(() => {
+    if (!hasCustomized) return;
     if (!modelRef.current || !colors || !materialKeys) return;
 
     modelRef.current.traverse((child) => {
@@ -278,6 +281,15 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       }
     });
+  }, [colors, materialKeys, hasCustomized]);
+
+  useEffect(() => {
+    if (Object.keys(colors).length > 0 || Object.keys(materialKeys).length > 0) {
+      // Check if the current state is different from the initial potential state
+      // This is a simple way to detect if a user has interacted.
+      // A more robust way might involve tracking initial state vs. current state.
+      setHasCustomized(true);
+    }
   }, [colors, materialKeys]);
 
   // Expose screenshot function via ref
@@ -321,3 +333,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
