@@ -134,18 +134,11 @@ export default function NewProductPage() {
             const imageURL = await uploadFile(productImageFile, 'product-images', user.uid);
             const modelURL = await uploadFile(modelFile, 'product-models', user.uid);
             
-            let modelURLOpen: string | undefined = undefined;
-            if (modelFileOpen) {
-                modelURLOpen = await uploadFile(modelFileOpen, 'product-models', user.uid);
-            }
-
-            // Save product data to Firestore
-            await addDoc(collection(db, "products"), {
+            const productData: any = {
                 name: data.name,
                 categories: data.categories,
                 imageURL,
                 modelURL,
-                modelURLOpen,
                 dimensions: data.dimensions,
                 godetSize: data.godetSize,
                 mechanism: data.mechanism,
@@ -154,7 +147,14 @@ export default function NewProductPage() {
                 manufacturingLocation: data.manufacturingLocation,
                 createdAt: new Date(),
                 userId: user.uid,
-            });
+            };
+            
+            if (modelFileOpen) {
+                productData.modelURLOpen = await uploadFile(modelFileOpen, 'product-models', user.uid);
+            }
+
+            // Save product data to Firestore
+            await addDoc(collection(db, "products"), productData);
             
             toast({
                 title: "Success",
