@@ -8,7 +8,7 @@ import HeaderClient from "./header-client";
 export default async function Header() {
 
   return (
-    <header className="px-4 lg:px-8 py-8 border-b flex items-center justify-end bg-background z-20 sticky top-0">
+    <header className="px-4 lg:px-8 py-4 border-b flex items-center justify-end bg-background z-20 sticky top-0">
       <Link href="/" className="flex items-center gap-4">
         
       </Link>
