@@ -123,6 +123,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         keyLight.shadow.mapSize.width = 2048;
         keyLight.shadow.mapSize.height = 2048;
         keyLight.shadow.radius = 8;
+        keyLight.shadow.bias = -0.001;
         scene.add(keyLight);
 
         const fillLight = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -345,3 +346,6 @@ CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
 
+
+
+    
