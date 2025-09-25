@@ -333,7 +333,7 @@ export default function CanvasPage() {
                 </Button>
             </div>
         </main>
-        <aside className="hidden md:block h-full bg-card/80 backdrop-blur-lg border-l overflow-y-auto">
+        <aside className="hidden md:block h-full overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
               {customizationPanelContent}
             </Suspense>
