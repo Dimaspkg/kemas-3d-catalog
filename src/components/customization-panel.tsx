@@ -167,7 +167,7 @@ export default function CustomizationPanel({
         <ScrollArea className="flex-1">
             {panelContent}
         </ScrollArea>
-        <div className="p-4 border-t bg-card">
+        <div className="p-4 border-t">
             <div className="flex justify-between items-center mb-4">
                 <span className="text-muted-foreground">Price</span>
                 <span className="font-bold text-lg">{formattedPrice || "Contact us"}</span>
