@@ -104,7 +104,8 @@ export default function EditProductPage() {
     }, []);
 
     const uploadFile = async (file: File, bucket: string): Promise<string> => {
-        const fileName = `${uuidv4()}-${file.name}`;
+        const safeFileName = file.name.replace(/\s+/g, '-');
+        const fileName = `${uuidv4()}-${safeFileName}`;
         const { error } = await supabase.storage.from(bucket).upload(fileName, file);
         if (error) throw new Error(`Upload failed for ${file.name}: ${error.message}`);
         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(fileName);
@@ -480,3 +481,5 @@ export default function EditProductPage() {
         </Form>
     );
 }
+
+    

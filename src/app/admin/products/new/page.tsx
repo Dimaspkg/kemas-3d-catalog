@@ -96,7 +96,8 @@ export default function NewProductPage() {
     }, [router]);
 
     const uploadFile = async (file: File, bucket: string, userId: string): Promise<string> => {
-        const fileName = `${userId}/${uuidv4()}-${file.name}`;
+        const safeFileName = file.name.replace(/\s+/g, '-');
+        const fileName = `${userId}/${uuidv4()}-${safeFileName}`;
         const { error } = await supabase.storage
             .from(bucket)
             .upload(fileName, file);
@@ -421,3 +422,5 @@ export default function NewProductPage() {
         </Form>
     );
 }
+
+    
