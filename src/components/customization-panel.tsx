@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { ScrollArea } from "./ui/scroll-area";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { cleanPartName } from "@/lib/utils";
 
 
 export type CustomizationState = {
@@ -49,12 +51,6 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: R
     );
 };
 
-
-function cleanPartName(name: string): string {
-    const cleanedName = name.replace(/_/g, ' ').replace(/\s\d+$/, '');
-    return cleanedName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
-
 export default function CustomizationPanel({
   state,
   onStateChange,
@@ -88,37 +84,46 @@ export default function CustomizationPanel({
 
   return (
     <ScrollArea className="h-full w-full">
-        <div className="p-4 space-y-4">
-            <h2 className="text-xl font-bold px-2">Customize</h2>
-            {parts.map(part => (
-                <div key={part} className="space-y-2 p-2 border rounded-lg">
-                    <Label className="text-sm font-semibold px-1" title={cleanPartName(part)}>
-                        {cleanPartName(part)}
-                    </Label>
-                    <div className="flex items-center justify-between gap-2">
-                         <ColorSwatch
-                            name={part}
-                            value={state.colors[part]}
-                            onChange={handleColorChange(part)}
-                        />
-                        <Select
-                            value={state.materials[part]}
-                            onValueChange={handleMaterialChange(part)}
-                        >
-                            <SelectTrigger id={`${part}-material`} className="flex-grow h-9">
-                                <SelectValue placeholder="Select material" />
-                            </SelectTrigger>
-                            <SelectContent>
-                            {materialOptions.map((option) => (
-                                <SelectItem key={option.key} value={option.key} className="capitalize">
-                                {option.name}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-            ))}
+        <div className="p-4 space-y-2">
+            <h2 className="text-xl font-bold px-2 mb-4">Customize</h2>
+            <Accordion type="single" collapsible className="w-full">
+                {parts.map(part => (
+                    <AccordionItem value={part} key={part}>
+                        <AccordionTrigger>
+                           <span className="truncate" title={cleanPartName(part)}>
+                                {cleanPartName(part)}
+                            </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex items-center justify-between gap-4 p-2">
+                                <div className="flex items-center gap-2">
+                                    <ColorSwatch
+                                        name={part}
+                                        value={state.colors[part]}
+                                        onChange={handleColorChange(part)}
+                                    />
+                                    <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
+                                </div>
+                                <Select
+                                    value={state.materials[part]}
+                                    onValueChange={handleMaterialChange(part)}
+                                >
+                                    <SelectTrigger id={`${part}-material`} className="flex-grow">
+                                        <SelectValue placeholder="Select material" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {materialOptions.map((option) => (
+                                        <SelectItem key={option.key} value={option.key} className="capitalize">
+                                        {option.name}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
         </div>
     </ScrollArea>
   );
