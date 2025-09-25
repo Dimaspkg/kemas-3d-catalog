@@ -72,6 +72,16 @@ export default function CanvasPage() {
     setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
   };
 
+  const handleMobileColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColor = e.target.value;
+    if (currentPart) {
+      setCustomization(prev => ({
+        ...prev,
+        colors: { ...prev.colors, [currentPart]: newColor },
+      }));
+    }
+  };
+
 
   useEffect(() => {
     if (isMobile) {
@@ -235,22 +245,42 @@ export default function CanvasPage() {
 
         {isMobile ? (
           <Sheet>
-            <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 flex items-center justify-between px-4">
+            <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t z-20 flex items-center justify-between px-4">
               <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
                 <ChevronLeft />
               </Button>
-              <SheetTrigger asChild disabled={parts.length === 0}>
-                <div className="flex flex-col items-center">
-                    <div className="text-sm font-semibold truncate max-w-[200px]">
-                      {currentPart ? cleanPartName(currentPart) : 'Customize'}
+
+              <div className="flex-1 flex justify-center items-center gap-4 text-center">
+                  {currentPart && (
+                    <div className="relative">
+                      <input
+                          id="mobile-color-picker"
+                          type="color"
+                          value={customization.colors[currentPart] || '#000000'}
+                          onChange={handleMobileColorChange}
+                          className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                      />
+                      <label 
+                        htmlFor="mobile-color-picker"
+                        className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
+                        style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
+                      />
                     </div>
-                    {parts.length > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                            {currentPartIndex + 1}/{parts.length}
+                  )}
+                  <SheetTrigger asChild disabled={parts.length === 0}>
+                    <div className="flex flex-col items-center">
+                        <div className="text-sm font-semibold truncate max-w-[150px]">
+                          {currentPart ? cleanPartName(currentPart) : 'Customize'}
                         </div>
-                    )}
-                </div>
-              </SheetTrigger>
+                        {parts.length > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                                {currentPartIndex + 1}/{parts.length}
+                            </div>
+                        )}
+                    </div>
+                </SheetTrigger>
+              </div>
+
               <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
                 <ChevronRight />
               </Button>
@@ -279,7 +309,3 @@ export default function CanvasPage() {
     </div>
   );
 }
-
-    
-
-    
