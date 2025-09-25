@@ -10,13 +10,13 @@ import { doc, getDoc, collection, query, where, getDocs } from "firebase/firesto
 import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Brush, Camera, X, Menu } from "lucide-react";
+import { Brush, Camera, X, Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cleanPartName } from "@/lib/utils";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -55,10 +55,23 @@ export default function CanvasPage() {
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [isPanelVisible, setIsPanelVisible] = useState(true);
+  const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
   const isMobile = useIsMobile();
+
+  const parts = Object.keys(customization.colors);
+  const currentPart = parts[currentPartIndex];
+
+  const handleNextPart = () => {
+    setCurrentPartIndex((prev) => (prev + 1) % parts.length);
+  };
+
+  const handlePrevPart = () => {
+    setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
+  };
+
 
   useEffect(() => {
     if (isMobile) {
@@ -222,12 +235,26 @@ export default function CanvasPage() {
 
         {isMobile ? (
           <Sheet>
-            <SheetTrigger asChild>
-                <Button className="fixed bottom-4 left-1/2 -translate-x-1/2 w-48 z-20" size="lg">
-                    <Brush className="mr-2 h-5 w-5" />
-                    Customize
-                </Button>
-            </SheetTrigger>
+            <div className="fixed bottom-0 left-0 right-0 h-16 bg-card border-t z-20 flex items-center justify-between px-4">
+              <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
+                <ChevronLeft />
+              </Button>
+              <SheetTrigger asChild disabled={parts.length === 0}>
+                <div className="flex flex-col items-center">
+                    <div className="text-sm font-semibold truncate max-w-[200px]">
+                      {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                    </div>
+                    {parts.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                            {currentPartIndex + 1}/{parts.length}
+                        </div>
+                    )}
+                </div>
+              </SheetTrigger>
+              <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
+                <ChevronRight />
+              </Button>
+            </div>
             <SheetContent side="bottom" className="h-[75vh] p-0">
                 <SheetHeader>
                   <SheetTitle className="sr-only">Customization Panel</SheetTitle>
@@ -252,5 +279,7 @@ export default function CanvasPage() {
     </div>
   );
 }
+
+    
 
     
