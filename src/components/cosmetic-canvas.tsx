@@ -247,7 +247,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         loader.load(environmentURL, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
-            scene.background = null; // Use environment for background
         }, undefined, (error) => {
             console.error('An error occurred while loading the environment:', error);
             scene.environment = null;
@@ -332,3 +331,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
