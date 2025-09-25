@@ -41,6 +41,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group>();
   const isInitialModelLoad = useRef(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,60 +51,33 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   useImperativeHandle(ref, () => ({
     takeScreenshot: () => {
       const renderer = rendererRef.current;
-      if (renderer) {
+      const scene = sceneRef.current;
+      const camera = cameraRef.current;
+      if (renderer && scene && camera) {
+        // Force a synchronous render to a temporary buffer
         renderer.domElement.getContext('webgl2', {preserveDrawingBuffer: true});
-        renderer.render(renderer.userData.scene, renderer.userData.camera);
+        renderer.render(scene, camera);
         const dataURL = renderer.domElement.toDataURL('image/png');
         const link = document.createElement('a');
         link.download = 'product-customization.png';
         link.href = dataURL;
         link.click();
+        // Disable preserving the buffer again for performance
         renderer.domElement.getContext('webgl2', {preserveDrawingBuffer: false});
       }
     }
   }));
 
-  const cleanup = useCallback(() => {
-    const currentMount = mountRef.current;
-    if (rendererRef.current) {
-        if(currentMount && currentMount.contains(rendererRef.current.domElement)) {
-            currentMount.removeChild(rendererRef.current.domElement);
-        }
-        rendererRef.current.dispose();
-        rendererRef.current = null;
-
-        if (rendererRef.current?.userData.animationFrameId) {
-            cancelAnimationFrame(rendererRef.current.userData.animationFrameId);
-        }
-    }
-    
-    // Clean up scene resources
-    if (rendererRef.current?.userData.scene) {
-        rendererRef.current?.userData.scene.traverse((object: any) => {
-            if (object.isMesh) {
-                if (object.geometry) object.geometry.dispose();
-                if (object.material) {
-                    if (Array.isArray(object.material)) {
-                        object.material.forEach(material => material.dispose());
-                    } else {
-                        object.material.dispose();
-                    }
-                }
-            }
-        });
-    }
-
-  }, []);
-
   useEffect(() => {
       const currentMount = mountRef.current;
       if (!currentMount) return;
 
-      cleanup(); // Clean up previous instances
-
+      // --- Scene Initialization ---
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0xF8F8F8);
+      sceneRef.current = scene;
 
+      // --- Camera Initialization ---
       const camera = new THREE.PerspectiveCamera(
         12,
         currentMount.clientWidth / currentMount.clientHeight,
@@ -109,7 +85,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         1000
       );
       camera.position.set(0, 1, 5);
+      cameraRef.current = camera;
 
+      // --- Renderer Initialization ---
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: false });
       renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -120,6 +98,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       currentMount.appendChild(renderer.domElement);
       rendererRef.current = renderer;
 
+      // --- Controls Initialization ---
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
@@ -127,7 +106,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       controls.maxDistance = 50; 
       controls.target.set(0, 1, 0);
       controls.update();
+      controlsRef.current = controls;
 
+      // --- Lighting ---
       const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
       keyLight.position.set(-5, 5, 5);
       keyLight.castShadow = true;
@@ -148,6 +129,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
       scene.add(ambientLight);
 
+      // --- Floor ---
       const floorGeometry = new THREE.PlaneGeometry(20, 20);
       const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
       const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -155,18 +137,17 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       floor.position.y = 0;
       floor.receiveShadow = true;
       scene.add(floor);
-
-      renderer.userData.scene = scene;
-      renderer.userData.camera = camera;
-      renderer.userData.controls = controls;
       
+      // --- Animation Loop ---
+      let animationFrameId: number;
       const animate = () => {
-        renderer.userData.animationFrameId = requestAnimationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
         controls.update();
         renderer.render(scene, camera);
       };
       animate();
       
+      // --- Resize Handler ---
       const handleResize = () => {
         if (!mountRef.current || !rendererRef.current) return;
         const newWidth = mountRef.current.clientWidth;
@@ -177,20 +158,37 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       };
       window.addEventListener("resize", handleResize);
 
+      // --- Cleanup ---
       return () => {
           window.removeEventListener("resize", handleResize);
-          cleanup();
+          cancelAnimationFrame(animationFrameId);
+          if (mountRef.current && rendererRef.current) {
+            mountRef.current.removeChild(rendererRef.current.domElement);
+          }
+          renderer.dispose();
+          scene.traverse((object: any) => {
+              if (object.isMesh) {
+                  if (object.geometry) object.geometry.dispose();
+                  if (object.material) {
+                      if (Array.isArray(object.material)) {
+                          object.material.forEach(material => material.dispose());
+                      } else {
+                          object.material.dispose();
+                      }
+                  }
+              }
+          });
       };
-  }, [cleanup]);
+  }, []);
 
   useEffect(() => {
-    const renderer = rendererRef.current;
-    if (!renderer || !renderer.userData.scene || !environmentURL) return;
+    const scene = sceneRef.current;
+    if (!scene || !environmentURL) return;
 
     const loader = environmentURL.endsWith('.hdr') ? new RGBELoader() : new EXRLoader();
     loader.load(environmentURL, (texture) => {
         texture.mapping = THREE.EquirectangularReflectionMapping;
-        renderer.userData.scene.environment = texture;
+        scene.environment = texture;
     }, undefined, (error) => {
         console.error('An error occurred while loading the environment:', error);
     });
@@ -198,14 +196,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }, [environmentURL]);
 
   useEffect(() => {
-    const renderer = rendererRef.current;
-    if (!renderer || !renderer.userData.scene || !modelURL) return;
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!scene || !camera || !controls || !modelURL) return;
 
     setIsLoading(true);
-
-    const scene = renderer.userData.scene;
-    const camera = renderer.userData.camera;
-    const controls = renderer.userData.controls;
 
     if (modelRef.current) {
         scene.remove(modelRef.current);
@@ -274,8 +270,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }, [modelURL, onModelLoad]);
 
   useEffect(() => {
-    const renderer = rendererRef.current;
-    if (!renderer || !modelRef.current || !colors || !materialKeys) return;
+    const scene = sceneRef.current;
+    if (!scene || !modelRef.current || !colors || !materialKeys) return;
 
     modelRef.current.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -298,8 +294,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
             
-            if (renderer.userData.scene.environment) {
-                material.envMap = renderer.userData.scene.environment;
+            if (scene.environment) {
+                material.envMap = scene.environment;
             }
             material.needsUpdate = true;
         }
@@ -333,5 +329,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
