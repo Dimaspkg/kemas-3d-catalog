@@ -53,25 +53,27 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
-                <div className="w-full h-full bg-muted animate-pulse"></div>
-                <div className="p-8 space-y-6">
-                    <Skeleton className="h-10 w-3/4" />
-                    <div className="flex flex-wrap gap-2">
-                        <Skeleton className="h-6 w-24 rounded-full" />
-                        <Skeleton className="h-6 w-20 rounded-full" />
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen gap-8">
+                    <div className="w-full h-full bg-muted animate-pulse rounded-lg"></div>
+                    <div className="space-y-6">
+                        <Skeleton className="h-10 w-3/4" />
+                        <div className="flex flex-wrap gap-2">
+                            <Skeleton className="h-6 w-24 rounded-full" />
+                            <Skeleton className="h-6 w-20 rounded-full" />
+                        </div>
+                        <Skeleton className="h-12 w-full" />
+                        <Card>
+                            <CardHeader>
+                                <Skeleton className="h-8 w-1/3" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Skeleton className="h-6 w-full" />
+                                <Skeleton className="h-6 w-full" />
+                                <Skeleton className="h-6 w-full" />
+                            </CardContent>
+                        </Card>
                     </div>
-                    <Skeleton className="h-12 w-full" />
-                    <Card>
-                        <CardHeader>
-                            <Skeleton className="h-8 w-1/3" />
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Skeleton className="h-6 w-full" />
-                            <Skeleton className="h-6 w-full" />
-                            <Skeleton className="h-6 w-full" />
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         );
@@ -79,7 +81,7 @@ export default function ProductDetailPage() {
 
     if (!product) {
         return (
-            <div className="text-center py-20">
+            <div className="container mx-auto px-4 py-20 text-center">
                  <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
                  <p className="text-muted-foreground">The product you are looking for does not exist.</p>
                  <Button asChild variant="link" className="mt-4">
@@ -93,47 +95,49 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="relative aspect-square w-full md:aspect-auto md:h-screen">
-                 <Image
-                    src={product.imageURL}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                />
-            </div>
-            <div className="md:sticky md:top-8">
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {product.categories?.map(category => (
-                        <Badge key={category} variant="secondary">{category}</Badge>
-                    ))}
+        <div className="container mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="relative aspect-square w-full md:aspect-auto md:h-full">
+                     <Image
+                        src={product.imageURL}
+                        alt={product.name}
+                        fill
+                        className="object-cover rounded-lg"
+                    />
                 </div>
-                
-                <Button asChild size="lg" className="w-full mb-6">
-                    <Link href={`/canvas?productId=${product.id}`}>
-                        <Brush className="mr-2 h-5 w-5" />
-                        Customize This Product
-                    </Link>
-                </Button>
+                <div className="md:sticky md:top-28 md:h-fit">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">{product.name}</h1>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                        {product.categories?.map(category => (
+                            <Badge key={category} variant="secondary">{category}</Badge>
+                        ))}
+                    </div>
+                    
+                    <Button asChild size="lg" className="w-full mb-6">
+                        <Link href={`/canvas?productId=${product.id}`}>
+                            <Brush className="mr-2 h-5 w-5" />
+                            Customize This Product
+                        </Link>
+                    </Button>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Specifications</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableBody>
-                                <SpecificationRow label="Dimensions" value={product.dimensions} />
-                                <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
-                                <SpecificationRow label="Mechanism" value={product.mechanism} />
-                                <SpecificationRow label="Material" value={product.material} />
-                                <SpecificationRow label="Special Features" value={product.specialFeatures} />
-                                <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Specifications</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableBody>
+                                    <SpecificationRow label="Dimensions" value={product.dimensions} />
+                                    <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
+                                    <SpecificationRow label="Mechanism" value={product.mechanism} />
+                                    <SpecificationRow label="Material" value={product.material} />
+                                    <SpecificationRow label="Special Features" value={product.specialFeatures} />
+                                    <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );
