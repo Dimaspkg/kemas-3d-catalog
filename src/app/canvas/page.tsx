@@ -52,7 +52,7 @@ export default function CanvasPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isModelLoading, setIsModelLoading] = useState(true);
+  const [isModelLoading, setIsModelLoading] = useState(isModelLoading);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const searchParams = useSearchParams();
@@ -295,8 +295,8 @@ export default function CanvasPage() {
   }
 
   return (
-    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden md:grid md:grid-cols-3">
-        <main className="h-full w-full md:col-span-2 relative">
+    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden md:grid md:grid-cols-5">
+        <main className="h-full w-full md:col-span-4 relative">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <CosmeticCanvas 
                 ref={canvasRef}
@@ -358,7 +358,7 @@ export default function CanvasPage() {
                 </Button>
             </div>
         </main>
-        <aside className="hidden md:block h-full bg-card border-l overflow-y-auto">
+        <aside className="hidden md:block h-full bg-card/80 backdrop-blur-lg border-l overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
               {customizationPanelContent}
             </Suspense>
@@ -367,3 +367,5 @@ export default function CanvasPage() {
   );
 }
 
+
+    
