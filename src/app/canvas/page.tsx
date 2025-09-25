@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PanelRightOpen, PanelRightClose, Brush } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
@@ -185,6 +185,9 @@ export default function CanvasPage() {
                 </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[75vh] p-0">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Customization Panel</SheetTitle>
+                </SheetHeader>
                 <Suspense fallback={<CustomizationPanelSkeleton />}>
                     {customizationPanelContent}
                 </Suspense>
