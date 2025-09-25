@@ -269,15 +269,15 @@ export default function CanvasPage() {
                     </div>
                   )}
                   <SheetTrigger asChild disabled={parts.length === 0}>
-                    <div className="flex flex-col items-center">
-                        <div className="text-sm font-semibold truncate max-w-[150px]">
-                          {currentPart ? cleanPartName(currentPart) : 'Customize'}
-                        </div>
+                    <div className="flex items-center gap-2">
                         {parts.length > 0 && (
                             <div className="text-xs text-muted-foreground">
                                 {currentPartIndex + 1}/{parts.length}
                             </div>
                         )}
+                        <div className="text-sm font-semibold truncate max-w-[150px]">
+                          {currentPart ? cleanPartName(currentPart) : 'Customize'}
+                        </div>
                     </div>
                 </SheetTrigger>
               </div>
