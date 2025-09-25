@@ -234,7 +234,7 @@ export default function CanvasPage() {
             </main>
              <Sheet>
                  <div className="fixed bottom-0 left-0 right-0 z-20">
-                    {product && (
+                    {product && !isModelLoading && (
                       <div className="bg-card/80 backdrop-blur-lg p-2 text-center text-sm font-semibold rounded-t-lg mx-auto w-fit">
                         {product.name}
                       </div>
@@ -282,7 +282,7 @@ export default function CanvasPage() {
                       </Button>
                     </div>
                 </div>
-                <SheetContent side="bottom" className="h-[60vh] p-0 bg-background/80 backdrop-blur-lg">
+                <SheetContent side="bottom" className="h-[calc(100vh-150px)] p-0 bg-background/80 backdrop-blur-lg flex flex-col">
                     <SheetHeader>
                       <SheetTitle className="sr-only">Customization Panel</SheetTitle>
                     </SheetHeader>

@@ -16,7 +16,19 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cleanPartName } from "@/lib/utils";
 import type { Product } from "@/lib/types";
 import { Separator } from "./ui/separator";
+import { Button } from "./ui/button";
+import { Brush } from "lucide-react";
+import Link from "next/link";
 
+const formatPrice = (price?: number) => {
+    if (!price) return null;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+};
 
 export type CustomizationState = {
   colors: {
@@ -60,6 +72,7 @@ export default function CustomizationPanel({
   onStateChange,
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
+  const formattedPrice = formatPrice(product.price);
 
   const handleColorChange =
     (part: string) =>
@@ -78,6 +91,54 @@ export default function CustomizationPanel({
       }));
     };
 
+  const panelContent = (
+     <div className="p-4 space-y-4">
+        <div className="px-2">
+            <h2 className="text-xl font-bold">{product.name}</h2>
+            <p className="text-sm text-muted-foreground">Customize your product</p>
+        </div>
+        <Separator />
+        <Accordion type="single" collapsible className="w-full">
+            {parts.map(part => (
+                <AccordionItem value={part} key={part}>
+                    <AccordionTrigger>
+                        <span className="truncate" title={cleanPartName(part)}>
+                            {cleanPartName(part)}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <div className="flex items-center justify-between gap-4 p-2">
+                            <div className="flex items-center gap-2">
+                                <ColorSwatch
+                                    name={part}
+                                    value={state.colors[part]}
+                                    onChange={handleColorChange(part)}
+                                />
+                                <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
+                            </div>
+                            <Select
+                                value={state.materials[part]}
+                                onValueChange={handleMaterialChange(part)}
+                            >
+                                <SelectTrigger id={`${part}-material`} className="flex-grow">
+                                    <SelectValue placeholder="Select material" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                {materialOptions.map((option) => (
+                                    <SelectItem key={option.key} value={option.key} className="capitalize">
+                                    {option.name}
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
+    </div>
+  );
+
   if (parts.length === 0) {
     return (
         <div className="flex items-center justify-center h-full p-4 text-muted-foreground">
@@ -87,52 +148,22 @@ export default function CustomizationPanel({
   }
 
   return (
-    <ScrollArea className="h-full w-full">
-        <div className="p-4 space-y-4">
-             <div className="px-2">
-                <h2 className="text-xl font-bold">{product.name}</h2>
-                <p className="text-sm text-muted-foreground">Customize your product</p>
+    <div className="flex flex-col h-full">
+        <ScrollArea className="flex-1">
+            {panelContent}
+        </ScrollArea>
+        <div className="p-4 border-t bg-card">
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-muted-foreground">Price</span>
+                <span className="font-bold text-lg">{formattedPrice || "Contact us"}</span>
             </div>
-            <Separator />
-            <Accordion type="single" collapsible className="w-full">
-                {parts.map(part => (
-                    <AccordionItem value={part} key={part}>
-                        <AccordionTrigger>
-                           <span className="truncate" title={cleanPartName(part)}>
-                                {cleanPartName(part)}
-                            </span>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                            <div className="flex items-center justify-between gap-4 p-2">
-                                <div className="flex items-center gap-2">
-                                    <ColorSwatch
-                                        name={part}
-                                        value={state.colors[part]}
-                                        onChange={handleColorChange(part)}
-                                    />
-                                    <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
-                                </div>
-                                <Select
-                                    value={state.materials[part]}
-                                    onValueChange={handleMaterialChange(part)}
-                                >
-                                    <SelectTrigger id={`${part}-material`} className="flex-grow">
-                                        <SelectValue placeholder="Select material" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    {materialOptions.map((option) => (
-                                        <SelectItem key={option.key} value={option.key} className="capitalize">
-                                        {option.name}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
+            <Button asChild size="lg" className="w-full">
+                <Link href={`/canvas?productId=${product.id}`}>
+                    <Brush className="mr-2 h-5 w-5" />
+                    Customize This Product
+                </Link>
+            </Button>
         </div>
-    </ScrollArea>
+    </div>
   );
 }
