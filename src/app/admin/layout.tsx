@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Home, Package, Menu, LogOut, Image as ImageIcon, Settings } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
 
-function NavMenu({ className }: { className?: string }) {
+function NavMenu({ className, appName }: { className?: string, appName?: string }) {
     const pathname = usePathname();
     const router = useRouter();
 
@@ -24,7 +25,7 @@ function NavMenu({ className }: { className?: string }) {
         <nav className={className}>
             <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
-                    <span className="text-lg font-semibold">KEMAS Innovations</span>
+                    <span className="text-lg font-semibold">{appName || 'Admin'}</span>
                 </div>
                  <Button variant="ghost" size="icon" onClick={handleLogout}>
                     <LogOut className="h-5 w-5" />
@@ -83,6 +84,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [appName, setAppName] = useState<string | undefined>();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -90,7 +92,28 @@ export default function AdminLayout({
         router.push('/login');
       }
     });
-    return () => unsubscribe();
+
+    const fetchAppName = async () => {
+        const docRef = doc(db, 'siteSettings', 'main');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setAppName(docSnap.data().name);
+        } else {
+            setAppName('Admin Panel');
+        }
+    };
+    fetchAppName();
+
+    const handleStorageChange = () => {
+      fetchAppName();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+        unsubscribe();
+        window.removeEventListener('storage', handleStorageChange);
+    };
   }, [router]);
   
   return (
@@ -112,10 +135,10 @@ export default function AdminLayout({
                         <SheetHeader className="sr-only">
                         <SheetTitle>Admin Menu</SheetTitle>
                         </SheetHeader>
-                        <NavMenu />
+                        <NavMenu appName={appName} />
                     </SheetContent>
                 </Sheet>
-                <h1 className="text-xl font-semibold">Admin Panel</h1>
+                <h1 className="text-xl font-semibold">{appName || 'Admin Panel'}</h1>
             </header>
             <main className="flex-1 p-4 md:p-8">
                 {children}

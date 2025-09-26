@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from "react";
 
 function NavLinks() {
@@ -28,17 +30,39 @@ function NavLinks() {
 
 export default function Header() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [appName, setAppName] = useState<string | undefined>();
   
   useEffect(() => {
-    const { data } = supabase
-      .storage
-      .from('site-assets')
-      .getPublicUrl('public/logo.svg');
-      
-    if (data.publicUrl) {
-      // Add a timestamp to prevent caching issues after upload
-      setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
+    const fetchHeaderData = () => {
+      // Fetch Logo
+      const { data } = supabase.storage.from('site-assets').getPublicUrl('public/logo.svg');
+      if (data.publicUrl) {
+        setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
+      }
+
+      // Fetch App Name
+      getDoc(doc(db, 'siteSettings', 'main')).then(docSnap => {
+        if (docSnap.exists()) {
+          setAppName(docSnap.data().name);
+        } else {
+          setAppName('KEMAS Innovations');
+        }
+      });
     }
+
+    fetchHeaderData();
+
+    // Listen for changes from the settings page
+    const handleStorageChange = () => {
+      fetchHeaderData();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+
   }, []);
 
   return (
@@ -46,15 +70,16 @@ export default function Header() {
       <Link href="/" className="flex items-center gap-2 font-semibold">
         {logoUrl && (
           <Image 
+            key={logoUrl}
             src={logoUrl} 
-            alt="KEMAS Innovations Logo"
+            alt="Site Logo"
             width={28}
             height={28}
             unoptimized
             className="h-7 w-7 text-primary"
           />
         )}
-        <span className="hidden sm:inline-block">KEMAS Innovations</span>
+        <span className="hidden sm:inline-block">{appName || '...'}</span>
       </Link>
       
       {/* Desktop Nav */}

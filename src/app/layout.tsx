@@ -1,11 +1,29 @@
+
 import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
-export const metadata: Metadata = {
-  title: 'KEMAS Innovations',
-  description: 'Interactive 3D cosmetic product customizer.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const settingsDoc = await getDoc(doc(db, 'siteSettings', 'main'));
+    if (settingsDoc.exists()) {
+      const settings = settingsDoc.data();
+      return {
+        title: settings.name || 'KEMAS Innovations',
+        description: settings.description || 'Interactive 3D cosmetic product customizer.',
+      };
+    }
+  } catch (error) {
+    console.error("Failed to fetch metadata:", error);
+  }
+  
+  return {
+    title: 'KEMAS Innovations',
+    description: 'Interactive 3D cosmetic product customizer.',
+  };
+}
 
 export default function RootLayout({
   children,
