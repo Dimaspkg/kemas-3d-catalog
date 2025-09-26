@@ -26,6 +26,18 @@ interface Category {
   name: string;
 }
 
+const hotspotSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    title: z.string(),
+    description: z.string(),
+    position: z.object({
+        x: z.number(),
+        y: z.number(),
+        z: z.number(),
+    }),
+});
+
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
@@ -47,6 +59,7 @@ const productFormSchema = z.object({
     material: z.string().optional(),
     specialFeatures: z.string().optional(),
     manufacturingLocation: z.string().optional(),
+    hotspots: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -73,6 +86,7 @@ export default function NewProductPage() {
             material: "",
             specialFeatures: "",
             manufacturingLocation: "",
+            hotspots: "[]",
         },
     });
     
@@ -138,6 +152,17 @@ export default function NewProductPage() {
         }
 
         try {
+            let hotspotsParsed = [];
+            if (data.hotspots) {
+                try {
+                    hotspotsParsed = JSON.parse(data.hotspots);
+                    // Optional: Validate with Zod array schema
+                    z.array(hotspotSchema).parse(hotspotsParsed);
+                } catch (e) {
+                    throw new Error("Hotspots JSON is not valid.");
+                }
+            }
+
             const uploadPromises: Promise<string>[] = [];
             for (const file of productImageFiles) {
                 uploadPromises.push(uploadFile(file, 'product-images', user.uid));
@@ -158,6 +183,7 @@ export default function NewProductPage() {
                 material: data.material,
                 specialFeatures: data.specialFeatures,
                 manufacturingLocation: data.manufacturingLocation,
+                hotspots: hotspotsParsed,
                 createdAt: new Date(),
                 userId: user.uid,
             };
@@ -356,6 +382,26 @@ export default function NewProductPage() {
                                         </FormItem>
                                     )}
                                 />
+                                 <FormField
+                                    control={form.control}
+                                    name="hotspots"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Hotspots</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder='e.g. [{"id": "1", "name": "hotspot_material", "title": "Material", "description": "Made from recycled aluminum.", "position": {"x": 0, "y": 1, "z": 0}}]'
+                                                    className="resize-y h-32 font-mono text-xs"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter hotspot data as a JSON array. Get positions from your 3D modeling software.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </CardContent>
                         </Card>
                     </div>
@@ -453,4 +499,3 @@ export default function NewProductPage() {
         </Form>
     );
 }
-

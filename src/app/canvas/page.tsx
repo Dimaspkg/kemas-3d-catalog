@@ -8,15 +8,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Product, Environment, CanvasHandle } from "@/lib/types";
+import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { cleanPartName } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -55,6 +64,7 @@ export default function CanvasPage() {
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
+  const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
@@ -153,6 +163,10 @@ export default function CanvasPage() {
     canvasRef.current?.takeScreenshot();
   };
   
+  const handleHotspotClick = useCallback((hotspot: Hotspot) => {
+    setActiveHotspot(hotspot);
+  }, []);
+
   const currentModelURL = showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL;
 
   const customizationPanelContent = (
@@ -167,24 +181,58 @@ export default function CanvasPage() {
     )
   );
 
-  if (isMobile) {
-    return (
-        <div className="relative h-screen w-full bg-background text-foreground font-body overflow-hidden">
-            <main className="h-full w-full">
-                <Suspense fallback={<Skeleton className="w-full h-full" />}>
-                  <CosmeticCanvas 
-                    ref={canvasRef}
-                    {...customization} 
-                    product={product}
-                    modelURL={currentModelURL}
-                    environmentURL={environment?.fileURL}
-                    onModelLoad={handleModelLoad}
-                    onLoadingChange={handleLoadingChange}
-                  />
-                </Suspense>
-                
-                {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
+  return (
+    <>
+    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden", !isMobile && "md:grid md:grid-cols-5")}>
+        <main className={cn("h-full w-full relative", !isMobile && "md:col-span-4")}>
+            <Suspense fallback={<Skeleton className="w-full h-full" />}>
+              <CosmeticCanvas 
+                ref={canvasRef}
+                {...customization} 
+                product={product}
+                modelURL={currentModelURL}
+                environmentURL={environment?.fileURL}
+                onModelLoad={handleModelLoad}
+                onLoadingChange={handleLoadingChange}
+                onHotspotClick={handleHotspotClick}
+              />
+            </Suspense>
+            
+            {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
+            {/* Common UI Elements */}
+             <div className={cn("absolute top-4 right-4 flex items-center gap-2 z-20", isMobile && "hidden")}>
+               {product?.modelURLOpen && (
+                  <Switch
+                      id="open-state-switch"
+                      checked={showOpenModel}
+                      onCheckedChange={setShowOpenModel}
+                      aria-label="Toggle open/closed model view"
+                      size="sm"
+                  />
+              )}
+                <Button
+                    onClick={handleScreenshot}
+                    variant="outline"
+                    size="sm"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
+                >
+                    <Camera className="mr-2 h-4 w-4" />
+                    Screenshot
+                </Button>
+            </div>
+            {product?.id ? (
+                <Button asChild variant="ghost" size="icon" className={cn("absolute top-4 left-4 z-20 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 hover:text-white", isMobile && "hidden")}>
+                    <Link href={`/products/${product.id}`}><LogOut className="h-4 w-4" /></Link>
+                </Button>
+            ) : (
+                <Button asChild variant="ghost" size="icon" className={cn("absolute top-4 left-4 z-20 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 hover:text-white", isMobile && "hidden")}>
+                    <Link href="/"><LogOut className="h-4 w-4" /></Link>
+                </Button>
+            )}
+
+            {isMobile && (
+                <>
                 <div className="absolute top-4 left-4 z-20">
                     {product?.id ? (
                         <Button
@@ -210,11 +258,10 @@ export default function CanvasPage() {
                         </Button>
                     )}
                 </div>
-                
-                 <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                    {product?.modelURLOpen && (
                       <Switch
-                          id="open-state-switch"
+                          id="open-state-switch-mobile"
                           checked={showOpenModel}
                           onCheckedChange={setShowOpenModel}
                           aria-label="Toggle open/closed model view"
@@ -231,7 +278,11 @@ export default function CanvasPage() {
                         Screenshot
                     </Button>
                 </div>
-            </main>
+                </>
+            )}
+        </main>
+
+        {isMobile ? (
              <Sheet>
                  <div className="fixed bottom-0 left-0 right-0 z-20">
                     {product && !isModelLoading && (
@@ -291,53 +342,33 @@ export default function CanvasPage() {
                     </Suspense>
                 </SheetContent>
               </Sheet>
-        </div>
-    );
-  }
-
-  return (
-    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden md:grid md:grid-cols-5">
-        <main className="h-full w-full md:col-span-4 relative">
-            <Suspense fallback={<Skeleton className="w-full h-full" />}>
-              <CosmeticCanvas 
-                ref={canvasRef}
-                {...customization} 
-                product={product}
-                modelURL={currentModelURL}
-                environmentURL={environment?.fileURL}
-                onModelLoad={handleModelLoad}
-                onLoadingChange={handleLoadingChange}
-              />
-            </Suspense>
-            
-            {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
-
-             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
-               {product?.modelURLOpen && (
-                  <Switch
-                      id="open-state-switch"
-                      checked={showOpenModel}
-                      onCheckedChange={setShowOpenModel}
-                      aria-label="Toggle open/closed model view"
-                      size="sm"
-                  />
-              )}
-                <Button
-                    onClick={handleScreenshot}
-                    variant="outline"
-                    size="sm"
-                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Screenshot
-                </Button>
-            </div>
-        </main>
-        <aside className="hidden md:block h-full overflow-y-auto">
-            <Suspense fallback={<CustomizationPanelSkeleton />}>
-              {customizationPanelContent}
-            </Suspense>
-        </aside>
+        ) : (
+            <aside className="h-full overflow-y-auto">
+                <Suspense fallback={<CustomizationPanelSkeleton />}>
+                {customizationPanelContent}
+                </Suspense>
+            </aside>
+        )}
     </div>
+
+    {activeHotspot && (
+      <AlertDialog open={!!activeHotspot} onOpenChange={() => setActiveHotspot(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-blue-500" />
+              {activeHotspot.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="pt-4">
+              {activeHotspot.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setActiveHotspot(null)}>Close</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
+    </>
   );
 }

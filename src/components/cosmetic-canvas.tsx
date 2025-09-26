@@ -9,7 +9,7 @@ import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
 import { materials, type MaterialKey } from "@/lib/materials";
-import type { CanvasHandle, Product } from "@/lib/types";
+import type { CanvasHandle, Product, Hotspot } from "@/lib/types";
 import { Skeleton } from "./ui/skeleton";
 
 type CosmeticCanvasProps = CustomizationState & { 
@@ -18,6 +18,7 @@ type CosmeticCanvasProps = CustomizationState & {
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
     onLoadingChange: (isLoading: boolean) => void;
+    onHotspotClick: (hotspot: Hotspot) => void;
 };
 
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
@@ -28,6 +29,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   environmentURL,
   onModelLoad,
   onLoadingChange,
+  onHotspotClick,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -35,8 +37,11 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
+  const hotspotsRef = useRef<THREE.Group>(new THREE.Group());
   const [isLoading, setIsLoading] = useState(true);
   const [hasCustomized, setHasCustomized] = useState(false);
+  const raycaster = useRef(new THREE.Raycaster());
+  const mouse = useRef(new THREE.Vector2());
 
   useEffect(() => {
     onLoadingChange(isLoading);
@@ -58,6 +63,26 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       
       controls.update();
   }, []);
+
+  const handleCanvasClick = useCallback((event: MouseEvent) => {
+    if (!mountRef.current || !cameraRef.current) return;
+
+    const rect = mountRef.current.getBoundingClientRect();
+    mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.current.setFromCamera(mouse.current, cameraRef.current);
+
+    const intersects = raycaster.current.intersectObjects(hotspotsRef.current.children);
+
+    if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+        const hotspotData = clickedObject.userData as Hotspot;
+        if (hotspotData && onHotspotClick) {
+            onHotspotClick(hotspotData);
+        }
+    }
+  }, [onHotspotClick]);
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -120,9 +145,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       renderer.setSize(newWidth, newHeight);
     };
     window.addEventListener("resize", handleResize);
+    currentMount.addEventListener('click', handleCanvasClick);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      if (currentMount) {
+        currentMount.removeEventListener('click', handleCanvasClick);
+      }
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       controls.dispose();
       try {
@@ -142,7 +171,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       });
     };
-  }, []);
+  }, [handleCanvasClick]);
 
   useEffect(() => {
     const scene = sceneRef.current;
@@ -152,6 +181,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
     if (modelRef.current) {
         scene.remove(modelRef.current);
+    }
+    if (hotspotsRef.current) {
+        scene.remove(hotspotsRef.current);
+        hotspotsRef.current = new THREE.Group();
     }
     
     setHasCustomized(false);
@@ -187,6 +220,22 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         
         onModelLoad(partNames, initialColors);
         scene.add(loadedModel);
+        
+        // Add hotspots
+        if (product?.hotspots) {
+            const hotspotMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500 });
+            const hotspotGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Adjust size as needed
+
+            product.hotspots.forEach(hp => {
+                const hotspotMesh = new THREE.Mesh(hotspotGeometry, hotspotMaterial.clone());
+                hotspotMesh.position.set(hp.position.x, hp.position.y, hp.position.z);
+                hotspotMesh.name = `hotspot_${hp.id}`;
+                hotspotMesh.userData = hp;
+                hotspotsRef.current.add(hotspotMesh);
+            });
+            scene.add(hotspotsRef.current);
+        }
+
         fitCameraToModel(loadedModel, camera, controls);
         setIsLoading(false);
     }, undefined, (error) => {
@@ -194,7 +243,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         setIsLoading(false);
     });
 
-  }, [modelURL, fitCameraToModel, onModelLoad]);
+  }, [modelURL, product, fitCameraToModel, onModelLoad]);
   
   useEffect(() => {
     const scene = sceneRef.current;
