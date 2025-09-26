@@ -60,6 +60,7 @@ export default function ProductDetailPage() {
                     </div>
                     <div className="space-y-6">
                         <Skeleton className="h-10 w-3/4" />
+                        <Skeleton className="h-20 w-full" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
                             <Skeleton className="h-6 w-20 rounded-full" />
@@ -106,8 +107,11 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-[70px] md:h-screen md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6">
+                <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6 no-scrollbar">
                     <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
+                    {product.description && (
+                        <p className="text-muted-foreground">{product.description}</p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                         {product.categories?.map(category => (
                             <Badge key={category} variant="secondary">{category}</Badge>
@@ -142,4 +146,23 @@ export default function ProductDetailPage() {
             </div>
         </div>
     );
+}
+
+// Helper to hide scrollbar
+const noScrollbar = `
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
+const style = typeof document !== 'undefined' ? document.createElement('style') : null;
+if (style) {
+  style.textContent = noScrollbar;
+  if (typeof document !== 'undefined') {
+    document.head.append(style);
+  }
 }

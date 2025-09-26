@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { User } from 'firebase/auth';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Category {
   id: string;
@@ -27,6 +28,7 @@ interface Category {
 
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
+    description: z.string().optional(),
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
@@ -60,6 +62,7 @@ export default function NewProductPage() {
         resolver: zodResolver(productFormSchema),
         defaultValues: {
             name: "",
+            description: "",
             categories: [],
             productImages: undefined,
             modelFile: undefined,
@@ -142,6 +145,7 @@ export default function NewProductPage() {
             
             const productData: any = {
                 name: data.name,
+                description: data.description,
                 categories: data.categories,
                 imageURLs,
                 modelURL,
@@ -216,6 +220,23 @@ export default function NewProductPage() {
                                             <FormLabel>Product Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g. Lipstick Tube" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Product Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Tell us a little bit about this product"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

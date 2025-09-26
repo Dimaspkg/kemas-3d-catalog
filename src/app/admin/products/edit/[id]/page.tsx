@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import { X } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Category {
   id: string;
@@ -29,6 +30,7 @@ interface Category {
 
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
+    description: z.string().optional(),
     price: z.coerce.number().min(0, "Price must be a positive number.").optional(),
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
@@ -82,6 +84,7 @@ export default function EditProductPage() {
         resolver: zodResolver(productFormSchema),
         defaultValues: {
             name: "",
+            description: "",
             price: 0,
             categories: [],
             dimensions: "",
@@ -105,6 +108,7 @@ export default function EditProductPage() {
                 form.reset({
                     ...productData,
                     price: productData.price || 0,
+                    description: productData.description || "",
                 });
             } else {
                  toast({ variant: "destructive", title: "Error", description: "Product not found." });
@@ -184,6 +188,7 @@ export default function EditProductPage() {
             const productRef = doc(db, "products", product.id);
             await updateDoc(productRef, {
                 name: data.name,
+                description: data.description,
                 price: data.price,
                 categories: data.categories,
                 imageURLs: finalImageURLs,
@@ -234,6 +239,7 @@ export default function EditProductPage() {
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-20 w-full" />
                                 <Skeleton className="h-10 w-full" />
                                 <Skeleton className="h-20 w-full" />
                                 <Skeleton className="h-10 w-full" />
@@ -294,6 +300,23 @@ export default function EditProductPage() {
                                             <FormLabel>Product Name</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g. Lipstick Tube" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Product Description</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Tell us a little bit about this product"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
