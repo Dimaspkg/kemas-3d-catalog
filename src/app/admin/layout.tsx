@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 function NavMenu({ className }: { className?: string }) {
     const pathname = usePathname();
