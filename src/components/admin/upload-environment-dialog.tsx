@@ -156,4 +156,3 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
         </Dialog>
     );
 }
-
