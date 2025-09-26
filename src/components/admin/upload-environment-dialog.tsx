@@ -61,7 +61,10 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
             const fileName = `${user.uid}/${uuidv4()}-${envFile.name}`;
             const { error: uploadError } = await supabase.storage
                 .from('environment-maps')
-                .upload(fileName, envFile);
+                .upload(fileName, envFile, {
+                    cacheControl: '3600',
+                    upsert: false,
+                });
 
             if (uploadError) throw new Error(`Environment file upload failed: ${uploadError.message}`);
 
@@ -153,3 +156,4 @@ export function UploadEnvironmentDialog({ user }: UploadEnvironmentDialogProps) 
         </Dialog>
     );
 }
+

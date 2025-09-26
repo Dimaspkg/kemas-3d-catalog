@@ -103,7 +103,10 @@ export default function NewProductPage() {
         const fileName = `${userId}/${uuidv4()}-${safeFileName}`;
         const { error } = await supabase.storage
             .from(bucket)
-            .upload(fileName, file);
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false,
+            });
         if (error) throw new Error(`Upload failed for ${file.name}: ${error.message}`);
         
         const { data: { publicUrl } } = supabase.storage
@@ -450,3 +453,4 @@ export default function NewProductPage() {
         </Form>
     );
 }
+
