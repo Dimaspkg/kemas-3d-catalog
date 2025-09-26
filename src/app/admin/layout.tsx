@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Home, Package, Menu, LogOut, Image as ImageIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Logo } from '@/components/icons/logo';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect } from "react";
@@ -25,7 +24,6 @@ function NavMenu({ className }: { className?: string }) {
         <nav className={className}>
             <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
-                    <Logo className="h-8 w-8 text-primary" />
                     <span className="text-lg font-semibold">KEMAS Innovations</span>
                 </div>
                  <Button variant="ghost" size="icon" onClick={handleLogout}>
