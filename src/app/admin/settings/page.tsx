@@ -97,29 +97,15 @@ export default function SettingsPage() {
         const logoPath = `public/logo.${fileExtension}`;
 
         try {
-            // Upload new logo
+            // Upload new logo, overwriting if it exists
             const { error: uploadError } = await supabase.storage
                 .from('site-assets')
                 .upload(logoPath, logoFile, {
                     cacheControl: '3600',
-                    upsert: true,
+                    upsert: true, // This will overwrite the file if it already exists
                 });
             
             if (uploadError) throw uploadError;
-
-            // Remove old logo if extension is different
-            const oldFileExtension = fileExtension === 'svg' ? 'png' : 'svg';
-            const oldLogoPath = `public/logo.${oldFileExtension}`;
-            const { data: fileList, error: listError } = await supabase.storage.from('site-assets').list('public', {
-                search: `logo.${oldFileExtension}`
-            });
-
-            if (listError) console.warn("Could not list old logos for cleanup:", listError.message);
-            
-            if (fileList && fileList.length > 0) {
-                const { error: removeError } = await supabase.storage.from('site-assets').remove([oldLogoPath]);
-                if (removeError) console.warn("Could not remove old logo:", removeError.message);
-            }
             
             // Update logo type in firestore
             const docRef = doc(db, 'siteSettings', 'main');
@@ -130,7 +116,10 @@ export default function SettingsPage() {
                 description: "Logo updated successfully.",
             });
 
-            setLogoUrl(getLogoUrl(fileExtension));
+            // This will refresh the image in the preview
+            setLogoUrl(getLogoUrl(fileExtension)); 
+            
+            // Dispatch event to update header
             window.dispatchEvent(new Event('storage'));
 
         } catch (error: any) {
@@ -238,7 +227,9 @@ export default function SettingsPage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <h3 className="text-sm font-medium">Current Logo</h3>
-                        {logoUrl ? (
+                        {loadingSettings ? (
+                             <Skeleton className="w-[100px] h-[50px] rounded-md" />
+                        ) : logoUrl ? (
                             <div className="p-4 border rounded-md bg-muted/50 w-fit">
                                 <Image 
                                     key={logoUrl}
