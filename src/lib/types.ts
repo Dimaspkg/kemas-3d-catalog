@@ -29,9 +29,3 @@ export interface Environment {
 export interface CanvasHandle {
   takeScreenshot: () => void;
 }
-
-export interface SiteSettings {
-    name?: string;
-    description?: string;
-    logoType?: 'svg' | 'png';
-}
