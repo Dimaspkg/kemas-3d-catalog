@@ -21,17 +21,13 @@ function NavMenu({ className }: { className?: string }) {
     };
 
     return (
-        <nav className={className}>
+        <nav className={cn("flex flex-col h-full", className)}>
             <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
                     <span className="text-lg font-semibold">Admin</span>
                 </div>
-                 <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut className="h-5 w-5" />
-                    <span className="sr-only">Logout</span>
-                </Button>
             </div>
-            <div className="flex flex-col gap-1 p-4">
+            <div className="flex-1 p-4 flex flex-col gap-1">
                 <Button 
                     asChild 
                     variant={pathname === '/admin' ? 'secondary' : 'ghost'} 
@@ -71,6 +67,12 @@ function NavMenu({ className }: { className?: string }) {
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                     </Link>
+                </Button>
+            </div>
+            <div className="mt-auto p-4 border-t">
+                 <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
                 </Button>
             </div>
         </nav>
