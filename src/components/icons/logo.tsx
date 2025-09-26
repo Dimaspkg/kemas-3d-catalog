@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 
 export function Logo(props: React.SVGProps<SVGSVGElement>) {
@@ -11,7 +12,7 @@ export function Logo(props: React.SVGProps<SVGSVGElement>) {
     >
       <path
         d="M10,25 C10,10 40,10 50,25 C60,10 90,10 90,25 C90,40 60,45 50,45 C40,45 10,40 10,25 Z"
-        fill="#D40001"
+        fill="currentColor"
       />
       <circle cx="30" cy="15" r="3" fill="black" />
     </svg>
