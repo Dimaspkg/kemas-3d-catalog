@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from "react";
+import type { SiteSettings } from "@/lib/types";
 
 function NavLinks() {
     const pathname = usePathname();
@@ -33,21 +34,36 @@ export default function Header() {
   const [appName, setAppName] = useState<string | undefined>();
   
   useEffect(() => {
-    const fetchHeaderData = () => {
-      // Fetch Logo
-      const { data } = supabase.storage.from('site-assets').getPublicUrl('public/logo.svg');
-      if (data.publicUrl) {
-        setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
+    const fetchHeaderData = async () => {
+      // Fetch App Name & Logo Type from Firestore
+      const docRef = doc(db, 'siteSettings', 'main');
+      const docSnap = await getDoc(docRef);
+      
+      let settings: SiteSettings = { name: 'KEMAS Innovations', logoType: 'svg' };
+      if (docSnap.exists()) {
+        settings = docSnap.data() as SiteSettings;
       }
-
-      // Fetch App Name
-      getDoc(doc(db, 'siteSettings', 'main')).then(docSnap => {
-        if (docSnap.exists()) {
-          setAppName(docSnap.data().name);
-        } else {
-          setAppName('KEMAS Innovations');
+      
+      setAppName(settings.name || 'KEMAS Innovations');
+      
+      // Fetch Logo URL from Supabase
+      const logoPath = `public/logo.${settings.logoType || 'svg'}`;
+      const { data } = supabase.storage.from('site-assets').getPublicUrl(logoPath);
+      
+      if (data.publicUrl) {
+        // Check if the logo actually exists before setting the URL
+        try {
+            const headResponse = await fetch(data.publicUrl, { method: 'HEAD' });
+            if (headResponse.ok) {
+                 setLogoUrl(`${data.publicUrl}?t=${new Date().getTime()}`);
+            } else {
+                setLogoUrl(null);
+            }
+        } catch (error) {
+            console.warn('Could not fetch logo, it might not exist:', error);
+            setLogoUrl(null);
         }
-      });
+      }
     }
 
     fetchHeaderData();

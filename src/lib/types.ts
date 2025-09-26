@@ -33,4 +33,5 @@ export interface CanvasHandle {
 export interface SiteSettings {
     name?: string;
     description?: string;
+    logoType?: 'svg' | 'png';
 }

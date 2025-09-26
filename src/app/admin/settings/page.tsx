@@ -18,15 +18,16 @@ import { Textarea } from '@/components/ui/textarea';
 import type { SiteSettings } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const LOGO_PATH = 'public/logo.svg';
-
 const logoFormSchema = z.object({
     logoFile: z.any().refine(
         (files) => files?.length > 0,
         "A logo file is required."
     ).refine(
-        (files) => files?.[0]?.type === 'image/svg+xml',
-        "Logo must be an SVG file."
+        (files) => {
+            const fileType = files?.[0]?.type;
+            return fileType === 'image/svg+xml' || fileType === 'image/png';
+        },
+        "Logo must be an SVG or PNG file."
     ),
 });
 
@@ -55,14 +56,13 @@ export default function SettingsPage() {
         defaultValues: { name: "", description: "" },
     });
 
-    const getLogoUrl = () => {
-        const { data } = supabase.storage.from('site-assets').getPublicUrl(LOGO_PATH);
+    const getLogoUrl = (logoType = 'svg') => {
+        const path = `public/logo.${logoType}`;
+        const { data } = supabase.storage.from('site-assets').getPublicUrl(path);
         return `${data.publicUrl}?t=${new Date().getTime()}`;
     }
 
     useEffect(() => {
-        setLogoUrl(getLogoUrl());
-
         const fetchSettings = async () => {
             setLoadingSettings(true);
             const docRef = doc(db, 'siteSettings', 'main');
@@ -73,6 +73,9 @@ export default function SettingsPage() {
                     name: settings.name || "",
                     description: settings.description || "",
                 });
+                setLogoUrl(getLogoUrl(settings.logoType || 'svg'));
+            } else {
+                 setLogoUrl(getLogoUrl());
             }
             setLoadingSettings(false);
         }
@@ -90,22 +93,44 @@ export default function SettingsPage() {
             return;
         }
 
+        const fileExtension = logoFile.type === 'image/svg+xml' ? 'svg' : 'png';
+        const logoPath = `public/logo.${fileExtension}`;
+
         try {
-            const { error } = await supabase.storage
+            // Upload new logo
+            const { error: uploadError } = await supabase.storage
                 .from('site-assets')
-                .upload(LOGO_PATH, logoFile, {
+                .upload(logoPath, logoFile, {
                     cacheControl: '3600',
                     upsert: true,
                 });
             
-            if (error) throw error;
+            if (uploadError) throw uploadError;
+
+            // Remove old logo if extension is different
+            const oldFileExtension = fileExtension === 'svg' ? 'png' : 'svg';
+            const oldLogoPath = `public/logo.${oldFileExtension}`;
+            const { data: fileList, error: listError } = await supabase.storage.from('site-assets').list('public', {
+                search: `logo.${oldFileExtension}`
+            });
+
+            if (listError) console.warn("Could not list old logos for cleanup:", listError.message);
+            
+            if (fileList && fileList.length > 0) {
+                const { error: removeError } = await supabase.storage.from('site-assets').remove([oldLogoPath]);
+                if (removeError) console.warn("Could not remove old logo:", removeError.message);
+            }
+            
+            // Update logo type in firestore
+            const docRef = doc(db, 'siteSettings', 'main');
+            await setDoc(docRef, { logoType: fileExtension }, { merge: true });
             
             toast({
                 title: "Success",
                 description: "Logo updated successfully.",
             });
 
-            setLogoUrl(getLogoUrl());
+            setLogoUrl(getLogoUrl(fileExtension));
             window.dispatchEvent(new Event('storage'));
 
         } catch (error: any) {
@@ -208,7 +233,7 @@ export default function SettingsPage() {
              <Card>
                 <CardHeader>
                     <CardTitle>Site Logo</CardTitle>
-                    <CardDescription>Upload or update your site's logo. The logo must be an SVG file.</CardDescription>
+                    <CardDescription>Upload or update your site's logo. The logo must be an SVG or PNG file.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
@@ -240,11 +265,11 @@ export default function SettingsPage() {
                                         <FormControl>
                                             <Input 
                                                 type="file" 
-                                                accept="image/svg+xml"
+                                                accept="image/svg+xml,image/png"
                                                 onChange={(e) => field.onChange(e.target.files)}
                                             />
                                         </FormControl>
-                                        <FormDescription>The file should be in .svg format.</FormDescription>
+                                        <FormDescription>The file should be in .svg or .png format.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
