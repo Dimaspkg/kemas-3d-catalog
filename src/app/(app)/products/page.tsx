@@ -137,7 +137,7 @@ export default function ProductsPage() {
   const loading = loadingProducts || loadingCategories;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col px-4">
         <header className="mb-8">
             <div className="text-sm text-muted-foreground">
                 <p>KEMAS Innovations / Products</p>
