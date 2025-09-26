@@ -28,18 +28,6 @@ interface Category {
   name: string;
 }
 
-const hotspotSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    title: z.string(),
-    description: z.string(),
-    position: z.object({
-        x: z.number(),
-        y: z.number(),
-        z: z.number(),
-    }),
-});
-
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
@@ -56,7 +44,6 @@ const productFormSchema = z.object({
     material: z.string().optional(),
     specialFeatures: z.string().optional(),
     manufacturingLocation: z.string().optional(),
-    hotspots: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -106,7 +93,6 @@ export default function EditProductPage() {
             material: "",
             specialFeatures: "",
             manufacturingLocation: "",
-            hotspots: "[]",
         },
     });
 
@@ -123,7 +109,6 @@ export default function EditProductPage() {
                     ...productData,
                     price: productData.price || 0,
                     description: productData.description || "",
-                    hotspots: productData.hotspots ? JSON.stringify(productData.hotspots, null, 2) : "[]",
                 });
             } else {
                  toast({ variant: "destructive", title: "Error", description: "Product not found." });
@@ -172,16 +157,6 @@ export default function EditProductPage() {
         let modelURLOpen = product.modelURLOpen;
 
         try {
-            let hotspotsParsed = [];
-            if (data.hotspots) {
-                try {
-                    hotspotsParsed = JSON.parse(data.hotspots);
-                     z.array(hotspotSchema).parse(hotspotsParsed);
-                } catch (e) {
-                    throw new Error("Hotspots JSON is not valid.");
-                }
-            }
-
              // Delete images marked for deletion from Supabase
              if (imagesToDelete.length > 0) {
                 const pathsToDelete = imagesToDelete.map(getPathFromUrl).filter(Boolean) as string[];
@@ -228,7 +203,6 @@ export default function EditProductPage() {
                 material: data.material,
                 specialFeatures: data.specialFeatures,
                 manufacturingLocation: data.manufacturingLocation,
-                hotspots: hotspotsParsed,
             });
             
             toast({
@@ -495,26 +469,6 @@ export default function EditProductPage() {
                                             ) : (
                                                 <FormDescription>No open state model uploaded.</FormDescription>
                                             )}
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="hotspots"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Hotspots</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder='e.g. [{"id": "1", "name": "hotspot_material", "title": "Material", "description": "Made from recycled aluminum.", "position": {"x": 0, "y": 1, "z": 0}}]'
-                                                    className="resize-y h-32 font-mono text-xs"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormDescription>
-                                                Enter hotspot data as a JSON array. Get positions from your 3D modeling software.
-                                            </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
