@@ -1,12 +1,4 @@
 
-export interface Hotspot {
-  id: string;
-  name: string;
-  title: string;
-  description: string;
-  position: { x: number; y: number; z: number };
-}
-
 export interface Product {
   id: string;
   name: string;
@@ -22,7 +14,6 @@ export interface Product {
   material?: string;
   specialFeatures?: string;
   manufacturingLocation?: string;
-  hotspots?: Hotspot[];
   createdAt: any;
 }
 
@@ -37,4 +28,8 @@ export interface Environment {
 
 export interface CanvasHandle {
   takeScreenshot: () => void;
+}
+
+export interface Settings {
+  logoURL?: string;
 }

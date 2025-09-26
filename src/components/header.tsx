@@ -1,22 +1,21 @@
 
-'use client';
-
 import Link from "next/link";
 import { Button } from "./ui/button";
 import HeaderClient from "./header-client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Menu } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { Logo } from "./icons/logo";
+import { HeaderLogo } from "./header-logo";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import type { Settings } from "@/lib/types";
 
 function NavLinks() {
-    const pathname = usePathname();
     return (
         <>
-            <Button variant={pathname === '/' ? 'secondary' : 'ghost'} asChild className="justify-start">
+            <Button variant="ghost" asChild className="justify-start">
                 <Link href="/">Home</Link>
             </Button>
-            <Button variant={pathname.startsWith('/products') ? 'secondary' : 'ghost'} asChild className="justify-start">
+            <Button variant="ghost" asChild className="justify-start">
                 <Link href="/products">Products</Link>
             </Button>
             <HeaderClient />
@@ -24,17 +23,33 @@ function NavLinks() {
     )
 }
 
-export default function Header() {
+export default async function Header() {
+  let logoUrl = null;
+  try {
+    const settingsDoc = await getDoc(doc(db, 'settings', 'general'));
+    if (settingsDoc.exists()) {
+      logoUrl = (settingsDoc.data() as Settings).logoURL || null;
+    }
+  } catch (error) {
+    console.error("Failed to fetch logo from Firestore:", error);
+  }
+
   return (
     <header className="px-4 lg:px-8 py-3 border-b flex items-center justify-between bg-background z-20 sticky top-0">
       <Link href="/" className="flex items-center gap-2 font-semibold">
-        <Logo className="h-7 w-7 text-primary" />
+        <HeaderLogo logoUrl={logoUrl} />
         <span className="hidden sm:inline-block">KEMAS Innovations</span>
       </Link>
       
       {/* Desktop Nav */}
       <nav className="hidden md:flex items-center gap-2">
-        <NavLinks />
+        <Button variant="ghost" asChild>
+            <Link href="/">Home</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+            <Link href="/products">Products</Link>
+        </Button>
+        <HeaderClient />
       </nav>
 
       {/* Mobile Nav */}
