@@ -185,7 +185,7 @@ export default function CanvasPage() {
 
             {/* Mobile Exit Button */}
             <div className="absolute top-4 left-4 md:hidden z-20">
-                <Button asChild variant="outline" size="icon">
+                <Button asChild variant="secondary" size="icon">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
                         <span className="sr-only">Exit Customizer</span>
@@ -196,7 +196,7 @@ export default function CanvasPage() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1">
+                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1 bg-secondary">
                     <Label htmlFor="open-state-switch" className="text-base cursor-pointer">Open</Label>
                     <Switch
                         id="open-state-switch"

@@ -177,7 +177,7 @@ export default function CustomizationPanel({
               </Accordion>
             </div>
         </ScrollArea>
-        <div className="p-4 space-y-4">
+        <div className="p-4 border-t bg-background space-y-4">
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <Button onClick={onScreenshot} variant="ghost" size="icon">
