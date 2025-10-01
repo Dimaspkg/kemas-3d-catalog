@@ -150,19 +150,21 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden", !isMobile && "md:grid md:grid-cols-5")}>
-        <main className={cn("h-full w-full relative", !isMobile && "md:col-span-4")}>
+    <div className={cn("min-h-screen w-full bg-background text-foreground font-body overflow-hidden", !isMobile && "md:grid md:grid-cols-5 h-screen")}>
+        <main className={cn("relative flex flex-col justify-center", !isMobile ? "col-span-4 h-full" : "h-screen")}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
-              <CosmeticCanvas 
-                ref={canvasRef}
-                {...customization} 
-                product={product}
-                modelURL={currentModelURL}
-                environmentURL={environment?.fileURL}
-                onModelLoad={handleModelLoad}
-                onLoadingChange={handleLoadingChange}
-                onHotspotClick={handleHotspotClick}
-              />
+              <div className="relative w-full aspect-square md:h-full md:aspect-auto">
+                <CosmeticCanvas 
+                  ref={canvasRef}
+                  {...customization} 
+                  product={product}
+                  modelURL={currentModelURL}
+                  environmentURL={environment?.fileURL}
+                  onModelLoad={handleModelLoad}
+                  onLoadingChange={handleLoadingChange}
+                  onHotspotClick={handleHotspotClick}
+                />
+              </div>
             </Suspense>
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
