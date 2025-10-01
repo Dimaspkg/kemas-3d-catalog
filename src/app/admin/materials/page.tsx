@@ -29,6 +29,7 @@ import { AddMaterialDialog } from '@/components/admin/materials/add-material-dia
 import { EditMaterialDialog } from '@/components/admin/materials/edit-material-dialog';
 import { DeleteMaterialDialog } from '@/components/admin/materials/delete-material-dialog';
 import { Badge } from '@/components/ui/badge';
+import { MaterialCategoriesDialog } from '@/components/admin/materials/categories/material-categories-dialog';
 
 function MaterialRowSkeleton() {
     return (
@@ -77,6 +78,7 @@ export default function MaterialManagementPage() {
                 </p>
             </div>
             <div className="flex items-center gap-2">
+                <MaterialCategoriesDialog />
                 {user && <AddMaterialDialog user={user} />}
             </div>
         </div>
@@ -93,11 +95,10 @@ export default function MaterialManagementPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Categories</TableHead>
                                 <TableHead>Textures</TableHead>
                                 <TableHead>Metalness</TableHead>
                                 <TableHead>Roughness</TableHead>
-                                <TableHead>Opacity</TableHead>
-                                <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -112,11 +113,10 @@ export default function MaterialManagementPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Categories</TableHead>
                                 <TableHead>Textures</TableHead>
                                 <TableHead>Metalness</TableHead>
                                 <TableHead>Roughness</TableHead>
-                                <TableHead>Opacity</TableHead>
-                                <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -124,6 +124,7 @@ export default function MaterialManagementPage() {
                             {materials.map((material) => (
                             <TableRow key={material.id}>
                                 <TableCell className="font-medium">{material.name}</TableCell>
+                                <TableCell>{material.categories?.join(', ')}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-col text-xs text-muted-foreground">
                                         <span>Color: {material.baseColorMap ? "Yes" : "No"}</span>
@@ -136,12 +137,6 @@ export default function MaterialManagementPage() {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{material.roughness}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline">{material.opacity ?? 1}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline">{material.ior ?? 1.5}</Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>

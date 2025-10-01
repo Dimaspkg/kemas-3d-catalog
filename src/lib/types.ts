@@ -49,6 +49,7 @@ export interface Hotspot {
 export interface Material {
   id: string;
   name: string;
+  categories?: string[];
   metalness: number;
   roughness: number;
   opacity?: number;

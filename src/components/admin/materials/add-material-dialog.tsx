@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { db, auth } from '@/lib/firebase';
 import { supabase } from '@/lib/supabase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import {
     Dialog,
     DialogContent,
@@ -26,9 +26,17 @@ import type { User } from 'firebase/auth';
 import { Slider } from '@/components/ui/slider';
 import { v4 as uuidv4 } from 'uuid';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface MaterialCategory {
+  id: string;
+  name: string;
+}
 
 const materialFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
+    categories: z.array(z.string()).optional(),
     metalness: z.number().min(0).max(1),
     roughness: z.number().min(0).max(1),
     opacity: z.number().min(0).max(1),
@@ -50,10 +58,26 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const [open, setOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
+    const [categories, setCategories] = useState<MaterialCategory[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(true);
+
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5 },
+        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5 },
     });
+
+    useEffect(() => {
+        if (!open) return;
+        setLoadingCategories(true);
+        const q = query(collection(db, 'materialCategories'), orderBy('name'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaterialCategory));
+            setCategories(categoriesData);
+            setLoadingCategories(false);
+        });
+
+        return () => unsubscribe();
+    }, [open]);
     
     const metalnessValue = form.watch('metalness');
     const roughnessValue = form.watch('roughness');
@@ -97,6 +121,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
             
             await addDoc(collection(db, "materials"), {
                 name: data.name,
+                categories: data.categories || [],
                 metalness: data.metalness,
                 roughness: data.roughness,
                 opacity: data.opacity,
@@ -157,6 +182,50 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="categories"
+                                    render={() => (
+                                        <FormItem>
+                                            <FormLabel>Categories</FormLabel>
+                                            <FormDescription>Select one or more categories.</FormDescription>
+                                            {loadingCategories ? (
+                                                <div className="space-y-2 pt-2">
+                                                    <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-20" /></div>
+                                                    <div className="flex items-center space-x-3"><Skeleton className="h-4 w-4" /><Skeleton className="h-4 w-24" /></div>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2 pt-2">
+                                                    {categories.map((item) => (
+                                                        <FormField
+                                                            key={item.id}
+                                                            control={form.control}
+                                                            name="categories"
+                                                            render={({ field }) => (
+                                                                <FormItem key={item.id} className="flex flex-row items-start space-x-3 space-y-0">
+                                                                    <FormControl>
+                                                                        <Checkbox
+                                                                            checked={field.value?.includes(item.name)}
+                                                                            onCheckedChange={(checked) => {
+                                                                                return checked
+                                                                                    ? field.onChange([...(field.value || []), item.name])
+                                                                                    : field.onChange(field.value?.filter((value) => value !== item.name));
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal">{item.name}</FormLabel>
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <h4 className="font-medium text-sm border-t pt-4">Material Properties</h4>
                                  <FormField
                                     control={form.control}
                                     name="metalness"
