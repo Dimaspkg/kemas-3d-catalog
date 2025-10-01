@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Info, Brush } from "lucide-react";
+import { Camera, X, Info } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -205,31 +205,19 @@ export default function CanvasPage() {
             </div>
 
             {/* Mobile: Bottom controls */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t z-20 flex gap-2">
-                <Button
+            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 border-t z-20 flex justify-center">
+              <Button
                     onClick={handleScreenshot}
                     variant="outline"
-                    size="icon"
-                    className="flex-shrink-0"
+                    className="w-full max-w-xs"
                 >
-                    <Camera className="h-5 w-5" />
-                    <span className="sr-only">Screenshot</span>
+                    <Camera className="mr-2 h-5 w-5" />
+                    Screenshot
                 </Button>
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button className="w-full">
-                            <Brush className="mr-2 h-5 w-5" />
-                            Customize
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[40vh] p-0">
-                         {customizationPanelContent}
-                    </SheetContent>
-                </Sheet>
             </div>
         </main>
 
-        <aside className={cn("hidden md:block h-full overflow-y-auto md:col-span-3 bg-muted")}>
+        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted")}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
