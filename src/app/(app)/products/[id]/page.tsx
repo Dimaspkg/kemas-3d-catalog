@@ -114,7 +114,7 @@ export default function ProductDetailPage() {
                         ))}
                     </div>
                     
-                    <Button asChild size="lg" variant="outline" className="rounded-full py-6 text-base hover:bg-primary hover:text-primary-foreground">
+                    <Button asChild size="lg" variant="outline" className="w-full rounded-full py-6 text-base hover:bg-primary hover:text-primary-foreground">
                         <Link href={`/canvas?productId=${product.id}`}>
                             <span className="mr-2">Customise</span>
                             <CustomiseIcon className="h-5 w-5" />
