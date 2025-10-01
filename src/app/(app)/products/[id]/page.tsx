@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
                     </Button>
 
                     <Tabs defaultValue="description" className="w-full">
-                        <TabsList className="flex justify-start gap-6 bg-transparent p-0 rounded-none">
+                        <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 rounded-none">
                             <TabsTrigger value="description" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Description</TabsTrigger>
                             <TabsTrigger value="specifications" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Specifications</TabsTrigger>
                         </TabsList>
