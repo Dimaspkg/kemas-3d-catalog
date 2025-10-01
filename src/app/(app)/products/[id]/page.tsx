@@ -131,30 +131,26 @@ export default function ProductDetailPage() {
                         </TabsList>
                         <TabsContent value="description">
                             {product.description ? (
-                                <Card>
-                                    <CardContent className="pt-6">
-                                        <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
-                                    </CardContent>
-                                </Card>
+                                <div className="pt-6">
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+                                </div>
                             ) : (
                                 <div className="text-center text-muted-foreground py-8">No description available.</div>
                             )}
                         </TabsContent>
                         <TabsContent value="specifications">
-                             <Card>
-                                <CardContent className="pt-6">
-                                    <Table>
-                                        <TableBody>
-                                            <SpecificationRow label="Dimensions" value={product.dimensions} />
-                                            <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
-                                            <SpecificationRow label="Mechanism" value={product.mechanism} />
-                                            <SpecificationRow label="Material" value={product.material} />
-                                            <SpecificationRow label="Special Features" value={product.specialFeatures} />
-                                            <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                            </Card>
+                            <div className="pt-6">
+                                <Table>
+                                    <TableBody>
+                                        <SpecificationRow label="Dimensions" value={product.dimensions} />
+                                        <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
+                                        <SpecificationRow label="Mechanism" value={product.mechanism} />
+                                        <SpecificationRow label="Material" value={product.material} />
+                                        <SpecificationRow label="Special Features" value={product.specialFeatures} />
+                                        <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </TabsContent>
                     </Tabs>
                 </div>
