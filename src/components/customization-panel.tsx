@@ -83,7 +83,7 @@ export default function CustomizationPanel({
     };
 
     const handleInquiry = () => {
-        const whatsAppNumber = "6281234567890"; // Ganti dengan nomor WhatsApp Anda
+        const whatsAppNumber = "6282340211624"; // Ganti dengan nomor WhatsApp Anda
         let message = `Halo, saya tertarik dengan produk kustom:\n\n`;
         message += `*Produk:* ${product.name}\n`;
         message += `*Kustomisasi:*\n`;
