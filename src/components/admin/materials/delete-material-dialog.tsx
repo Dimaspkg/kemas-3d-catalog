@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { db, supabase } from '@/lib/firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,7 +21,8 @@ import { Trash2 } from 'lucide-react';
 import type { Material } from '@/lib/types';
 
 interface DeleteMaterialDialogProps {
-    material: Material;
+    materialId: string;
+    materialName: string;
     trigger?: React.ReactNode;
 }
 
@@ -42,15 +43,22 @@ function getPathFromUrl(url: string): string | null {
 }
 
 
-export function DeleteMaterialDialog({ material, trigger }: DeleteMaterialDialogProps) {
+export function DeleteMaterialDialog({ materialId, materialName, trigger }: DeleteMaterialDialogProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
 
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
+            const materialDocRef = doc(db, "materials", materialId);
+            const materialDoc = await getDoc(materialDocRef);
+            if (!materialDoc.exists()) {
+                throw new Error("Material not found.");
+            }
+            const material = materialDoc.data() as Material;
+            
             // Delete from Firestore
-            await deleteDoc(doc(db, "materials", material.id));
+            await deleteDoc(materialDocRef);
 
             // Delete associated textures from Supabase
             const texturePaths = [
@@ -70,14 +78,14 @@ export function DeleteMaterialDialog({ material, trigger }: DeleteMaterialDialog
 
             toast({
                 title: "Success",
-                description: `Material "${material.name}" deleted.`,
+                description: `Material "${materialName}" deleted.`,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error deleting material: ", error);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to delete material.",
+                description: error.message || "Failed to delete material.",
             });
         } finally {
             setIsDeleting(false);
@@ -99,7 +107,7 @@ export function DeleteMaterialDialog({ material, trigger }: DeleteMaterialDialog
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete the 
-                        <span className="font-bold"> {material.name} </span> 
+                        <span className="font-bold"> {materialName} </span> 
                         material and all its associated texture files.
                     </AlertDialogDescription>
                 </AlertDialogHeader>

@@ -93,10 +93,10 @@ export default function MaterialManagementPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Textures</TableHead>
                                 <TableHead>Metalness</TableHead>
                                 <TableHead>Roughness</TableHead>
                                 <TableHead>Opacity</TableHead>
-                                <TableHead>Thickness</TableHead>
                                 <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -112,10 +112,10 @@ export default function MaterialManagementPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Textures</TableHead>
                                 <TableHead>Metalness</TableHead>
                                 <TableHead>Roughness</TableHead>
                                 <TableHead>Opacity</TableHead>
-                                <TableHead>Thickness</TableHead>
                                 <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -125,6 +125,13 @@ export default function MaterialManagementPage() {
                             <TableRow key={material.id}>
                                 <TableCell className="font-medium">{material.name}</TableCell>
                                 <TableCell>
+                                    <div className="flex flex-col text-xs text-muted-foreground">
+                                        <span>Color: {material.baseColorMap ? "Yes" : "No"}</span>
+                                        <span>Normal: {material.normalMap ? "Yes" : "No"}</span>
+                                        <span>Roughness: {material.roughnessMap ? "Yes" : "No"}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
                                     <Badge variant="outline">{material.metalness}</Badge>
                                 </TableCell>
                                 <TableCell>
@@ -132,9 +139,6 @@ export default function MaterialManagementPage() {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{material.opacity ?? 1}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline">{material.thickness ?? 0}</Badge>
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{material.ior ?? 1.5}</Badge>
