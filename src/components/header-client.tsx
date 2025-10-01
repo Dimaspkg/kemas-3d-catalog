@@ -27,9 +27,9 @@ export default function HeaderClient() {
         <Button 
             variant={isAdminPage ? 'secondary' : 'ghost'} 
             asChild 
-            className={`justify-start text-base ${!isAdminPage ? 'hover:underline underline-offset-4 hover:bg-transparent' : ''}`}
+            className={`justify-start text-base ${!isAdminPage ? 'hover:bg-transparent' : ''}`}
         >
-            <Link href="/admin">Admin</Link>
+            <Link href="/admin" className={!isAdminPage ? 'hover-underline-animation' : ''}>Admin</Link>
         </Button>
        )}
     </>

@@ -12,11 +12,11 @@ import type { Settings } from "@/lib/types";
 function NavLinks() {
     return (
         <>
-            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4 hover:bg-transparent">
-                <Link href="/">Home</Link>
+            <Button variant="ghost" asChild className="justify-start text-base hover:bg-transparent">
+                <Link href="/" className="hover-underline-animation">Home</Link>
             </Button>
-            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4 hover:bg-transparent">
-                <Link href="/products">Packaging</Link>
+            <Button variant="ghost" asChild className="justify-start text-base hover:bg-transparent">
+                <Link href="/products" className="hover-underline-animation">Packaging</Link>
             </Button>
             <HeaderClient />
         </>
@@ -43,11 +43,11 @@ export default async function Header() {
       
       {/* Desktop Nav */}
       <nav className="hidden md:flex items-center gap-2">
-        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4 hover:bg-transparent">
-            <Link href="/">Home</Link>
+        <Button variant="ghost" asChild className="text-base hover:bg-transparent">
+            <Link href="/" className="hover-underline-animation">Home</Link>
         </Button>
-        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4 hover:bg-transparent">
-            <Link href="/products">Packaging</Link>
+        <Button variant="ghost" asChild className="text-base hover:bg-transparent">
+            <Link href="/products" className="hover-underline-animation">Packaging</Link>
         </Button>
         <HeaderClient />
       </nav>
