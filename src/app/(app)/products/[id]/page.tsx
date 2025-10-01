@@ -8,7 +8,6 @@ import { db } from '@/lib/firebase';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
@@ -67,16 +66,14 @@ export default function ProductDetailPage() {
                             <Skeleton className="h-6 w-20 rounded-full" />
                         </div>
                         <Skeleton className="h-12 w-full" />
-                        <Card>
-                            <CardHeader>
-                                <Skeleton className="h-8 w-1/3" />
-                            </CardHeader>
-                            <CardContent className="space-y-4">
+                        <div className="pt-6">
+                            <Skeleton className="h-8 w-1/3" />
+                            <div className="space-y-4 mt-4">
                                 <Skeleton className="h-6 w-full" />
                                 <Skeleton className="h-6 w-full" />
                                 <Skeleton className="h-6 w-full" />
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -108,7 +105,7 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto md:px-[100px] md:py-0 space-y-6 no-scrollbar">
+                <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto md:py-0 space-y-6 no-scrollbar md:px-[100px]">
                     <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
                     
                     <div className="flex flex-wrap gap-2">
@@ -125,9 +122,9 @@ export default function ProductDetailPage() {
                     </Button>
 
                     <Tabs defaultValue="description" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="description">Description</TabsTrigger>
-                            <TabsTrigger value="specifications">Specifications</TabsTrigger>
+                        <TabsList className="flex justify-start gap-6 border-b bg-transparent p-0 rounded-none">
+                            <TabsTrigger value="description" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Description</TabsTrigger>
+                            <TabsTrigger value="specifications" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Specifications</TabsTrigger>
                         </TabsList>
                         <TabsContent value="description">
                             {product.description ? (
