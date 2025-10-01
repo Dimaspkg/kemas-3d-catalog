@@ -204,7 +204,7 @@ export default function CanvasPage() {
             </div>
         </main>
 
-        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 border-t md:border-t-0")}>
+        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted")}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
