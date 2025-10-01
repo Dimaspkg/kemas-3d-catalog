@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft } from "lucide-react";
+import { Info, ChevronLeft, Send, Camera, Sparkles } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { SparklesIcon } from "@/components/icons/sparkles-icon";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -195,14 +196,13 @@ export default function CanvasPage() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center gap-2 bg-black/20 backdrop-blur-lg border border-white/20 text-white rounded-full px-3 py-1">
-                    <Label htmlFor="open-state-switch" className="text-sm cursor-pointer">Show Open</Label>
+                 <div className="flex items-center gap-3 bg-black/20 backdrop-blur-lg border border-white/20 text-white rounded-full px-4 py-2">
+                    <Label htmlFor="open-state-switch" className="text-base cursor-pointer">Show Open</Label>
                     <Switch
                         id="open-state-switch"
                         checked={showOpenModel}
                         onCheckedChange={setShowOpenModel}
                         aria-label="Toggle open/closed model view"
-                        size="sm"
                     />
                  </div>
               )}
