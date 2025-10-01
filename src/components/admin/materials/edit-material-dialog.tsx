@@ -42,6 +42,7 @@ const materialFormSchema = z.object({
     opacity: z.number().min(0).max(1),
     thickness: z.number().min(0).max(5),
     ior: z.number().min(1).max(2.5),
+    roughnessTransmission: z.number().min(0).max(1),
     envMapIntensity: z.number().min(0).max(5),
     baseColorMapFile: z.any().optional(),
     normalMapFile: z.any().optional(),
@@ -86,6 +87,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
             opacity: material.opacity ?? 1,
             thickness: material.thickness ?? 0,
             ior: material.ior ?? 1.5,
+            roughnessTransmission: material.roughnessTransmission ?? 0,
             envMapIntensity: material.envMapIntensity ?? 1,
         },
     });
@@ -108,6 +110,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
     const opacityValue = form.watch('opacity');
     const thicknessValue = form.watch('thickness');
     const iorValue = form.watch('ior');
+    const roughnessTransmissionValue = form.watch('roughnessTransmission');
     const envMapIntensityValue = form.watch('envMapIntensity');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
@@ -152,6 +155,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 opacity: data.opacity,
                 thickness: data.thickness,
                 ior: data.ior,
+                roughnessTransmission: data.roughnessTransmission,
                 envMapIntensity: data.envMapIntensity,
                 ...textureUrls,
              });
@@ -183,6 +187,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 opacity: material.opacity ?? 1,
                 thickness: material.thickness ?? 0,
                 ior: material.ior ?? 1.5,
+                roughnessTransmission: material.roughnessTransmission ?? 0,
                 envMapIntensity: material.envMapIntensity ?? 1,
             });
         }
@@ -363,6 +368,26 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                                                 />
                                             </FormControl>
                                             <FormDescription>Controls how much light bends for transparent materials.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="roughnessTransmission"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Roughness Transmission ({roughnessTransmissionValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.05}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>For transparent materials, creates a frosted glass effect.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

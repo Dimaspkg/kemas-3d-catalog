@@ -42,6 +42,7 @@ const materialFormSchema = z.object({
     opacity: z.number().min(0).max(1),
     thickness: z.number().min(0).max(5),
     ior: z.number().min(1).max(2.5),
+    roughnessTransmission: z.number().min(0).max(1),
     envMapIntensity: z.number().min(0).max(5),
     baseColorMap: z.any().optional(),
     normalMap: z.any().optional(),
@@ -64,7 +65,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, envMapIntensity: 1 },
+        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1 },
     });
 
     useEffect(() => {
@@ -85,6 +86,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const opacityValue = form.watch('opacity');
     const thicknessValue = form.watch('thickness');
     const iorValue = form.watch('ior');
+    const roughnessTransmissionValue = form.watch('roughnessTransmission');
     const envMapIntensityValue = form.watch('envMapIntensity');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
@@ -129,6 +131,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 opacity: data.opacity,
                 thickness: data.thickness,
                 ior: data.ior,
+                roughnessTransmission: data.roughnessTransmission,
                 envMapIntensity: data.envMapIntensity,
                 ...textureUrls,
                 createdAt: new Date(),
@@ -325,6 +328,26 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                                 />
                                             </FormControl>
                                             <FormDescription>Controls how much light bends for transparent materials.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="roughnessTransmission"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Roughness Transmission ({roughnessTransmissionValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.05}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>For transparent materials, creates a frosted glass effect.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

@@ -55,6 +55,7 @@ export interface Material {
   opacity?: number;
   thickness?: number;
   ior?: number;
+  roughnessTransmission?: number;
   envMapIntensity?: number;
   createdAt: any;
   baseColorMap?: string;
