@@ -18,8 +18,7 @@ import type { Product } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { LogOut, Camera } from "lucide-react";
-import { SparklesIcon } from "./icons/sparkles-icon";
+import { LogOut, Camera, Send } from "lucide-react";
 
 export type CustomizationState = {
   colors: {
@@ -81,6 +80,27 @@ export default function CustomizationPanel({
         ...prev,
         materials: { ...prev.materials, [part]: value },
       }));
+    };
+
+    const handleInquiry = () => {
+        const whatsAppNumber = "6281234567890"; // Ganti dengan nomor WhatsApp Anda
+        let message = `Halo, saya tertarik dengan produk kustom:\n\n`;
+        message += `*Produk:* ${product.name}\n`;
+        message += `*Kustomisasi:*\n`;
+
+        parts.forEach(part => {
+            const color = state.colors[part];
+            const materialKey = state.materials[part];
+            const materialName = materialOptions.find(m => m.key === materialKey)?.name || materialKey;
+            message += `- ${cleanPartName(part)}: Warna ${color}, Material ${materialName}\n`;
+        });
+
+        message += `\nMohon informasinya lebih lanjut. Terima kasih.`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
+        
+        window.open(whatsappUrl, '_blank');
     };
 
   if (parts.length === 0) {
@@ -160,9 +180,9 @@ export default function CustomizationPanel({
                     <Camera className="mr-2 h-4 w-4" />
                     Screenshot
                  </Button>
-                 <Button>
-                    <SparklesIcon className="mr-2 h-4 w-4" />
-                    Tanya AI
+                 <Button onClick={handleInquiry}>
+                    <Send className="mr-2 h-4 w-4" />
+                    Tanya Produk
                 </Button>
             </div>
         </div>
