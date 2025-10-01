@@ -128,6 +128,15 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
+    // Shadow catcher plane
+    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.2 });
+    const shadowPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -5; // Adjust this based on your model's position
+    shadowPlane.receiveShadow = true;
+    scene.add(shadowPlane);
+
     let animationFrameId: number;
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -201,6 +210,14 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
         const partNames: string[] = [];
         const initialColors: Record<string, string> = {};
+        
+        const box = new THREE.Box3().setFromObject(loadedModel);
+        const modelFloorY = box.min.y;
+
+        const shadowPlane = scene.getObjectByName("shadowPlane");
+        if (shadowPlane) {
+            shadowPlane.position.y = modelFloorY - 0.01;
+        }
 
         loadedModel.traverse((child) => {
             if (child instanceof THREE.Mesh) {
@@ -362,3 +379,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
