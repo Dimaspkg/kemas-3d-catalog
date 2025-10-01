@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Info } from "lucide-react";
+import { Camera, X, Info, Brush } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -24,6 +24,7 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -169,7 +170,7 @@ export default function CanvasPage() {
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
             {/* Common UI Elements */}
-             <div className={cn("absolute top-4 right-4 flex items-center gap-2 z-20")}>
+             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
                   <Switch
                       id="open-state-switch"
@@ -202,9 +203,33 @@ export default function CanvasPage() {
                     </Link>
                 </Button>
             </div>
+
+            {/* Mobile: Bottom controls */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t z-20 flex gap-2">
+                <Button
+                    onClick={handleScreenshot}
+                    variant="outline"
+                    size="icon"
+                    className="flex-shrink-0"
+                >
+                    <Camera className="h-5 w-5" />
+                    <span className="sr-only">Screenshot</span>
+                </Button>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button className="w-full">
+                            <Brush className="mr-2 h-5 w-5" />
+                            Customize
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[40vh] p-0">
+                         {customizationPanelContent}
+                    </SheetContent>
+                </Sheet>
+            </div>
         </main>
 
-        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted")}>
+        <aside className={cn("hidden md:block h-full overflow-y-auto md:col-span-3 bg-muted")}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
