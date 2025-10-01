@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, Info } from "lucide-react";
+import { Camera, Info, ChevronLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -22,6 +22,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -163,6 +164,16 @@ export default function CanvasPage() {
             </Suspense>
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
+
+            {/* Mobile Exit Button */}
+            <div className="absolute top-4 left-4 md:hidden z-20">
+                <Button asChild variant="ghost" size="icon" className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30">
+                    <Link href={product ? `/products/${product.id}` : '/'}>
+                        <ChevronLeft className="h-5 w-5" />
+                        <span className="sr-only">Exit Customizer</span>
+                    </Link>
+                </Button>
+            </div>
 
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
