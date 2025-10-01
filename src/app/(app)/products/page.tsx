@@ -183,11 +183,11 @@ export default function ProductsPage() {
             )}
             <main className="flex-1">
                 {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
                         {[...Array(6)].map((_, i) => <ProductCardSkeleton key={i} />)}
                     </div>
                 ) : filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
                     {filteredProducts.map((product) => (
                         <div key={product.id} className="group">
                              <Link href={`/products/${product.id}`} className="block">
