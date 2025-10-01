@@ -79,16 +79,6 @@ function FilterSidebar({
     )
 }
 
-const formatPrice = (price?: number) => {
-    if (price === undefined) return "Contact for price";
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-};
-
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -221,7 +211,6 @@ export default function ProductsPage() {
                             <div className="mt-4">
                                 <p className="text-sm text-muted-foreground">{product.categories?.join(', ')}</p>
                                 <p className="text-lg font-medium mt-1 group-hover:text-primary transition-colors">{product.name}</p>
-                                <p className="text-base font-semibold mt-2">{formatPrice(product.price)}</p>
                             </div>
                         </div>
                     ))}

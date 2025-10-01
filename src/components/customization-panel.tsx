@@ -20,16 +20,6 @@ import { Button } from "./ui/button";
 import { Brush, LogOut } from "lucide-react";
 import Link from "next/link";
 
-const formatPrice = (price?: number) => {
-    if (!price) return null;
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-};
-
 export type CustomizationState = {
   colors: {
     [key: string]: string;
@@ -72,7 +62,6 @@ export default function CustomizationPanel({
   onStateChange,
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
-  const formattedPrice = formatPrice(product.price);
 
   const handleColorChange =
     (part: string) =>
@@ -166,10 +155,6 @@ export default function CustomizationPanel({
             </div>
         </ScrollArea>
         <div className="p-4 border-t">
-            <div className="flex justify-between items-center mb-4">
-                <span className="text-muted-foreground">Price</span>
-                <span className="font-bold text-lg">{formattedPrice || "Contact us"}</span>
-            </div>
             <Button asChild size="lg" className="w-full">
                 <Link href={`/canvas?productId=${product.id}`}>
                     <Brush className="mr-2 h-5 w-5" />

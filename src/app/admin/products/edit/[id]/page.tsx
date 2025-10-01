@@ -31,7 +31,6 @@ interface Category {
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
-    price: z.coerce.number().min(0, "Price must be a positive number.").optional(),
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
@@ -85,7 +84,6 @@ export default function EditProductPage() {
         defaultValues: {
             name: "",
             description: "",
-            price: 0,
             categories: [],
             dimensions: "",
             godetSize: "",
@@ -107,7 +105,6 @@ export default function EditProductPage() {
                 setCurrentImageURLs(productData.imageURLs || []);
                 form.reset({
                     ...productData,
-                    price: productData.price || 0,
                     description: productData.description || "",
                 });
             } else {
@@ -192,7 +189,6 @@ export default function EditProductPage() {
             await updateDoc(productRef, {
                 name: data.name,
                 description: data.description,
-                price: data.price,
                 categories: data.categories,
                 imageURLs: finalImageURLs,
                 modelURL,
@@ -320,19 +316,6 @@ export default function EditProductPage() {
                                                     className="resize-none"
                                                     {...field}
                                                 />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                 <FormField
-                                    control={form.control}
-                                    name="price"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Price (IDR)</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" placeholder="e.g. 150000" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

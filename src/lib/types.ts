@@ -3,7 +3,6 @@ export interface Product {
   id: string;
   name: string;
   description?: string;
-  price?: number;
   categories: string[];
   modelURL: string;
   modelURLOpen?: string; // URL for the "open" state model
