@@ -19,10 +19,16 @@ export default function HeaderClient() {
     return () => unsubscribe();
   }, []);
 
+  const isAdminPage = pathname.startsWith('/admin');
+
   return (
     <>
       {user && (
-        <Button variant={pathname.startsWith('/admin') ? 'secondary' : 'ghost'} asChild className="justify-start">
+        <Button 
+            variant={isAdminPage ? 'secondary' : 'ghost'} 
+            asChild 
+            className={`justify-start text-base ${!isAdminPage ? 'hover:underline underline-offset-4 hover:bg-transparent' : ''}`}
+        >
             <Link href="/admin">Admin</Link>
         </Button>
        )}

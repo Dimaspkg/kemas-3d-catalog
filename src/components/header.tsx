@@ -12,10 +12,10 @@ import type { Settings } from "@/lib/types";
 function NavLinks() {
     return (
         <>
-            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4">
+            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4 hover:bg-transparent">
                 <Link href="/">Home</Link>
             </Button>
-            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4">
+            <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4 hover:bg-transparent">
                 <Link href="/products">Products</Link>
             </Button>
             <HeaderClient />
@@ -43,10 +43,10 @@ export default async function Header() {
       
       {/* Desktop Nav */}
       <nav className="hidden md:flex items-center gap-2">
-        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4">
+        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4 hover:bg-transparent">
             <Link href="/">Home</Link>
         </Button>
-        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4">
+        <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4 hover:bg-transparent">
             <Link href="/products">Products</Link>
         </Button>
         <HeaderClient />
