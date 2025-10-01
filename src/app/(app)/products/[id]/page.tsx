@@ -14,6 +14,8 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CustomiseIcon } from '@/components/icons/customise-icon';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 function SpecificationRow({ label, value }: { label: string, value?: string }) {
     if (!value) return null;
@@ -60,7 +62,6 @@ export default function ProductDetailPage() {
                     </div>
                     <div className="space-y-6">
                         <Skeleton className="h-10 w-3/4" />
-                        <Skeleton className="h-20 w-full" />
                         <div className="flex flex-wrap gap-2">
                             <Skeleton className="h-6 w-24 rounded-full" />
                             <Skeleton className="h-6 w-20 rounded-full" />
@@ -109,9 +110,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6 no-scrollbar">
                     <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
-                    {product.description && (
-                        <p className="text-muted-foreground whitespace-pre-wrap p-[100px]">{product.description}</p>
-                    )}
+                    
                     <div className="flex flex-wrap gap-2">
                         {product.categories?.map(category => (
                             <Badge key={category} variant="secondary">{category}</Badge>
@@ -125,23 +124,39 @@ export default function ProductDetailPage() {
                         </Link>
                     </Button>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Specifications</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableBody>
-                                    <SpecificationRow label="Dimensions" value={product.dimensions} />
-                                    <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
-                                    <SpecificationRow label="Mechanism" value={product.mechanism} />
-                                    <SpecificationRow label="Material" value={product.material} />
-                                    <SpecificationRow label="Special Features" value={product.specialFeatures} />
-                                    <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                    <Tabs defaultValue="description" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="description">Description</TabsTrigger>
+                            <TabsTrigger value="specifications">Specifications</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="description">
+                            {product.description ? (
+                                <Card>
+                                    <CardContent className="pt-6">
+                                        <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <div className="text-center text-muted-foreground py-8">No description available.</div>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="specifications">
+                             <Card>
+                                <CardContent className="pt-6">
+                                    <Table>
+                                        <TableBody>
+                                            <SpecificationRow label="Dimensions" value={product.dimensions} />
+                                            <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
+                                            <SpecificationRow label="Mechanism" value={product.mechanism} />
+                                            <SpecificationRow label="Material" value={product.material} />
+                                            <SpecificationRow label="Special Features" value={product.specialFeatures} />
+                                            <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
                 </div>
             </div>
         </div>
