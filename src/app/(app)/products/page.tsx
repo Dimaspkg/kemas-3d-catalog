@@ -170,10 +170,6 @@ export default function ProductsPage() {
                             </SheetContent>
                         </Sheet>
                     )}
-                    <Button variant="ghost">
-                        Sort By
-                        <ChevronDown className="h-4 w-4 ml-2" />
-                    </Button>
                 </div>
             </div>
         </header>
