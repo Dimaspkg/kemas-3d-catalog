@@ -13,6 +13,7 @@ import { Button } from "./ui/button";
 import { LogOut, Camera, Send } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { cn } from "@/lib/utils";
+import { Input } from "./ui/input";
 
 export type CustomizationState = {
   colors: {
@@ -37,23 +38,50 @@ interface CustomizationPanelProps {
   onScreenshot: () => void;
 }
 
-const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, name: string }) => {
+const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (newValue: string) => void, name: string }) => {
     const id = `${name}-color-swatch`;
+    const [textValue, setTextValue] = React.useState(value);
+
+    React.useEffect(() => {
+        setTextValue(value);
+    }, [value]);
+
+    const handleColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(e.target.value);
+    };
+
+    const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTextValue(e.target.value);
+        // Basic validation for hex color format
+        if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+            onChange(e.target.value);
+        }
+    };
+
     return (
-        <div className="relative flex items-center">
-            <input
-                id={id}
-                type="color"
-                value={value}
-                onChange={onChange}
-                className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+        <div className="flex items-center gap-2">
+            <div className="relative flex items-center">
+                <input
+                    id={id}
+                    type="color"
+                    value={value}
+                    onChange={handleColorInputChange}
+                    className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                />
+                <label htmlFor={id}
+                    className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
+                    style={{ backgroundColor: value }}
+                >
+                    <span className="sr-only">Change color</span>
+                </label>
+            </div>
+            <Input
+                type="text"
+                value={textValue}
+                onChange={handleTextInputChange}
+                className="w-24 h-8 text-sm font-mono"
+                maxLength={7}
             />
-            <label htmlFor={id}
-                className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
-                style={{ backgroundColor: value }}
-            >
-                <span className="sr-only">Change color</span>
-            </label>
         </div>
     );
 };
@@ -70,10 +98,10 @@ export default function CustomizationPanel({
 
   const handleColorChange =
     (part: string) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (newValue: string) => {
       onStateChange((prev) => ({
         ...prev,
-        colors: { ...prev.colors, [part]: e.target.value },
+        colors: { ...prev.colors, [part]: newValue },
       }));
     };
 
@@ -149,13 +177,13 @@ export default function CustomizationPanel({
 
   const renderPartControls = (part: string) => (
       <div className="space-y-4 p-1">
-          <div className="flex items-center gap-4 px-3">
+          <div className="flex items-center justify-between gap-4 px-3">
+              <p className="text-sm font-medium">Color</p>
               <ColorSwatch
                   name={part}
                   value={state.colors[part]}
                   onChange={handleColorChange(part)}
               />
-              <p className="text-sm text-muted-foreground">Color</p>
           </div>
           
           <div className="space-y-3">
