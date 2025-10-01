@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface Category {
     id: string;
@@ -96,6 +97,11 @@ export default function ProductsPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const isMobile = useIsMobile();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -156,7 +162,7 @@ export default function ProductsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 gap-4">
                 <h1 className="text-3xl font-bold tracking-tight">Our Products ({loading ? "..." : filteredProducts.length})</h1>
                 <div className="flex items-center gap-2">
-                    {isMobile && (
+                    {isMounted && isMobile && (
                         <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
                             <SheetTrigger asChild>
                                 <Button variant="outline">
@@ -180,7 +186,7 @@ export default function ProductsPage() {
         </header>
 
         <div className="flex flex-col md:flex-row gap-12">
-            {!isMobile && (
+            {isMounted && !isMobile && (
                  <div className="md:w-64 lg:w-72">
                     {filterSidebarContent}
                  </div>
