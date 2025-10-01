@@ -150,8 +150,8 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("min-h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row", "md:grid md:grid-cols-5 h-screen")}>
-        <main className={cn("relative flex flex-col justify-center", "w-full md:w-auto", "md:col-span-4 h-full", "w-3/5")}>
+    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-row md:grid md:grid-cols-5")}>
+        <main className={cn("relative flex-1 md:flex-initial w-3/5 md:w-auto md:col-span-3")}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full md:h-full md:aspect-auto">
                 <CosmeticCanvas 
@@ -206,7 +206,7 @@ export default function CanvasPage() {
         </main>
 
         {/* Customization Panel */}
-        <aside className={cn("h-full overflow-y-auto w-2/5 md:w-auto", "md:col-span-1")}>
+        <aside className={cn("h-full overflow-y-auto w-2/5 md:w-auto md:col-span-2")}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
