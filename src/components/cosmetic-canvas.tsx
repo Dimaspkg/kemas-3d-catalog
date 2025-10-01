@@ -331,6 +331,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 material.roughnessTransmission = 0;
             }
             
+            // Handle iridescence
+            material.iridescence = materialProps.iridescence ?? 0;
+            if (material.iridescence > 0) {
+              material.iridescenceIOR = materialProps.iridescenceIOR ?? 1.3;
+              material.iridescenceThicknessRange = materialProps.iridescenceThicknessRange ?? [100, 400];
+            }
+
             material.dithering = true;
             
             if (sceneRef.current?.environment) {
@@ -382,5 +389,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    

@@ -44,6 +44,10 @@ const materialFormSchema = z.object({
     ior: z.number().min(1).max(2.5),
     roughnessTransmission: z.number().min(0).max(1),
     envMapIntensity: z.number().min(0).max(5),
+    iridescence: z.number().min(0).max(1),
+    iridescenceIOR: z.number().min(1).max(2.5),
+    iridescenceThicknessMin: z.number().min(0).default(100),
+    iridescenceThicknessMax: z.number().min(0).default(400),
     baseColorMap: z.any().optional(),
     normalMap: z.any().optional(),
     roughnessMap: z.any().optional(),
@@ -65,7 +69,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1 },
+        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1, iridescence: 0, iridescenceIOR: 1.3, iridescenceThicknessMin: 100, iridescenceThicknessMax: 400 },
     });
 
     useEffect(() => {
@@ -88,6 +92,8 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const iorValue = form.watch('ior');
     const roughnessTransmissionValue = form.watch('roughnessTransmission');
     const envMapIntensityValue = form.watch('envMapIntensity');
+    const iridescenceValue = form.watch('iridescence');
+    const iridescenceIORValue = form.watch('iridescenceIOR');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
         if (!file) return "";
@@ -133,6 +139,9 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 ior: data.ior,
                 roughnessTransmission: data.roughnessTransmission,
                 envMapIntensity: data.envMapIntensity,
+                iridescence: data.iridescence,
+                iridescenceIOR: data.iridescenceIOR,
+                iridescenceThicknessRange: [data.iridescenceThicknessMin, data.iridescenceThicknessMax],
                 ...textureUrls,
                 createdAt: new Date(),
                 userId: user.uid,
@@ -231,7 +240,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                     )}
                                 />
 
-                                <h4 className="font-medium text-sm border-t pt-4">Material Properties</h4>
+                                <h4 className="font-medium text-sm border-t pt-4">PBR Properties</h4>
                                  <FormField
                                     control={form.control}
                                     name="metalness"
@@ -274,6 +283,28 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                 />
                                 <FormField
                                     control={form.control}
+                                    name="envMapIntensity"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Env Map Intensity ({envMapIntensityValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={5}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Controls the intensity of the environment map's reflection.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <h4 className="font-medium text-sm border-t pt-4">Transparency Properties</h4>
+                                <FormField
+                                    control={form.control}
                                     name="opacity"
                                     render={({ field }) => (
                                         <FormItem>
@@ -287,7 +318,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                                     onValueChange={(value) => field.onChange(value[0])}
                                                 />
                                             </FormControl>
-                                            <FormDescription>Controls transparency.</FormDescription>
+                                            <FormDescription>Controls transparency. Lower than 1 enables transmission.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -352,26 +383,77 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                         </FormItem>
                                     )}
                                 />
-                                 <FormField
+
+                                <h4 className="font-medium text-sm border-t pt-4">Iridescence Properties</h4>
+                                <FormField
                                     control={form.control}
-                                    name="envMapIntensity"
+                                    name="iridescence"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Env Map Intensity ({envMapIntensityValue})</FormLabel>
+                                            <FormLabel>Iridescence ({iridescenceValue})</FormLabel>
                                             <FormControl>
                                                 <Slider
                                                     min={0}
-                                                    max={5}
-                                                    step={0.1}
+                                                    max={1}
+                                                    step={0.05}
                                                     defaultValue={[field.value]}
                                                     onValueChange={(value) => field.onChange(value[0])}
                                                 />
                                             </FormControl>
-                                            <FormDescription>Controls the intensity of the environment map's reflection.</FormDescription>
+                                            <FormDescription>Amount of iridescence, 0 is off.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+                                 <FormField
+                                    control={form.control}
+                                    name="iridescenceIOR"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Iridescence IOR ({iridescenceIORValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={1.0}
+                                                    max={2.5}
+                                                    step={0.01}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Index of refraction for the iridescence layer.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="grid grid-cols-2 gap-4">
+                                     <FormField
+                                        control={form.control}
+                                        name="iridescenceThicknessMin"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Iridescence Thickness Min (nm)</FormLabel>
+                                                <FormControl>
+                                                    <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="iridescenceThicknessMax"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Iridescence Thickness Max (nm)</FormLabel>
+                                                <FormControl>
+                                                    <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
 
                                 <h4 className="font-medium text-sm border-t pt-4">Texture Maps (Optional)</h4>
                                 

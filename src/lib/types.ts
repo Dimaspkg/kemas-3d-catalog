@@ -57,6 +57,9 @@ export interface Material {
   ior?: number;
   roughnessTransmission?: number;
   envMapIntensity?: number;
+  iridescence?: number;
+  iridescenceIOR?: number;
+  iridescenceThicknessRange?: [number, number];
   createdAt: any;
   baseColorMap?: string;
   normalMap?: string;
