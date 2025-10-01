@@ -65,6 +65,8 @@ export default function CanvasPage() {
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
+  const isMobile = useIsMobile();
+
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -147,8 +149,8 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-5")}>
-        <main className={cn("relative flex-1 md:col-span-3 h-[60vh] md:h-full flex items-center justify-center")}>
+    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-10")}>
+        <main className={cn("relative flex-1 md:col-span-7 h-[60vh] md:h-full flex items-center justify-center")}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -202,7 +204,7 @@ export default function CanvasPage() {
             </div>
         </main>
 
-        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-2 border-t md:border-t-0 md:border-l")}>
+        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 border-t md:border-t-0")}>
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>

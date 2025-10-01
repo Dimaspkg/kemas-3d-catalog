@@ -133,13 +133,13 @@ export default function CustomizationPanel({
             <div className="p-4 pt-0 space-y-2">
               <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
                   {parts.map(part => (
-                      <AccordionItem value={part} key={part} className="bg-card rounded-lg border mb-2">
+                      <AccordionItem value={part} key={part} className="bg-transparent rounded-lg border-0 mb-2">
                           <AccordionTrigger className="px-4 text-sm md:text-base">
                               <span className="truncate" title={cleanPartName(part)}>
                                   {cleanPartName(part)}
                               </span>
                           </AccordionTrigger>
-                          <AccordionContent className="border-t">
+                          <AccordionContent>
                               {renderPartControls(part)}
                           </AccordionContent>
                       </AccordionItem>
