@@ -146,11 +146,14 @@ export default function ProductsPage() {
   return (
     <div className="flex flex-col px-4 md:px-8">
         <header className="mb-8 border-b pb-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground hidden md:block">
                 KEMAS Innovations / Packaging
             </p>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-2 gap-4">
-                <h1 className="text-3xl font-bold tracking-tight">Our Packaging ({loading ? "..." : filteredProducts.length})</h1>
+                <h1 className="text-3xl font-bold tracking-tight">
+                    Our Packaging 
+                    <span className="hidden md:inline"> ({loading ? "..." : filteredProducts.length})</span>
+                </h1>
                 <div className="flex items-center gap-2">
                     {isMounted && isMobile && (
                         <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
