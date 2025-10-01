@@ -135,6 +135,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     shadowPlane.rotation.x = -Math.PI / 2;
     shadowPlane.position.y = -5; // Adjust this based on your model's position
     shadowPlane.receiveShadow = true;
+    shadowPlane.name = "shadowPlane";
     scene.add(shadowPlane);
 
     let animationFrameId: number;
