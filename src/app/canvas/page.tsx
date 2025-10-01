@@ -221,16 +221,6 @@ export default function CanvasPage() {
                     Screenshot
                 </Button>
             </div>
-            {product?.id ? (
-                <Button asChild variant="ghost" size="icon" className={cn("absolute top-4 left-4 z-20 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 hover:text-white", isMobile && "hidden")}>
-                    <Link href={`/products/${product.id}`}><LogOut className="h-4 w-4" /></Link>
-                </Button>
-            ) : (
-                <Button asChild variant="ghost" size="icon" className={cn("absolute top-4 left-4 z-20 bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 hover:text-white", isMobile && "hidden")}>
-                    <Link href="/"><LogOut className="h-4 w-4" /></Link>
-                </Button>
-            )}
-
             {isMobile && (
                 <>
                 <div className="absolute top-4 left-4 z-20">
