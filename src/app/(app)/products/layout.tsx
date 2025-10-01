@@ -5,6 +5,6 @@ export default function ProductsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="py-8">{children}</div>
+    <div className="py-8 px-4">{children}</div>
   );
 }

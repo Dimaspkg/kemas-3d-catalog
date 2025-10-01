@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
 
     if (loading) {
         return (
-            <div className="py-8">
+            <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto gap-4">
                         <Skeleton className="w-full aspect-square bg-muted rounded-lg shrink-0" />
@@ -93,7 +93,7 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="py-8">
+        <div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col md:overflow-y-auto gap-4">
                     {product.imageURLs.map((url, index) => (
