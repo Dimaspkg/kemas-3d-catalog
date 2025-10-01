@@ -122,9 +122,17 @@ export default function CustomizationPanel({
     <div className="flex flex-col h-full">
         <div className="p-4 space-y-4">
             <div className="px-2 flex justify-between items-center">
-                <div>
-                    <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
-                    <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
+                 <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href={`/products/${product.id}`}>
+                            <ChevronLeft className="h-5 w-5" />
+                            <span className="sr-only">Back to Product</span>
+                        </Link>
+                    </Button>
+                    <div>
+                        <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
+                        <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
+                    </div>
                 </div>
             </div>
             <Separator />
