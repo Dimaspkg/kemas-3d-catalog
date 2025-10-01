@@ -16,7 +16,7 @@ function NavLinks() {
                 <Link href="/">Home</Link>
             </Button>
             <Button variant="ghost" asChild className="justify-start text-base hover:underline underline-offset-4 hover:bg-transparent">
-                <Link href="/products">Products</Link>
+                <Link href="/products">Packaging</Link>
             </Button>
             <HeaderClient />
         </>
@@ -47,7 +47,7 @@ export default async function Header() {
             <Link href="/">Home</Link>
         </Button>
         <Button variant="ghost" asChild className="text-base hover:underline underline-offset-4 hover:bg-transparent">
-            <Link href="/products">Products</Link>
+            <Link href="/products">Packaging</Link>
         </Button>
         <HeaderClient />
       </nav>
