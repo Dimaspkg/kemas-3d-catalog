@@ -114,12 +114,14 @@ export default function ProductDetailPage() {
                         ))}
                     </div>
                     
-                    <Button asChild size="lg" variant="outline" className="w-full rounded-full py-6 text-base hover:bg-primary hover:text-primary-foreground">
-                        <Link href={`/canvas?productId=${product.id}`}>
-                            <span className="mr-2">Customise</span>
-                            <CustomiseIcon className="h-5 w-5" />
-                        </Link>
-                    </Button>
+                    {product.modelURL && (
+                      <Button asChild size="lg" variant="outline" className="w-full rounded-full py-6 text-base hover:bg-primary hover:text-primary-foreground">
+                          <Link href={`/canvas?productId=${product.id}`}>
+                              <span className="mr-2">Customise</span>
+                              <CustomiseIcon className="h-5 w-5" />
+                          </Link>
+                      </Button>
+                    )}
 
                     <Tabs defaultValue="description" className="w-full">
                         <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 rounded-none">
