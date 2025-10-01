@@ -283,10 +283,14 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
             let material = child.material as THREE.MeshStandardMaterial;
 
-            if (!(material instanceof THREE.MeshStandardMaterial) || material.name !== partMaterialId) {
+            const opacity = materialProps.opacity ?? 1;
+            const isTransparent = opacity < 1;
+
+            if (!(material instanceof THREE.MeshStandardMaterial) || material.name !== partMaterialId || material.transparent !== isTransparent) {
                 material = new THREE.MeshStandardMaterial({
                     metalness: materialProps.metalness,
-                    roughness: materialProps.roughness
+                    roughness: materialProps.roughness,
+                    transparent: isTransparent,
                 });
                 material.name = partMaterialId;
                 child.material = material;
@@ -295,6 +299,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
+            material.opacity = opacity;
             material.dithering = true;
             
             if (sceneRef.current?.environment) {

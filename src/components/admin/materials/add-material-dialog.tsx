@@ -28,6 +28,7 @@ const materialFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
     metalness: z.number().min(0).max(1),
     roughness: z.number().min(0).max(1),
+    opacity: z.number().min(0).max(1),
 });
 type MaterialFormValues = z.infer<typeof materialFormSchema>;
 
@@ -41,11 +42,12 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const { toast } = useToast();
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", metalness: 0, roughness: 0.5 },
+        defaultValues: { name: "", metalness: 0, roughness: 0.5, opacity: 1 },
     });
     
     const metalnessValue = form.watch('metalness');
     const roughnessValue = form.watch('roughness');
+    const opacityValue = form.watch('opacity');
 
     const onSubmit = async (data: MaterialFormValues) => {
         setIsSubmitting(true);
@@ -54,6 +56,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 name: data.name,
                 metalness: data.metalness,
                 roughness: data.roughness,
+                opacity: data.opacity,
                 createdAt: new Date(),
                 userId: user.uid,
             });
@@ -142,6 +145,26 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                         />
                                     </FormControl>
                                     <FormDescription>How rough the material is. 0 for a smooth mirror, 1 for completely diffuse.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="opacity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Opacity ({opacityValue})</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            min={0}
+                                            max={1}
+                                            step={0.1}
+                                            defaultValue={[field.value]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>The opacity of the material. 0 for fully transparent, 1 for fully opaque.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
