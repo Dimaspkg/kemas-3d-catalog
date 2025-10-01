@@ -231,7 +231,9 @@ export default function ProductsPage() {
                             </Link>
                             <div className="mt-4">
                                 <p className="text-sm text-muted-foreground">{product.categories?.join(', ')}</p>
-                                <p className="text-lg font-medium mt-1 hover-underline-animation">{product.name}</p>
+                                <Link href={`/products/${product.id}`} className="block">
+                                   <p className="text-lg font-medium mt-1 hover-underline-animation">{product.name}</p>
+                                </Link>
                             </div>
                         </div>
                     ))}
@@ -250,4 +252,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
