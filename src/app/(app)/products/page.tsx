@@ -156,7 +156,7 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col px-4 md:px-8">
-        <header className="mb-8 border-b pb-4">
+        <header className="mb-8 pb-4">
             <p className="text-sm text-muted-foreground hidden md:block">
                 KEMAS Innovations / Packaging
             </p>
