@@ -11,12 +11,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal, Search } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 interface Category {
     id: string;
@@ -85,6 +86,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const isMobile = useIsMobile();
@@ -124,13 +126,22 @@ export default function ProductsPage() {
   };
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategories.length === 0) {
-        return products;
+    let tempProducts = products;
+
+    if (searchTerm) {
+        tempProducts = tempProducts.filter(product =>
+            product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
     }
-    return products.filter(product =>
-        selectedCategories.every(category => product.categories?.includes(category))
-    );
-  }, [products, selectedCategories]);
+    
+    if (selectedCategories.length > 0) {
+        return tempProducts.filter(product =>
+            selectedCategories.every(category => product.categories?.includes(category))
+        );
+    }
+    
+    return tempProducts;
+  }, [products, selectedCategories, searchTerm]);
 
   const loading = loadingProducts || loadingCategories;
 
@@ -154,13 +165,22 @@ export default function ProductsPage() {
                     Our Packaging 
                     <span className="hidden md:inline"> ({loading ? "..." : filteredProducts.length})</span>
                 </h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <div className="relative w-full md:w-64">
+                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                         <Input 
+                            type="search"
+                            placeholder="Search packaging..."
+                            className="pl-9 w-full"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                         />
+                    </div>
                     {isMounted && isMobile && (
                         <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
                             <SheetTrigger asChild>
-                                <Button variant="outline">
-                                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                    Filters
+                                <Button variant="outline" size="icon" className="shrink-0">
+                                    <SlidersHorizontal className="h-4 w-4" />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
@@ -217,9 +237,9 @@ export default function ProductsPage() {
                 ) : (
                     <div className="flex items-center justify-center h-full col-span-3">
                         <div className="text-center py-16 border-2 border-dashed rounded-lg w-full">
-                             <SlidersHorizontal className="mx-auto h-8 w-8 text-muted-foreground mb-4"/>
+                             <Search className="mx-auto h-8 w-8 text-muted-foreground mb-4"/>
                             <h3 className="text-lg font-semibold">No Products Found</h3>
-                            <p className="text-muted-foreground mt-2">Try adjusting your filters to find what you're looking for.</p>
+                            <p className="text-muted-foreground mt-2">Your search for "{searchTerm}" did not match any products.</p>
                         </div>
                     </div>
                 )}
