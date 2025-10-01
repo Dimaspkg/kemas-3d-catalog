@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut, Info } from "lucide-react";
+import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut, Info, Brush } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -63,44 +63,11 @@ export default function CanvasPage() {
   const [loading, setLoading] = useState(true);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
-  const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
   const isMobile = useIsMobile();
-  const partTextRef = useRef<HTMLDivElement>(null);
-  const [isPartTextOverflowing, setIsPartTextOverflowing] = useState(false);
-
-  const parts = Object.keys(customization.colors);
-  const currentPart = parts[currentPartIndex];
-
-  useEffect(() => {
-    if (partTextRef.current) {
-      setIsPartTextOverflowing(
-        partTextRef.current.scrollWidth > partTextRef.current.clientWidth
-      );
-    }
-  }, [currentPart]);
-
-
-  const handleNextPart = () => {
-    setCurrentPartIndex((prev) => (prev + 1) % parts.length);
-  };
-
-  const handlePrevPart = () => {
-    setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
-  };
-
-  const handleMobileColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newColor = e.target.value;
-    if (currentPart) {
-      setCustomization(prev => ({
-        ...prev,
-        colors: { ...prev.colors, [currentPart]: newColor },
-      }));
-    }
-  };
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -200,7 +167,7 @@ export default function CanvasPage() {
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
-            {/* Common UI Elements */}
+            {/* Desktop UI Elements */}
              <div className={cn("absolute top-4 right-4 flex items-center gap-2 z-20", isMobile && "hidden")}>
                {product?.modelURLOpen && (
                   <Switch
@@ -221,32 +188,21 @@ export default function CanvasPage() {
                     Screenshot
                 </Button>
             </div>
+            
+            {/* Mobile UI Elements */}
             {isMobile && (
                 <>
                 <div className="absolute top-4 left-4 z-20">
-                    {product?.id ? (
-                        <Button
-                            asChild
-                            variant="outline"
-                            size="icon-sm"
-                            className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                        >
-                            <Link href={`/products/${product.id}`}>
-                                <LogOut className="h-4 w-4" />
-                            </Link>
-                        </Button>
-                    ) : (
-                        <Button
-                            asChild
-                            variant="outline"
-                            size="icon-sm"
-                            className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                        >
-                            <Link href="/">
-                                <LogOut className="h-4 w-4" />
-                            </Link>
-                        </Button>
-                    )}
+                    <Button
+                        asChild
+                        variant="outline"
+                        size="icon"
+                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 rounded-full"
+                    >
+                        <Link href={product ? `/products/${product.id}`: '/products'}>
+                            <X className="h-5 w-5" />
+                        </Link>
+                    </Button>
                 </div>
                 <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                    {product?.modelURLOpen && (
@@ -268,74 +224,29 @@ export default function CanvasPage() {
                         Screenshot
                     </Button>
                 </div>
+
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button size="lg" className="rounded-full fixed bottom-8 left-1/2 -translate-x-1/2 z-20 shadow-lg">
+                      <Brush className="mr-2 h-5 w-5" />
+                      Customize
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[calc(100vh-80px)] p-0 bg-background/80 backdrop-blur-lg flex flex-col rounded-t-2xl">
+                       <Suspense fallback={<CustomizationPanelSkeleton />}>
+                           {customizationPanelContent}
+                       </Suspense>
+                  </SheetContent>
+                </Sheet>
                 </>
             )}
         </main>
 
-        {isMobile ? (
-             <Sheet>
-                 <div className="fixed bottom-0 left-0 right-0 z-20">
-                    {product && !isModelLoading && (
-                      <div className="bg-card/80 backdrop-blur-lg p-2 text-center text-sm font-semibold rounded-t-lg mx-auto w-fit">
-                        {product.name}
-                      </div>
-                    )}
-                    <div className="h-20 bg-card border-t flex items-center justify-between px-4">
-                      <Button variant="ghost" size="icon" onClick={handlePrevPart} disabled={parts.length === 0}>
-                        <ChevronLeft />
-                      </Button>
-    
-                      <div className="flex-1 flex justify-center items-center gap-4 text-center overflow-hidden">
-                          {currentPart && (
-                            <div className="relative">
-                              <input
-                                  id="mobile-color-picker"
-                                  type="color"
-                                  value={customization.colors[currentPart] || '#000000'}
-                                  onChange={handleMobileColorChange}
-                                  className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
-                              />
-                              <label 
-                                htmlFor="mobile-color-picker"
-                                className="block w-8 h-8 rounded-full border-2 border-border shadow-sm cursor-pointer"
-                                style={{ backgroundColor: customization.colors[currentPart] || '#000000' }}
-                              />
-                            </div>
-                          )}
-                          <SheetTrigger asChild disabled={parts.length === 0}>
-                            <div className="flex items-center gap-2">
-                                {parts.length > 0 && (
-                                    <div className="text-xs text-muted-foreground">
-                                        {currentPartIndex + 1}/{parts.length}
-                                    </div>
-                                )}
-                                <div className="text-sm font-semibold max-w-[150px] overflow-hidden whitespace-nowrap">
-                                  <div ref={partTextRef} className={cn(isPartTextOverflowing && "marquee")}>
-                                    {currentPart ? cleanPartName(currentPart) : 'Customize'}
-                                  </div>
-                                </div>
-                            </div>
-                        </SheetTrigger>
-                      </div>
-    
-                      <Button variant="ghost" size="icon" onClick={handleNextPart} disabled={parts.length === 0}>
-                        <ChevronRight />
-                      </Button>
-                    </div>
-                </div>
-                <SheetContent side="bottom" className="h-[calc(100vh-150px)] p-0 bg-background/80 backdrop-blur-lg flex flex-col">
-                    <SheetHeader>
-                      <SheetTitle className="sr-only">Customization Panel</SheetTitle>
-                    </SheetHeader>
-                    <Suspense fallback={<CustomizationPanelSkeleton />}>
-                        {customizationPanelContent}
-                    </Suspense>
-                </SheetContent>
-              </Sheet>
-        ) : (
+        {/* Desktop Customization Panel */}
+        {!isMobile && (
             <aside className="h-full overflow-y-auto">
                 <Suspense fallback={<CustomizationPanelSkeleton />}>
-                {customizationPanelContent}
+                    {customizationPanelContent}
                 </Suspense>
             </aside>
         )}
