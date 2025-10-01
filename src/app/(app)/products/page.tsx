@@ -44,11 +44,11 @@ function FilterSidebar({
     loading: boolean
 }) {
     return (
-        <aside className="w-full md:w-64 lg:w-72 space-y-6">
+        <aside className="w-full md:w-64 lg:w-72 space-y-6 bg-muted p-6 rounded-lg">
             <p className="font-semibold text-lg">Categories</p>
             <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
-                <AccordionItem value="item-0">
-                    <AccordionTrigger className="text-base font-medium py-4">Product Type</AccordionTrigger>
+                <AccordionItem value="item-0" className="border-b-0">
+                    <AccordionTrigger className="text-base font-medium py-2 hover:no-underline">Product Type</AccordionTrigger>
                     <AccordionContent>
                         <div className="space-y-2 p-2">
                            {loading ? (
