@@ -10,11 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { materialOptions, type MaterialKey } from "@/lib/materials";
 import { ScrollArea } from "./ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cleanPartName } from "@/lib/utils";
-import type { Product } from "@/lib/types";
+import type { Product, Material } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { Button } from "./ui/button";
@@ -25,12 +24,13 @@ export type CustomizationState = {
     [key: string]: string;
   };
   materials: {
-    [key: string]: MaterialKey;
+    [key: string]: string; // Material ID
   };
 };
 
 interface CustomizationPanelProps {
   product: Product;
+  materials: Material[];
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
   onScreenshot: () => void;
@@ -59,6 +59,7 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: R
 
 export default function CustomizationPanel({
   product,
+  materials,
   state,
   onStateChange,
   onScreenshot
@@ -75,7 +76,7 @@ export default function CustomizationPanel({
     };
 
   const handleMaterialChange =
-    (part: string) => (value: MaterialKey) => {
+    (part: string) => (value: string) => {
       onStateChange((prev) => ({
         ...prev,
         materials: { ...prev.materials, [part]: value },
@@ -83,15 +84,17 @@ export default function CustomizationPanel({
     };
 
     const handleInquiry = () => {
-        const whatsAppNumber = "6282340211624"; // Ganti dengan nomor WhatsApp Anda
+        const whatsAppNumber = "6282340211624";
         let message = `Halo, saya tertarik dengan produk kustom:\n\n`;
         message += `*Produk:* ${product.name}\n`;
         message += `*Kustomisasi:*\n`;
 
+        const materialMap = new Map(materials.map(m => [m.id, m.name]));
+
         parts.forEach(part => {
             const color = state.colors[part];
-            const materialKey = state.materials[part];
-            const materialName = materialOptions.find(m => m.key === materialKey)?.name || materialKey;
+            const materialId = state.materials[part];
+            const materialName = materialMap.get(materialId) || 'Unknown';
             message += `- ${cleanPartName(part)}: Warna ${color}, Material ${materialName}\n`;
         });
 
@@ -129,8 +132,8 @@ export default function CustomizationPanel({
                   <SelectValue placeholder="Select material" />
               </SelectTrigger>
               <SelectContent>
-              {materialOptions.map((option) => (
-                  <SelectItem key={option.key} value={option.key} className="capitalize">
+              {materials.map((option) => (
+                  <SelectItem key={option.id} value={option.id} className="capitalize">
                   {option.name}
                   </SelectItem>
               ))}

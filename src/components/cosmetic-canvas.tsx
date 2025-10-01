@@ -8,12 +8,11 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomizationState } from "@/components/customization-panel";
-import { materials, type MaterialKey } from "@/lib/materials";
-import type { CanvasHandle, Product, Hotspot } from "@/lib/types";
-import { Skeleton } from "./ui/skeleton";
+import type { CanvasHandle, Product, Hotspot, Material } from "@/lib/types";
 
 type CosmeticCanvasProps = CustomizationState & { 
     product?: Product | null;
+    materialsData: Material[];
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
@@ -24,6 +23,7 @@ type CosmeticCanvasProps = CustomizationState & {
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   colors,
   materials: materialKeys,
+  materialsData,
   product,
   modelURL,
   environmentURL,
@@ -223,11 +223,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         
         // Add hotspots
         if (product?.hotspots) {
-            const hotspotMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500 });
-            const hotspotGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Adjust size as needed
+            const hotspotGeometry = new THREE.SphereGeometry(0.05, 16, 16); 
 
             product.hotspots.forEach(hp => {
-                const hotspotMesh = new THREE.Mesh(hotspotGeometry, hotspotMaterial.clone());
+                // Use a visible but non-intrusive material for hotspots
+                const hotspotMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, transparent: true, opacity: 0.7 });
+                const hotspotMesh = new THREE.Mesh(hotspotGeometry, hotspotMaterial);
                 hotspotMesh.position.set(hp.position.x, hp.position.y, hp.position.z);
                 hotspotMesh.name = `hotspot_${hp.id}`;
                 hotspotMesh.userData = hp;
@@ -266,21 +267,28 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 
   useEffect(() => {
     if (!hasCustomized) return;
-    if (!modelRef.current || !colors || !materialKeys) return;
+    if (!modelRef.current || !colors || !materialKeys || !materialsData) return;
+
+    const materialsMap = new Map(materialsData.map(m => [m.id, m]));
 
     modelRef.current.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const partName = child.name.trim();
         const partColor = colors[partName];
-        const partMaterialKey = materialKeys[partName];
+        const partMaterialId = materialKeys[partName];
+        
+        if (partColor && partMaterialId) {
+            const materialProps = materialsMap.get(partMaterialId);
+            if (!materialProps) return;
 
-        if (partColor && partMaterialKey) {
-            const materialProps = materials[partMaterialKey as MaterialKey];
             let material = child.material as THREE.MeshStandardMaterial;
 
-            if (!(material instanceof THREE.MeshStandardMaterial) || material.name !== partMaterialKey) {
-                material = new THREE.MeshStandardMaterial(materialProps);
-                material.name = partMaterialKey;
+            if (!(material instanceof THREE.MeshStandardMaterial) || material.name !== partMaterialId) {
+                material = new THREE.MeshStandardMaterial({
+                    metalness: materialProps.metalness,
+                    roughness: materialProps.roughness
+                });
+                material.name = partMaterialId;
                 child.material = material;
             }
             
@@ -296,12 +304,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       }
     });
-  }, [colors, materialKeys, hasCustomized]);
+  }, [colors, materialKeys, hasCustomized, materialsData]);
 
   useEffect(() => {
     if (Object.keys(colors).length > 0 || Object.keys(materialKeys).length > 0) {
       if(!hasCustomized) {
-        const isCustomized = Object.entries(colors).some(([key, value]) => value !== '#000000') || Object.entries(materialKeys).some(([key, value]) => value !== 'glossy');
+        const isCustomized = Object.entries(colors).some(([key, value]) => value !== '#000000') || Object.entries(materialKeys).some(([key, value]) => value !== '');
         if(isCustomized) {
           setHasCustomized(true);
         }

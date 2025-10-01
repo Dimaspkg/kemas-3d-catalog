@@ -1,6 +1,9 @@
 
 import type * as THREE from 'three';
 
+// This file is now deprecated and will be removed in a future step.
+// Material data is now fetched from Firestore.
+
 export const materialOptions = [
     { key: "matte", name: "Matte" },
     { key: "glossy", name: "Glossy" },
@@ -39,5 +42,3 @@ export const materials: Record<MaterialKey, MaterialProperties> = {
         roughness: 0,
     }
 };
-
-    

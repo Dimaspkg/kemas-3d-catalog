@@ -29,6 +29,7 @@ interface Category {
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
+    hotspots: z.string().optional(),
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
@@ -63,6 +64,7 @@ export default function NewProductPage() {
         defaultValues: {
             name: "",
             description: "",
+            hotspots: "",
             categories: [],
             productImages: undefined,
             modelFile: undefined,
@@ -146,9 +148,24 @@ export default function NewProductPage() {
 
             const modelURL = await uploadFile(modelFile, 'product-models', user.uid);
             
+            let hotspotsData = [];
+            if (data.hotspots) {
+                try {
+                    hotspotsData = JSON.parse(data.hotspots);
+                } catch (e) {
+                    toast({
+                        variant: "destructive",
+                        title: "Invalid JSON",
+                        description: "The hotspots data is not valid JSON. Product will be saved without hotspots.",
+                    });
+                    hotspotsData = [];
+                }
+            }
+
             const productData: any = {
                 name: data.name,
                 description: data.description,
+                hotspots: hotspotsData,
                 categories: data.categories,
                 imageURLs,
                 modelURL,
@@ -237,10 +254,30 @@ export default function NewProductPage() {
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Tell us a little bit about this product"
-                                                    className="resize-none"
+                                                    className="resize-y min-h-[100px]"
                                                     {...field}
                                                 />
                                             </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="hotspots"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Hotspots (JSON)</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder='[{"id": "...", "name": "...", ...}]'
+                                                    className="resize-y min-h-[150px] font-mono"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Optional. Enter the hotspot data as a JSON array. See documentation for format.
+                                            </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

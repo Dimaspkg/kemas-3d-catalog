@@ -3,7 +3,7 @@
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Home, Package, Menu, LogOut, Image as ImageIcon, Settings } from 'lucide-react';
+import { Home, Package, Menu, LogOut, Image as ImageIcon, Settings, Gem } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
@@ -57,6 +57,16 @@ function NavMenu({ className }: { className?: string }) {
                     <Link href="/admin/environment">
                         <ImageIcon className="mr-2 h-4 w-4" />
                         Environment
+                    </Link>
+                </Button>
+                <Button 
+                    asChild 
+                    variant={pathname.startsWith('/admin/materials') ? 'secondary' : 'ghost'} 
+                    className="justify-start"
+                >
+                    <Link href="/admin/materials">
+                        <Gem className="mr-2 h-4 w-4" />
+                        Materials
                     </Link>
                 </Button>
                 <Button 

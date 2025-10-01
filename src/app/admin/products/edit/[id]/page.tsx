@@ -31,6 +31,7 @@ interface Category {
 const productFormSchema = z.object({
     name: z.string().min(1, "Name is required"),
     description: z.string().optional(),
+    hotspots: z.string().optional(),
     categories: z.array(z.string()).refine((value) => value.length > 0, {
         message: "You must select at least one category.",
     }),
@@ -85,6 +86,7 @@ export default function EditProductPage() {
             name: "",
             description: "",
             categories: [],
+            hotspots: "",
             dimensions: "",
             godetSize: "",
             mechanism: "",
@@ -106,6 +108,7 @@ export default function EditProductPage() {
                 form.reset({
                     ...productData,
                     description: productData.description || "",
+                    hotspots: productData.hotspots ? JSON.stringify(productData.hotspots, null, 2) : "",
                 });
             } else {
                  toast({ variant: "destructive", title: "Error", description: "Product not found." });
@@ -152,6 +155,7 @@ export default function EditProductPage() {
         let finalImageURLs = [...currentImageURLs];
         let modelURL = product.modelURL;
         let modelURLOpen = product.modelURLOpen;
+        let hotspotsData = product.hotspots;
 
         try {
              // Delete images marked for deletion from Supabase
@@ -160,6 +164,22 @@ export default function EditProductPage() {
                 if(pathsToDelete.length > 0) {
                     await supabase.storage.from('product-images').remove(pathsToDelete);
                 }
+            }
+
+            if (data.hotspots) {
+                try {
+                    hotspotsData = JSON.parse(data.hotspots);
+                } catch (e) {
+                    toast({
+                        variant: "destructive",
+                        title: "Invalid JSON",
+                        description: "The hotspots data is not valid JSON.",
+                    });
+                    setIsSubmitting(false);
+                    return;
+                }
+            } else {
+                hotspotsData = [];
             }
 
             const productImageFiles = data.productImages;
@@ -191,6 +211,7 @@ export default function EditProductPage() {
                 description: data.description,
                 categories: data.categories,
                 imageURLs: finalImageURLs,
+                hotspots: hotspotsData,
                 modelURL,
                 modelURLOpen,
                 dimensions: data.dimensions,
@@ -313,10 +334,30 @@ export default function EditProductPage() {
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Tell us a little bit about this product"
-                                                    className="resize-none"
+                                                    className="resize-y min-h-[100px]"
                                                     {...field}
                                                 />
                                             </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="hotspots"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Hotspots (JSON)</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder='[{"id": "...", "name": "...", ...}]'
+                                                    className="resize-y min-h-[150px] font-mono"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter the hotspot data as a JSON array. See documentation for format.
+                                            </FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

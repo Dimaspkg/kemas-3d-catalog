@@ -14,6 +14,7 @@ export interface Product {
   specialFeatures?: string;
   manufacturingLocation?: string;
   createdAt: any;
+  hotspots?: Hotspot[];
 }
 
 export interface Environment {
@@ -31,4 +32,24 @@ export interface CanvasHandle {
 
 export interface Settings {
   logoURL?: string;
+}
+
+export interface Hotspot {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}
+
+export interface Material {
+  id: string;
+  name: string;
+  metalness: number;
+  roughness: number;
+  createdAt: any;
 }

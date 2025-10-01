@@ -6,9 +6,9 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CustomizationState } from "@/components/customization-panel";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
+import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Info, ChevronLeft } from "lucide-react";
@@ -57,6 +57,7 @@ export default function CanvasPage() {
   });
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
@@ -69,10 +70,13 @@ export default function CanvasPage() {
     const uniquePartNames = [...new Set(partNames)];
     const newInitialColors: Record<string, string> = {};
     const newInitialMaterials: { [key: string]: string } = {};
+    
+    // Find default material or take the first one
+    const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
         newInitialColors[part] = initialColors[part] || '#000000';
-        newInitialMaterials[part] = 'glossy'; 
+        newInitialMaterials[part] = defaultMaterial?.id || '';
     });
 
     setCustomization({
@@ -81,12 +85,10 @@ export default function CanvasPage() {
     });
     setLoading(false);
     setIsModelLoading(false);
-  }, []);
+  }, [materials]);
   
   useEffect(() => {
-    const fetchData = async () => {
-        setLoading(true);
-
+    const fetchStaticData = async () => {
         const envQuery = query(collection(db, 'environments'), where("isActive", "==", true));
         const envSnapshot = await getDocs(envQuery);
         if (!envSnapshot.empty) {
@@ -107,13 +109,25 @@ export default function CanvasPage() {
                 console.error("Product not found!");
             }
         }
-        
-        if (!productId) {
-            setLoading(false);
-        }
     };
+    
+    setLoading(true);
+    fetchStaticData();
 
-    fetchData();
+    const materialsQuery = query(collection(db, 'materials'), orderBy('createdAt', 'asc'));
+    const unsubscribeMaterials = onSnapshot(materialsQuery, (snapshot) => {
+        const materialsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Material));
+        setMaterials(materialsData);
+    });
+    
+    // setLoading is handled by onModelLoad to avoid flicker
+    if (!productId) {
+        setLoading(false);
+    }
+    
+    return () => {
+        unsubscribeMaterials();
+    }
   }, [productId]);
   
   const handleLoadingChange = useCallback((loading: boolean) => {
@@ -133,11 +147,12 @@ export default function CanvasPage() {
   const currentModelURL = showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL;
 
   const customizationPanelContent = (
-    loading || !product ? (
+    loading || !product || materials.length === 0 ? (
       <CustomizationPanelSkeleton />
     ) : (
       <CustomizationPanel
         product={product}
+        materials={materials}
         state={customization}
         onStateChange={setCustomization}
         onScreenshot={handleScreenshot}
@@ -154,6 +169,7 @@ export default function CanvasPage() {
                 <CosmeticCanvas 
                   ref={canvasRef}
                   {...customization} 
+                  materialsData={materials}
                   product={product}
                   modelURL={currentModelURL}
                   environmentURL={environment?.fileURL}
