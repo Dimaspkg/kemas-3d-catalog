@@ -35,7 +35,7 @@ export default async function Header() {
   }
 
   return (
-    <header className="px-4 lg:px-8 py-3 border-b flex items-center justify-between bg-background z-20 sticky top-0">
+    <header className="px-4 lg:px-8 py-4 border-b flex items-center justify-between bg-background z-20 sticky top-0">
       <Link href="/" className="flex items-center gap-2 font-semibold">
         <HeaderLogo logoUrl={logoUrl} />
         <span className="hidden sm:inline-block">KEMAS Innovations</span>
