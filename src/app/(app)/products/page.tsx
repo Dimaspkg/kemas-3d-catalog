@@ -85,9 +85,9 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const isMobile = useIsMobile();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setIsMounted(true);
@@ -210,7 +210,7 @@ export default function ProductsPage() {
                             </Link>
                             <div className="mt-4">
                                 <p className="text-sm text-muted-foreground">{product.categories?.join(', ')}</p>
-                                <p className="text-lg font-medium mt-1 group-hover:text-primary transition-colors">{product.name}</p>
+                                <p className="text-lg font-medium mt-1 hover-underline-animation">{product.name}</p>
                             </div>
                         </div>
                     ))}

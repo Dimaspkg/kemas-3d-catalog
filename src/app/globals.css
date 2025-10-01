@@ -100,4 +100,21 @@ body {
   .marquee {
     animation: marquee 10s linear infinite;
   }
+
+  .hover-underline-animation {
+    @apply inline-block relative cursor-pointer;
+  }
+
+  .hover-underline-animation::after {
+    content: '';
+    @apply absolute w-full h-[2px] bottom-0 left-0 bg-primary;
+    transform: scaleX(0);
+    transform-origin: bottom left;
+    transition: transform 0.25s ease-out;
+  }
+
+  .hover-underline-animation:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
 }
