@@ -134,7 +134,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const shadowPlane = new THREE.Mesh(planeGeometry, planeMaterial);
     shadowPlane.rotation.x = -Math.PI / 2;
     shadowPlane.position.y = -5; // Adjust this based on your model's position
-    shadowPlane.receiveShadow = true;
     shadowPlane.name = "shadowPlane";
     scene.add(shadowPlane);
 
@@ -313,6 +312,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
+            material.envMapIntensity = materialProps.envMapIntensity ?? 1;
 
             // Handle transparency
             if (isTransparent) {

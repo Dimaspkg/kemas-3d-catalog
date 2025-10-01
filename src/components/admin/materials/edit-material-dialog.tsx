@@ -42,6 +42,7 @@ const materialFormSchema = z.object({
     opacity: z.number().min(0).max(1),
     thickness: z.number().min(0).max(5),
     ior: z.number().min(1).max(2.5),
+    envMapIntensity: z.number().min(0).max(5),
     baseColorMapFile: z.any().optional(),
     normalMapFile: z.any().optional(),
     roughnessMapFile: z.any().optional(),
@@ -85,6 +86,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
             opacity: material.opacity ?? 1,
             thickness: material.thickness ?? 0,
             ior: material.ior ?? 1.5,
+            envMapIntensity: material.envMapIntensity ?? 1,
         },
     });
 
@@ -106,6 +108,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
     const opacityValue = form.watch('opacity');
     const thicknessValue = form.watch('thickness');
     const iorValue = form.watch('ior');
+    const envMapIntensityValue = form.watch('envMapIntensity');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
         if (!file) return "";
@@ -149,6 +152,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 opacity: data.opacity,
                 thickness: data.thickness,
                 ior: data.ior,
+                envMapIntensity: data.envMapIntensity,
                 ...textureUrls,
              });
             toast({
@@ -179,6 +183,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 opacity: material.opacity ?? 1,
                 thickness: material.thickness ?? 0,
                 ior: material.ior ?? 1.5,
+                envMapIntensity: material.envMapIntensity ?? 1,
             });
         }
         setOpen(isOpen);
@@ -358,6 +363,26 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                                                 />
                                             </FormControl>
                                             <FormDescription>Controls how much light bends for transparent materials.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="envMapIntensity"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Env Map Intensity ({envMapIntensityValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={5}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Controls the intensity of the environment map's reflection.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}

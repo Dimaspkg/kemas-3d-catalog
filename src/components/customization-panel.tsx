@@ -3,15 +3,6 @@
 
 import * as React from "react";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "./ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cleanPartName } from "@/lib/utils";
@@ -20,6 +11,8 @@ import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { LogOut, Camera, Send } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import { cn } from "@/lib/utils";
 
 export type CustomizationState = {
   colors: {
@@ -85,10 +78,10 @@ export default function CustomizationPanel({
     };
 
   const handleMaterialChange =
-    (part: string) => (value: string) => {
+    (part: string, materialId: string) => {
       onStateChange((prev) => ({
         ...prev,
-        materials: { ...prev.materials, [part]: value },
+        materials: { ...prev.materials, [part]: materialId },
       }));
     };
 
@@ -140,57 +133,68 @@ export default function CustomizationPanel({
         }
     });
 
-    // Sort categories based on the materialCategories prop
     const sortedGrouped: { [category: string]: Material[] } = {};
     materialCategories.forEach(cat => {
         if (grouped[cat.name]) {
             sortedGrouped[cat.name] = grouped[cat.name];
         }
     });
+    
+    if (uncategorized.length > 0) {
+        sortedGrouped['Others'] = uncategorized;
+    }
 
-    return { sorted: sortedGrouped, uncategorized };
+    return sortedGrouped;
   }, [materials, materialCategories]);
 
   const renderPartControls = (part: string) => (
-      <div className="flex items-center justify-between gap-4 p-4">
-          <div className="flex items-center gap-2">
+      <div className="space-y-4 p-1">
+          <div className="flex items-center gap-4 px-3">
               <ColorSwatch
                   name={part}
                   value={state.colors[part]}
                   onChange={handleColorChange(part)}
               />
-              <Label htmlFor={`${part}-material`} className="sr-only">Material</Label>
+              <p className="text-sm text-muted-foreground">Color</p>
           </div>
-          <Select
-              value={state.materials[part]}
-              onValueChange={handleMaterialChange(part)}
-          >
-              <SelectTrigger id={`${part}-material`} className="flex-grow">
-                  <SelectValue placeholder="Select material" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(groupedMaterials.sorted).map(([categoryName, materialsInCategory]) => (
-                    <SelectGroup key={categoryName}>
-                        <SelectLabel>{categoryName}</SelectLabel>
-                        {materialsInCategory.map((option) => (
-                            <SelectItem key={option.id} value={option.id} className="capitalize">
-                                {option.name}
-                            </SelectItem>
-                        ))}
-                    </SelectGroup>
-                ))}
-                {groupedMaterials.uncategorized.length > 0 && (
-                    <SelectGroup>
-                        <SelectLabel>Others</SelectLabel>
-                         {groupedMaterials.uncategorized.map((option) => (
-                            <SelectItem key={option.id} value={option.id} className="capitalize">
-                            {option.name}
-                            </SelectItem>
-                        ))}
-                    </SelectGroup>
-                )}
-              </SelectContent>
-          </Select>
+          
+          <div className="space-y-3">
+            {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                <div key={categoryName} className="space-y-2">
+                    <Label className="px-3 text-xs text-muted-foreground font-medium">{categoryName}</Label>
+                    <Carousel
+                        opts={{
+                            align: "start",
+                            dragFree: true,
+                        }}
+                        className="w-full"
+                    >
+                        <CarouselContent className="-ml-2">
+                            {materialsInCategory.map((material) => (
+                                <CarouselItem key={material.id} className="pl-2 basis-auto">
+                                    <div className="p-1">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className={cn(
+                                                "h-auto py-2 px-4 whitespace-normal",
+                                                state.materials[part] === material.id && "ring-2 ring-primary"
+                                            )}
+                                            onClick={() => handleMaterialChange(part, material.id)}
+                                        >
+                                            {material.name}
+                                        </Button>
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious className="hidden md:flex" />
+                        <CarouselNext className="hidden md:flex" />
+                    </Carousel>
+                </div>
+            ))}
+          </div>
+
       </div>
   )
 
@@ -216,7 +220,7 @@ export default function CustomizationPanel({
               <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
                   {parts.map(part => (
                       <AccordionItem value={part} key={part} className="bg-transparent rounded-lg border-0 mb-2">
-                          <AccordionTrigger className="px-4 text-sm md:text-base">
+                          <AccordionTrigger className="px-4 text-sm md:text-base hover:no-underline">
                               <span className="truncate" title={cleanPartName(part)}>
                                   {cleanPartName(part)}
                               </span>
@@ -232,7 +236,7 @@ export default function CustomizationPanel({
         <div className="p-4 border-t bg-background">
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <Button onClick={onScreenshot} variant="ghost" size="icon">
+                    <Button onClick={onScreenshot} variant="outline" size="icon">
                         <Camera className="h-5 w-5" />
                         <span className="sr-only">Screenshot</span>
                     </Button>
