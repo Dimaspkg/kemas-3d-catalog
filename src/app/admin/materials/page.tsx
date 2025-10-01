@@ -38,6 +38,7 @@ function MaterialRowSkeleton() {
             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
             <TableCell><Skeleton className="h-8 w-20" /></TableCell>
         </TableRow>
     )
@@ -96,6 +97,7 @@ export default function MaterialManagementPage() {
                                 <TableHead>Roughness</TableHead>
                                 <TableHead>Opacity</TableHead>
                                 <TableHead>Thickness</TableHead>
+                                <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -105,10 +107,6 @@ export default function MaterialManagementPage() {
                             <MaterialRowSkeleton />
                         </TableBody>
                     </Table>
-                ) : materials.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground">No materials created yet.</p>
-                    </div>
                 ) : (
                     <Table>
                         <TableHeader>
@@ -118,6 +116,7 @@ export default function MaterialManagementPage() {
                                 <TableHead>Roughness</TableHead>
                                 <TableHead>Opacity</TableHead>
                                 <TableHead>Thickness</TableHead>
+                                <TableHead>IOR</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -136,6 +135,9 @@ export default function MaterialManagementPage() {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="outline">{material.thickness ?? 0}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">{material.ior ?? 1.5}</Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>

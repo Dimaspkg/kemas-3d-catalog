@@ -53,5 +53,6 @@ export interface Material {
   roughness: number;
   opacity?: number;
   thickness?: number;
+  ior?: number;
   createdAt: any;
 }

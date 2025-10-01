@@ -302,11 +302,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 material.transparent = true;
                 material.opacity = opacity; // Still useful for blending
                 material.thickness = materialProps.thickness ?? 0;
+                material.ior = materialProps.ior ?? 1.5;
             } else {
                 material.transmission = 0;
                 material.transparent = false;
                 material.opacity = 1;
                 material.thickness = 0;
+                material.ior = 1.5; // Reset IOR for non-transparent materials
             }
             
             material.dithering = true;

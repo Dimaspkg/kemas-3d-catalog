@@ -30,6 +30,7 @@ const materialFormSchema = z.object({
     roughness: z.number().min(0).max(1),
     opacity: z.number().min(0).max(1),
     thickness: z.number().min(0).max(5),
+    ior: z.number().min(1).max(2.5),
 });
 type MaterialFormValues = z.infer<typeof materialFormSchema>;
 
@@ -43,13 +44,14 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const { toast } = useToast();
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", metalness: 0, roughness: 0.5, opacity: 1, thickness: 0 },
+        defaultValues: { name: "", metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5 },
     });
     
     const metalnessValue = form.watch('metalness');
     const roughnessValue = form.watch('roughness');
     const opacityValue = form.watch('opacity');
     const thicknessValue = form.watch('thickness');
+    const iorValue = form.watch('ior');
 
     const onSubmit = async (data: MaterialFormValues) => {
         setIsSubmitting(true);
@@ -60,6 +62,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 roughness: data.roughness,
                 opacity: data.opacity,
                 thickness: data.thickness,
+                ior: data.ior,
                 createdAt: new Date(),
                 userId: user.uid,
             });
@@ -188,6 +191,26 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                         />
                                     </FormControl>
                                     <FormDescription>For transparent materials, this controls thickness for refraction. 0 for thin.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="ior"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Index of Refraction (IOR) ({iorValue})</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            min={1.0}
+                                            max={2.5}
+                                            step={0.01}
+                                            defaultValue={[field.value]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>Controls how much light bends. (e.g., Water: 1.33, Glass: 1.5, Diamond: 2.4).</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
