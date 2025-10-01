@@ -126,28 +126,24 @@ export default function ProductDetailPage() {
                             <TabsTrigger value="description" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Description</TabsTrigger>
                             <TabsTrigger value="specifications" className="text-lg bg-transparent p-0 rounded-none shadow-none data-[state=active]:shadow-none data-[state=active]:font-bold data-[state=active]:border-b-2 data-[state=active]:border-primary hover-underline-animation">Specifications</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="description">
+                        <TabsContent value="description" className="pt-[50px]">
                             {product.description ? (
-                                <div className="pt-6">
-                                    <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
-                                </div>
+                                <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
                             ) : (
                                 <div className="text-center text-muted-foreground py-8">No description available.</div>
                             )}
                         </TabsContent>
-                        <TabsContent value="specifications">
-                            <div className="pt-6">
-                                <Table>
-                                    <TableBody>
-                                        <SpecificationRow label="Dimensions" value={product.dimensions} />
-                                        <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
-                                        <SpecificationRow label="Mechanism" value={product.mechanism} />
-                                        <SpecificationRow label="Material" value={product.material} />
-                                        <SpecificationRow label="Special Features" value={product.specialFeatures} />
-                                        <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
-                                    </TableBody>
-                                </Table>
-                            </div>
+                        <TabsContent value="specifications" className="pt-[50px]">
+                            <Table>
+                                <TableBody>
+                                    <SpecificationRow label="Dimensions" value={product.dimensions} />
+                                    <SpecificationRow label="Godet / Cup Size" value={product.godetSize} />
+                                    <SpecificationRow label="Mechanism" value={product.mechanism} />
+                                    <SpecificationRow label="Material" value={product.material} />
+                                    <SpecificationRow label="Special Features" value={product.specialFeatures} />
+                                    <SpecificationRow label="Manufacturing Location" value={product.manufacturingLocation} />
+                                </TableBody>
+                            </Table>
                         </TabsContent>
                     </Tabs>
                 </div>
