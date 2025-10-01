@@ -49,7 +49,7 @@ function FilterSidebar({
             <h3 className="font-semibold text-lg">Categories</h3>
             <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
                 <AccordionItem value="item-0" className="border-b-0">
-                    <AccordionTrigger className="text-base font-medium py-2 hover:no-underline">Product Type</AccordionTrigger>
+                    <AccordionTrigger className="text-base font-medium py-2 hover:no-underline hover-underline-animation">Product Type</AccordionTrigger>
                     <AccordionContent>
                         <div className="space-y-3 p-2">
                            {loading ? (
