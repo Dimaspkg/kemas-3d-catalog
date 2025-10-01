@@ -150,10 +150,10 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("min-h-screen w-full bg-background text-foreground font-body overflow-hidden", !isMobile && "md:grid md:grid-cols-5 h-screen")}>
-        <main className={cn("relative flex flex-col justify-center", !isMobile ? "col-span-4 h-full" : "h-screen")}>
+    <div className={cn("min-h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row", "md:grid md:grid-cols-5 h-screen")}>
+        <main className={cn("relative flex flex-col justify-center", "w-full md:w-auto", "md:col-span-4 h-full", "w-3/5")}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
-              <div className="relative w-full aspect-square md:h-full md:aspect-auto">
+              <div className="relative w-full h-full md:h-full md:aspect-auto">
                 <CosmeticCanvas 
                   ref={canvasRef}
                   {...customization} 
@@ -169,8 +169,8 @@ export default function CanvasPage() {
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
-            {/* Desktop UI Elements */}
-             <div className={cn("absolute top-4 right-4 flex items-center gap-2 z-20", isMobile && "hidden")}>
+            {/* Common UI Elements */}
+             <div className={cn("absolute top-4 right-4 flex items-center gap-2 z-20")}>
                {product?.modelURLOpen && (
                   <Switch
                       id="open-state-switch"
@@ -187,71 +187,30 @@ export default function CanvasPage() {
                     className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                 >
                     <Camera className="mr-2 h-4 w-4" />
-                    Screenshot
+                    <span className="hidden md:inline">Screenshot</span>
                 </Button>
             </div>
             
-            {/* Mobile UI Elements */}
-            {isMobile && (
-                <>
-                <div className="absolute top-4 left-4 z-20">
-                    <Button
-                        asChild
-                        variant="outline"
-                        size="icon"
-                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 rounded-full"
-                    >
-                        <Link href={product ? `/products/${product.id}`: '/products'}>
-                            <X className="h-5 w-5" />
-                        </Link>
-                    </Button>
-                </div>
-                <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
-                   {product?.modelURLOpen && (
-                      <Switch
-                          id="open-state-switch-mobile"
-                          checked={showOpenModel}
-                          onCheckedChange={setShowOpenModel}
-                          aria-label="Toggle open/closed model view"
-                          size="sm"
-                      />
-                  )}
-                    <Button
-                        onClick={handleScreenshot}
-                        variant="outline"
-                        size="sm"
-                        className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                    >
-                        <Camera className="mr-2 h-4 w-4" />
-                        Screenshot
-                    </Button>
-                </div>
-
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button size="lg" className="rounded-full fixed bottom-8 left-1/2 -translate-x-1/2 z-20 shadow-lg">
-                      <Brush className="mr-2 h-5 w-5" />
-                      Customize
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="h-[calc(100vh-80px)] p-0 bg-background/80 backdrop-blur-lg flex flex-col rounded-t-2xl">
-                       <Suspense fallback={<CustomizationPanelSkeleton />}>
-                           {customizationPanelContent}
-                       </Suspense>
-                  </SheetContent>
-                </Sheet>
-                </>
-            )}
+            <div className="absolute top-4 left-4 z-20">
+                <Button
+                    asChild
+                    variant="outline"
+                    size="icon"
+                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 rounded-full"
+                >
+                    <Link href={product ? `/products/${product.id}`: '/products'}>
+                        <X className="h-5 w-5" />
+                    </Link>
+                </Button>
+            </div>
         </main>
 
-        {/* Desktop Customization Panel */}
-        {!isMobile && (
-            <aside className="h-full overflow-y-auto">
-                <Suspense fallback={<CustomizationPanelSkeleton />}>
-                    {customizationPanelContent}
-                </Suspense>
-            </aside>
-        )}
+        {/* Customization Panel */}
+        <aside className={cn("h-full overflow-y-auto w-2/5 md:w-auto", "md:col-span-1")}>
+            <Suspense fallback={<CustomizationPanelSkeleton />}>
+                {customizationPanelContent}
+            </Suspense>
+        </aside>
     </div>
 
     {activeHotspot && (

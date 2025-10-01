@@ -64,13 +64,6 @@ export default function CustomizationPanel({
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
   const isMobile = useIsMobile();
-  const [mobileActivePart, setMobileActivePart] = React.useState(parts[0]);
-
-  React.useEffect(() => {
-    if (!mobileActivePart && parts.length > 0) {
-      setMobileActivePart(parts[0]);
-    }
-  }, [parts, mobileActivePart]);
 
   const handleColorChange =
     (part: string) =>
@@ -88,18 +81,6 @@ export default function CustomizationPanel({
         materials: { ...prev.materials, [part]: value },
       }));
     };
-  
-  const handleMobilePartChange = (direction: 'next' | 'prev') => {
-    const currentIndex = parts.indexOf(mobileActivePart);
-    let nextIndex;
-    if (direction === 'next') {
-      nextIndex = (currentIndex + 1) % parts.length;
-    } else {
-      nextIndex = (currentIndex - 1 + parts.length) % parts.length;
-    }
-    setMobileActivePart(parts[nextIndex]);
-  };
-
 
   if (parts.length === 0) {
     return (
@@ -142,52 +123,28 @@ export default function CustomizationPanel({
         <div className="p-4 space-y-4">
             <div className="px-2 flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold">{product.name}</h2>
-                    <p className="text-sm text-muted-foreground">Customize your product</p>
+                    <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
+                    <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
                 </div>
-                 {!isMobile && (
-                    <Button asChild variant="ghost" size="icon">
-                        <Link href={`/products/${product.id}`}>
-                            <LogOut className="h-5 w-5" />
-                        </Link>
-                    </Button>
-                )}
             </div>
             <Separator />
         </div>
         <ScrollArea className="flex-1">
             <div className="p-4 pt-0 space-y-2">
-                {isMobile ? (
-                  <>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-card border mb-4">
-                        <Button variant="ghost" size="icon" onClick={() => handleMobilePartChange('prev')}>
-                            <ChevronLeft />
-                        </Button>
-                        <div className="text-center font-semibold truncate" title={cleanPartName(mobileActivePart)}>
-                            {cleanPartName(mobileActivePart)}
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleMobilePartChange('next')}>
-                            <ChevronRight />
-                        </Button>
-                    </div>
-                    {renderPartControls(mobileActivePart)}
-                  </>
-                ) : (
-                  <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
-                      {parts.map(part => (
-                          <AccordionItem value={part} key={part} className="bg-card rounded-lg border mb-2">
-                              <AccordionTrigger className="px-4">
-                                  <span className="truncate" title={cleanPartName(part)}>
-                                      {cleanPartName(part)}
-                                  </span>
-                              </AccordionTrigger>
-                              <AccordionContent className="border-t">
-                                  {renderPartControls(part)}
-                              </AccordionContent>
-                          </AccordionItem>
-                      ))}
-                  </Accordion>
-                )}
+              <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
+                  {parts.map(part => (
+                      <AccordionItem value={part} key={part} className="bg-card rounded-lg border mb-2">
+                          <AccordionTrigger className="px-4 text-sm md:text-base">
+                              <span className="truncate" title={cleanPartName(part)}>
+                                  {cleanPartName(part)}
+                              </span>
+                          </AccordionTrigger>
+                          <AccordionContent className="border-t">
+                              {renderPartControls(part)}
+                          </AccordionContent>
+                      </AccordionItem>
+                  ))}
+              </Accordion>
             </div>
         </ScrollArea>
     </div>
