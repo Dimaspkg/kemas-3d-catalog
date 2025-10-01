@@ -11,12 +11,11 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Menu, ChevronLeft, ChevronRight, LogOut, Info, Brush } from "lucide-react";
+import { Camera, X, Info, Brush } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { cleanPartName } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -150,10 +149,10 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-row md:grid md:grid-cols-5")}>
-        <main className={cn("relative flex-1 md:flex-initial w-3/5 md:w-auto md:col-span-3")}>
+    <div className={cn("min-h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-5")}>
+        <main className={cn("relative flex-1 md:col-span-3 flex items-center justify-center")}>
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
-              <div className="relative w-full h-full md:h-full md:aspect-auto">
+              <div className="relative w-full aspect-square md:h-full md:aspect-auto">
                 <CosmeticCanvas 
                   ref={canvasRef}
                   {...customization} 
@@ -203,14 +202,39 @@ export default function CanvasPage() {
                     </Link>
                 </Button>
             </div>
+
+            {/* Mobile-only "Customize" button */}
+             {isMobile && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      size="lg"
+                      className="rounded-full shadow-lg"
+                    >
+                      <Brush className="mr-2 h-5 w-5" />
+                      Customize
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[60vh]">
+                     <SheetHeader className="sr-only">
+                        <SheetTitle>Customize Product</SheetTitle>
+                     </SheetHeader>
+                    {customizationPanelContent}
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
         </main>
 
-        {/* Customization Panel */}
-        <aside className={cn("h-full overflow-y-auto w-2/5 md:w-auto md:col-span-2")}>
-            <Suspense fallback={<CustomizationPanelSkeleton />}>
-                {customizationPanelContent}
-            </Suspense>
-        </aside>
+        {/* Desktop-only Customization Panel */}
+        {!isMobile && (
+          <aside className={cn("h-full overflow-y-auto md:col-span-2 border-l")}>
+              <Suspense fallback={<CustomizationPanelSkeleton />}>
+                  {customizationPanelContent}
+              </Suspense>
+          </aside>
+        )}
     </div>
 
     {activeHotspot && (
