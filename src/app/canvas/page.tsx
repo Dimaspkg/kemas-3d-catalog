@@ -185,7 +185,7 @@ export default function CanvasPage() {
 
             {/* Mobile Exit Button */}
             <div className="absolute top-4 left-4 md:hidden z-20">
-                <Button asChild variant="secondary" size="icon">
+                <Button asChild variant="outline" size="icon">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
                         <span className="sr-only">Exit Customizer</span>
