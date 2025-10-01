@@ -37,7 +37,7 @@ const materialFormSchema = z.object({
     baseColorMap: z.any().optional(),
     normalMap: z.any().optional(),
     roughnessMap: z.any().optional(),
-    metalnessMap: z-any().optional(),
+    metalnessMap: z.any().optional(),
     aoMap: z.any().optional(),
 });
 type MaterialFormValues = z.infer<typeof materialFormSchema>;
