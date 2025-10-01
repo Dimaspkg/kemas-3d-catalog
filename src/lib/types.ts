@@ -55,4 +55,9 @@ export interface Material {
   thickness?: number;
   ior?: number;
   createdAt: any;
+  baseColorMap?: string;
+  normalMap?: string;
+  roughnessMap?: string;
+  metalnessMap?: string;
+  aoMap?: string;
 }

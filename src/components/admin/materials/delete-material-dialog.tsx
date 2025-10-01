@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { db } from '@/lib/firebase';
+import { db, supabase } from '@/lib/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import {
     AlertDialog,
@@ -18,24 +18,59 @@ import {
   } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { Trash2 } from 'lucide-react';
+import type { Material } from '@/lib/types';
 
 interface DeleteMaterialDialogProps {
-    materialId: string;
-    materialName: string;
+    material: Material;
     trigger?: React.ReactNode;
 }
 
-export function DeleteMaterialDialog({ materialId, materialName, trigger }: DeleteMaterialDialogProps) {
+function getPathFromUrl(url: string): string | null {
+    if (!url) return null;
+    try {
+        const urlObject = new URL(url);
+        const pathSegments = urlObject.pathname.split('/');
+        const bucketNameIndex = pathSegments.findIndex(segment => segment === 'public') + 1;
+        if (bucketNameIndex > 0 && bucketNameIndex + 1 < pathSegments.length) {
+             return pathSegments.slice(bucketNameIndex + 1).join('/');
+        }
+        return null;
+    } catch (error) {
+        console.error("Invalid URL:", error);
+        return null;
+    }
+}
+
+
+export function DeleteMaterialDialog({ material, trigger }: DeleteMaterialDialogProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
 
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            await deleteDoc(doc(db, "materials", materialId));
+            // Delete from Firestore
+            await deleteDoc(doc(db, "materials", material.id));
+
+            // Delete associated textures from Supabase
+            const texturePaths = [
+                material.baseColorMap,
+                material.normalMap,
+                material.roughnessMap,
+                material.metalnessMap,
+                material.aoMap,
+            ].map(url => url ? getPathFromUrl(url) : null).filter(Boolean) as string[];
+
+            if (texturePaths.length > 0) {
+                const { error: textureError } = await supabase.storage.from('product-images').remove(texturePaths);
+                if (textureError) {
+                    console.warn(`Could not delete some textures from storage: ${textureError.message}`);
+                }
+            }
+
             toast({
                 title: "Success",
-                description: `Material "${materialName}" deleted.`,
+                description: `Material "${material.name}" deleted.`,
             });
         } catch (error) {
             console.error("Error deleting material: ", error);
@@ -64,8 +99,8 @@ export function DeleteMaterialDialog({ materialId, materialName, trigger }: Dele
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                         This action cannot be undone. This will permanently delete the 
-                        <span className="font-bold"> {materialName} </span> 
-                        material.
+                        <span className="font-bold"> {material.name} </span> 
+                        material and all its associated texture files.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
