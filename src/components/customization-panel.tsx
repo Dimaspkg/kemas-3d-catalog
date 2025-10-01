@@ -144,7 +144,7 @@ export default function CustomizationPanel({
 
   return (
     <div className="flex flex-col h-full">
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 bg-background">
             <div className="px-2 flex justify-between items-center">
                  <div>
                     <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
@@ -159,7 +159,7 @@ export default function CustomizationPanel({
             </div>
             <Separator />
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 bg-background">
             <div className="p-4 pt-0 space-y-2">
               <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
                   {parts.map(part => (
@@ -177,7 +177,7 @@ export default function CustomizationPanel({
               </Accordion>
             </div>
         </ScrollArea>
-        <div className="p-4 border-t bg-background space-y-4">
+        <div className="p-4 border-t bg-background">
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <Button onClick={onScreenshot} variant="ghost" size="icon">
