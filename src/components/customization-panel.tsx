@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -28,9 +30,15 @@ export type CustomizationState = {
   };
 };
 
+interface MaterialCategory {
+  id: string;
+  name: string;
+}
+
 interface CustomizationPanelProps {
   product: Product;
   materials: Material[];
+  materialCategories: MaterialCategory[];
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
   onScreenshot: () => void;
@@ -60,6 +68,7 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: R
 export default function CustomizationPanel({
   product,
   materials,
+  materialCategories,
   state,
   onStateChange,
   onScreenshot
@@ -114,6 +123,34 @@ export default function CustomizationPanel({
     )
   }
 
+  const groupedMaterials = React.useMemo(() => {
+    const grouped: { [category: string]: Material[] } = {};
+    const uncategorized: Material[] = [];
+
+    materials.forEach(material => {
+        if (material.categories && material.categories.length > 0) {
+            material.categories.forEach(catName => {
+                if (!grouped[catName]) {
+                    grouped[catName] = [];
+                }
+                grouped[catName].push(material);
+            });
+        } else {
+            uncategorized.push(material);
+        }
+    });
+
+    // Sort categories based on the materialCategories prop
+    const sortedGrouped: { [category: string]: Material[] } = {};
+    materialCategories.forEach(cat => {
+        if (grouped[cat.name]) {
+            sortedGrouped[cat.name] = grouped[cat.name];
+        }
+    });
+
+    return { sorted: sortedGrouped, uncategorized };
+  }, [materials, materialCategories]);
+
   const renderPartControls = (part: string) => (
       <div className="flex items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-2">
@@ -132,11 +169,26 @@ export default function CustomizationPanel({
                   <SelectValue placeholder="Select material" />
               </SelectTrigger>
               <SelectContent>
-              {materials.map((option) => (
-                  <SelectItem key={option.id} value={option.id} className="capitalize">
-                  {option.name}
-                  </SelectItem>
-              ))}
+                {Object.entries(groupedMaterials.sorted).map(([categoryName, materialsInCategory]) => (
+                    <SelectGroup key={categoryName}>
+                        <SelectLabel>{categoryName}</SelectLabel>
+                        {materialsInCategory.map((option) => (
+                            <SelectItem key={option.id} value={option.id} className="capitalize">
+                                {option.name}
+                            </SelectItem>
+                        ))}
+                    </SelectGroup>
+                ))}
+                {groupedMaterials.uncategorized.length > 0 && (
+                    <SelectGroup>
+                        <SelectLabel>Others</SelectLabel>
+                         {groupedMaterials.uncategorized.map((option) => (
+                            <SelectItem key={option.id} value={option.id} className="capitalize">
+                            {option.name}
+                            </SelectItem>
+                        ))}
+                    </SelectGroup>
+                )}
               </SelectContent>
           </Select>
       </div>

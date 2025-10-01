@@ -51,6 +51,11 @@ function CustomizationPanelSkeleton() {
   );
 }
 
+interface MaterialCategory {
+  id: string;
+  name: string;
+}
+
 export default function CanvasPage() {
   const [customization, setCustomization] = useState<CustomizationState>({
     colors: {},
@@ -59,6 +64,7 @@ export default function CanvasPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [materialCategories, setMaterialCategories] = useState<MaterialCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
@@ -120,6 +126,12 @@ export default function CanvasPage() {
         const materialsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Material));
         setMaterials(materialsData);
     });
+
+    const materialCategoriesQuery = query(collection(db, 'materialCategories'), orderBy('name', 'asc'));
+    const unsubscribeMaterialCategories = onSnapshot(materialCategoriesQuery, (snapshot) => {
+        const categoriesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaterialCategory));
+        setMaterialCategories(categoriesData);
+    });
     
     // setLoading is handled by onModelLoad to avoid flicker
     if (!productId) {
@@ -128,6 +140,7 @@ export default function CanvasPage() {
     
     return () => {
         unsubscribeMaterials();
+        unsubscribeMaterialCategories();
     }
   }, [productId]);
   
@@ -154,6 +167,7 @@ export default function CanvasPage() {
       <CustomizationPanel
         product={product}
         materials={materials}
+        materialCategories={materialCategories}
         state={customization}
         onStateChange={setCustomization}
         onScreenshot={handleScreenshot}
