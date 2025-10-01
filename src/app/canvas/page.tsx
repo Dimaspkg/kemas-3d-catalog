@@ -196,7 +196,7 @@ export default function CanvasPage() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1 bg-secondary">
+                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1">
                     <Label htmlFor="open-state-switch" className="text-base cursor-pointer">Open</Label>
                     <Switch
                         id="open-state-switch"
