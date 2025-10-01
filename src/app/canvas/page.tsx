@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, Info, ChevronLeft } from "lucide-react";
+import { Info, ChevronLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -140,6 +140,7 @@ export default function CanvasPage() {
         product={product}
         state={customization}
         onStateChange={setCustomization}
+        onScreenshot={handleScreenshot}
       />
     )
   );
@@ -191,17 +192,6 @@ export default function CanvasPage() {
               )}
             </div>
             
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 hidden md:block">
-                <Button
-                    onClick={handleScreenshot}
-                    variant="outline"
-                    size="sm"
-                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
-                >
-                    <Camera className="mr-2 h-4 w-4" />
-                    <span>Screenshot</span>
-                </Button>
-            </div>
         </main>
 
         <aside className="h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted">

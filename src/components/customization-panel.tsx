@@ -18,7 +18,8 @@ import type { Product } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Camera } from "lucide-react";
+import { SparklesIcon } from "./icons/sparkles-icon";
 
 export type CustomizationState = {
   colors: {
@@ -33,6 +34,7 @@ interface CustomizationPanelProps {
   product: Product;
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
+  onScreenshot: () => void;
 }
 
 const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, name: string }) => {
@@ -60,6 +62,7 @@ export default function CustomizationPanel({
   product,
   state,
   onStateChange,
+  onScreenshot
 }: CustomizationPanelProps) {
   const parts = Object.keys(state.colors);
 
@@ -151,6 +154,18 @@ export default function CustomizationPanel({
               </Accordion>
             </div>
         </ScrollArea>
+        <div className="p-4 border-t bg-background space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+                 <Button onClick={onScreenshot} variant="outline">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Screenshot
+                 </Button>
+                 <Button>
+                    <SparklesIcon className="mr-2 h-4 w-4" />
+                    Tanya AI
+                </Button>
+            </div>
+        </div>
     </div>
   );
 }
