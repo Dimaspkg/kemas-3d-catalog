@@ -203,18 +203,6 @@ export default function CanvasPage() {
                     </Link>
                 </Button>
             </div>
-
-            {/* Mobile: Bottom controls */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 border-t z-20 flex justify-center">
-              <Button
-                    onClick={handleScreenshot}
-                    variant="outline"
-                    className="w-full max-w-xs"
-                >
-                    <Camera className="mr-2 h-5 w-5" />
-                    Screenshot
-                </Button>
-            </div>
         </main>
 
         <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted")}>
