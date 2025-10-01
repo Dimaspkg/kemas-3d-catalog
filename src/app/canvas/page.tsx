@@ -11,10 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Camera, X, Info } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Camera, Info } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -24,7 +21,6 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -66,8 +62,6 @@ export default function CanvasPage() {
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
-  const isMobile = useIsMobile();
-
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -150,8 +144,8 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className={cn("h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-10")}>
-        <main className={cn("relative flex-1 md:col-span-7 h-[60vh] md:h-full flex items-center justify-center")}>
+    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-10">
+        <main className="relative flex-1 md:col-span-7 h-[60vh] md:h-full flex items-center justify-center">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -180,6 +174,9 @@ export default function CanvasPage() {
                       size="sm"
                   />
               )}
+            </div>
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 hidden md:block">
                 <Button
                     onClick={handleScreenshot}
                     variant="outline"
@@ -187,25 +184,12 @@ export default function CanvasPage() {
                     className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30"
                 >
                     <Camera className="mr-2 h-4 w-4" />
-                    <span className="hidden md:inline">Screenshot</span>
-                </Button>
-            </div>
-            
-            <div className="absolute top-4 left-4 z-20">
-                <Button
-                    asChild
-                    variant="outline"
-                    size="icon"
-                    className="bg-black/20 backdrop-blur-lg border-white/20 text-white hover:bg-black/30 rounded-full"
-                >
-                    <Link href={product ? `/products/${product.id}`: '/products'}>
-                        <X className="h-5 w-5" />
-                    </Link>
+                    <span>Screenshot</span>
                 </Button>
             </div>
         </main>
 
-        <aside className={cn("h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted")}>
+        <aside className="h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
