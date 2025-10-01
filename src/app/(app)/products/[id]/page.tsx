@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
                 <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6 no-scrollbar">
                     <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
                     {product.description && (
-                        <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+                        <p className="text-muted-foreground whitespace-pre-wrap p-[100px]">{product.description}</p>
                     )}
                     <div className="flex flex-wrap gap-2">
                         {product.categories?.map(category => (
