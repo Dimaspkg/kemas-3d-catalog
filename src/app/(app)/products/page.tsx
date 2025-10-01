@@ -44,7 +44,7 @@ function FilterSidebar({
     loading: boolean
 }) {
     return (
-        <aside className="w-full md:w-64 lg:w-72 space-y-6 bg-muted p-6 rounded-lg">
+        <aside className="w-full md:w-64 lg:w-72 space-y-6">
             <p className="font-semibold text-lg">Categories</p>
             <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
                 <AccordionItem value="item-0" className="border-b-0">
