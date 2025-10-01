@@ -108,7 +108,7 @@ export default function ProductDetailPage() {
                         </div>
                     ))}
                 </div>
-                <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto px-4 md:px-0 md:py-0 space-y-6 no-scrollbar">
+                <div className="md:sticky md:top-[70px] md:h-[calc(100vh-70px-4rem)] md:overflow-y-auto px-[100px] md:py-0 space-y-6 no-scrollbar">
                     <h1 className="text-3xl md:text-4xl font-bold">{product.name}</h1>
                     
                     <div className="flex flex-wrap gap-2">
