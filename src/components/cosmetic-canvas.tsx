@@ -281,17 +281,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             const materialProps = materialsMap.get(partMaterialId);
             if (!materialProps) return;
 
-            let material = child.material as THREE.MeshStandardMaterial;
+            let material = child.material as THREE.MeshPhysicalMaterial;
 
             const opacity = materialProps.opacity ?? 1;
             const isTransparent = opacity < 1;
 
-            if (!(material instanceof THREE.MeshStandardMaterial) || material.name !== partMaterialId || material.transparent !== isTransparent) {
-                material = new THREE.MeshStandardMaterial({
-                    metalness: materialProps.metalness,
-                    roughness: materialProps.roughness,
-                    transparent: isTransparent,
-                });
+            if (!(material instanceof THREE.MeshPhysicalMaterial) || material.name !== partMaterialId) {
+                material = new THREE.MeshPhysicalMaterial({});
                 material.name = partMaterialId;
                 child.material = material;
             }
@@ -299,7 +295,20 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
-            material.opacity = opacity;
+
+            // Handle transparency
+            if (isTransparent) {
+                material.transmission = 1; // Use transmission for physically-based transparency
+                material.transparent = true;
+                material.opacity = opacity; // Still useful for blending
+                material.thickness = materialProps.thickness ?? 0;
+            } else {
+                material.transmission = 0;
+                material.transparent = false;
+                material.opacity = 1;
+                material.thickness = 0;
+            }
+            
             material.dithering = true;
             
             if (sceneRef.current?.environment) {

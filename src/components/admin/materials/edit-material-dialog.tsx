@@ -29,6 +29,7 @@ const materialFormSchema = z.object({
     metalness: z.number().min(0).max(1),
     roughness: z.number().min(0).max(1),
     opacity: z.number().min(0).max(1),
+    thickness: z.number().min(0).max(5),
 });
 type MaterialFormValues = z.infer<typeof materialFormSchema>;
 
@@ -48,12 +49,14 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
             metalness: material.metalness,
             roughness: material.roughness,
             opacity: material.opacity ?? 1,
+            thickness: material.thickness ?? 0,
         },
     });
 
     const metalnessValue = form.watch('metalness');
     const roughnessValue = form.watch('roughness');
     const opacityValue = form.watch('opacity');
+    const thicknessValue = form.watch('thickness');
 
     const onSubmit = async (data: MaterialFormValues) => {
         setIsSubmitting(true);
@@ -85,6 +88,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 metalness: material.metalness,
                 roughness: material.roughness,
                 opacity: material.opacity ?? 1,
+                thickness: material.thickness ?? 0,
             });
         }
         setOpen(isOpen);
@@ -178,6 +182,26 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                                         />
                                     </FormControl>
                                     <FormDescription>The opacity of the material. 0 for fully transparent, 1 for fully opaque.</FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="thickness"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Thickness ({thicknessValue})</FormLabel>
+                                    <FormControl>
+                                        <Slider
+                                            min={0}
+                                            max={5}
+                                            step={0.1}
+                                            defaultValue={[field.value]}
+                                            onValueChange={(value) => field.onChange(value[0])}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>For transparent materials, this controls thickness for refraction. 0 for thin.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

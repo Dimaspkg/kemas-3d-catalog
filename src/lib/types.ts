@@ -52,5 +52,6 @@ export interface Material {
   metalness: number;
   roughness: number;
   opacity?: number;
+  thickness?: number;
   createdAt: any;
 }
