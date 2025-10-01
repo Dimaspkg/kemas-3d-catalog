@@ -21,6 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -166,13 +167,16 @@ export default function CanvasPage() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                  <Switch
-                      id="open-state-switch"
-                      checked={showOpenModel}
-                      onCheckedChange={setShowOpenModel}
-                      aria-label="Toggle open/closed model view"
-                      size="sm"
-                  />
+                 <div className="flex items-center gap-2 bg-black/20 backdrop-blur-lg border border-white/20 text-white rounded-full px-3 py-1">
+                    <Label htmlFor="open-state-switch" className="text-sm cursor-pointer">Show Open</Label>
+                    <Switch
+                        id="open-state-switch"
+                        checked={showOpenModel}
+                        onCheckedChange={setShowOpenModel}
+                        aria-label="Toggle open/closed model view"
+                        size="sm"
+                    />
+                 </div>
               )}
             </div>
             
