@@ -12,10 +12,10 @@ import type { Settings } from "@/lib/types";
 function NavLinks() {
     return (
         <>
-            <Button variant="ghost" asChild className="justify-start">
+            <Button variant="ghost" asChild className="justify-start text-base">
                 <Link href="/">Home</Link>
             </Button>
-            <Button variant="ghost" asChild className="justify-start">
+            <Button variant="ghost" asChild className="justify-start text-base">
                 <Link href="/products">Products</Link>
             </Button>
             <HeaderClient />
@@ -43,10 +43,10 @@ export default async function Header() {
       
       {/* Desktop Nav */}
       <nav className="hidden md:flex items-center gap-2">
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" asChild className="text-base">
             <Link href="/">Home</Link>
         </Button>
-        <Button variant="ghost" asChild>
+        <Button variant="ghost" asChild className="text-base">
             <Link href="/products">Products</Link>
         </Button>
         <HeaderClient />
