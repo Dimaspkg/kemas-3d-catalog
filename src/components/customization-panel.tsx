@@ -178,12 +178,14 @@ export default function CustomizationPanel({
             </div>
         </ScrollArea>
         <div className="p-4 border-t bg-background space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                 <Button onClick={onScreenshot} variant="outline">
-                    <Camera className="mr-2 h-4 w-4" />
-                    Screenshot
-                 </Button>
-                 <Button onClick={handleInquiry}>
+            <div className="flex items-center justify-between gap-4">
+                <div>
+                    <Button onClick={onScreenshot} variant="ghost" size="icon">
+                        <Camera className="h-5 w-5" />
+                        <span className="sr-only">Screenshot</span>
+                    </Button>
+                </div>
+                 <Button onClick={handleInquiry} className="flex-grow">
                     <Send className="mr-2 h-4 w-4" />
                     Tanya Produk
                 </Button>
