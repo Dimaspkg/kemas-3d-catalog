@@ -16,6 +16,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { cleanPartName } from "@/lib/utils";
 import type { Product } from "@/lib/types";
 import { Separator } from "./ui/separator";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { LogOut } from "lucide-react";
 
 export type CustomizationState = {
   colors: {
@@ -121,6 +124,12 @@ export default function CustomizationPanel({
                     <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
                     <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
                 </div>
+                <Button asChild variant="ghost" size="icon">
+                    <Link href={`/products/${product.id}`}>
+                        <LogOut className="h-5 w-5" />
+                        <span className="sr-only">Exit Customizer</span>
+                    </Link>
+                </Button>
             </div>
             <Separator />
         </div>
