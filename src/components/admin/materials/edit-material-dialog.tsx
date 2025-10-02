@@ -52,6 +52,8 @@ const materialFormSchema = z.object({
     sheen: z.number().min(0).max(1),
     sheenColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color"),
     sheenRoughness: z.number().min(0).max(1),
+    clearcoat: z.number().min(0).max(1),
+    clearcoatRoughness: z.number().min(0).max(1),
     baseColorMapFile: z.any().optional(),
     normalMapFile: z.any().optional(),
     roughnessMapFile: z.any().optional(),
@@ -105,6 +107,8 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
             sheen: material.sheen ?? 0,
             sheenColor: material.sheenColor ?? "#ffffff",
             sheenRoughness: material.sheenRoughness ?? 1,
+            clearcoat: material.clearcoat ?? 0,
+            clearcoatRoughness: material.clearcoatRoughness ?? 0,
         },
     });
 
@@ -139,6 +143,8 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
     const iridescenceIORValue = form.watch('iridescenceIOR');
     const sheenValue = form.watch('sheen');
     const sheenRoughnessValue = form.watch('sheenRoughness');
+    const clearcoatValue = form.watch('clearcoat');
+    const clearcoatRoughnessValue = form.watch('clearcoatRoughness');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
         if (!file) return "";
@@ -176,6 +182,8 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 sheen: data.sheen,
                 sheenColor: data.sheenColor,
                 sheenRoughness: data.sheenRoughness,
+                clearcoat: data.clearcoat,
+                clearcoatRoughness: data.clearcoatRoughness,
             };
 
             const textureFields: { formKey: keyof MaterialFormValues; dbKey: keyof Material }[] = [
@@ -190,9 +198,10 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 const file = data[formKey]?.[0];
                 if (file) {
                     updatedData[dbKey] = await uploadTexture(file, user.uid);
+                } else if (material[dbKey]) {
+                    updatedData[dbKey] = material[dbKey];
                 } else {
-                    // Preserve existing value if no new file is uploaded
-                    updatedData[dbKey] = material[dbKey] || null;
+                    delete updatedData[dbKey];
                 }
             }
             
@@ -236,6 +245,8 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 sheen: material.sheen ?? 0,
                 sheenColor: material.sheenColor ?? "#ffffff",
                 sheenRoughness: material.sheenRoughness ?? 1,
+                clearcoat: material.clearcoat ?? 0,
+                clearcoatRoughness: material.clearcoatRoughness ?? 0,
             });
         }
         setOpen(isOpen);
@@ -587,6 +598,48 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                                     )}
                                 />
 
+                                <h4 className="font-medium text-sm border-t pt-4">Clearcoat Properties (for car paint, etc.)</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="clearcoat"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Clearcoat ({clearcoatValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Adds a clear protective layer. 0 is off.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="clearcoatRoughness"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Clearcoat Roughness ({clearcoatRoughnessValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Roughness of the clearcoat layer.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
 
                                 <h4 className="font-medium text-sm border-t pt-4">Texture Maps (Replace existing)</h4>
 
@@ -677,5 +730,3 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
         </Dialog>
     );
 }
-
-    

@@ -63,6 +63,8 @@ export interface Material {
   sheen?: number;
   sheenColor?: string;
   sheenRoughness?: number;
+  clearcoat?: number;
+  clearcoatRoughness?: number;
   createdAt: any;
   baseColorMap?: string;
   normalMap?: string;

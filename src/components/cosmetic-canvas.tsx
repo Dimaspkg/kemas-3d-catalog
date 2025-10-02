@@ -345,6 +345,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 material.sheenRoughness = materialProps.sheenRoughness ?? 1;
             }
 
+            // Handle clearcoat
+            material.clearcoat = materialProps.clearcoat ?? 0;
+            if (material.clearcoat > 0) {
+                material.clearcoatRoughness = materialProps.clearcoatRoughness ?? 0;
+            }
+
             material.dithering = true;
             
             if (sceneRef.current?.environment) {

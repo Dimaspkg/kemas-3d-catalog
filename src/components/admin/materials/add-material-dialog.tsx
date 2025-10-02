@@ -51,6 +51,8 @@ const materialFormSchema = z.object({
     sheen: z.number().min(0).max(1),
     sheenColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color"),
     sheenRoughness: z.number().min(0).max(1),
+    clearcoat: z.number().min(0).max(1),
+    clearcoatRoughness: z.number().min(0).max(1),
     baseColorMap: z.any().optional(),
     normalMap: z.any().optional(),
     roughnessMap: z.any().optional(),
@@ -72,7 +74,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1, iridescence: 0, iridescenceIOR: 1.3, iridescenceThicknessMin: 100, iridescenceThicknessMax: 400, sheen: 0, sheenColor: "#ffffff", sheenRoughness: 1 },
+        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1, iridescence: 0, iridescenceIOR: 1.3, iridescenceThicknessMin: 100, iridescenceThicknessMax: 400, sheen: 0, sheenColor: "#ffffff", sheenRoughness: 1, clearcoat: 0, clearcoatRoughness: 0 },
     });
 
     useEffect(() => {
@@ -99,6 +101,8 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const iridescenceIORValue = form.watch('iridescenceIOR');
     const sheenValue = form.watch('sheen');
     const sheenRoughnessValue = form.watch('sheenRoughness');
+    const clearcoatValue = form.watch('clearcoat');
+    const clearcoatRoughnessValue = form.watch('clearcoatRoughness');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
         if (!file) return "";
@@ -150,6 +154,8 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 sheen: data.sheen,
                 sheenColor: data.sheenColor,
                 sheenRoughness: data.sheenRoughness,
+                clearcoat: data.clearcoat,
+                clearcoatRoughness: data.clearcoatRoughness,
                 ...textureUrls,
                 createdAt: new Date(),
                 userId: user.uid,
@@ -512,6 +518,48 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                                 />
                                             </FormControl>
                                             <FormDescription>Roughness of the sheen layer.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                
+                                <h4 className="font-medium text-sm border-t pt-4">Clearcoat Properties (for car paint, etc.)</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="clearcoat"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Clearcoat ({clearcoatValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Adds a clear protective layer. 0 is off.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="clearcoatRoughness"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Clearcoat Roughness ({clearcoatRoughnessValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Roughness of the clearcoat layer.</FormDescription>
                                             <FormMessage />
                                         </FormItem>
                                     )}
