@@ -233,7 +233,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (!partNames.includes(partName)) {
                     partNames.push(partName);
                     if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${child.material.color.getHexString()}`;
+                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
                     }
                 }
             }
@@ -251,7 +251,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 const hotspotMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, transparent: true, opacity: 0.7 });
                 const hotspotMesh = new THREE.Mesh(hotspotGeometry, hotspotMaterial);
                 hotspotMesh.position.set(hp.position.x, hp.position.y, hp.position.z);
-                hotspotMesh.name = `hotspot_${hp.id}`;
+                hotspotMesh.name = `hotspot_${'' + hp.id}`;
                 hotspotMesh.userData = hp;
                 hotspotsRef.current.add(hotspotMesh);
             });
@@ -382,11 +382,34 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       const renderer = rendererRef.current;
       const scene = sceneRef.current;
       const camera = cameraRef.current;
-      if (renderer && scene && camera) {
+      const mount = mountRef.current;
+
+      if (renderer && scene && camera && mount) {
+        // Store original size
+        const originalSize = new THREE.Vector2();
+        renderer.getSize(originalSize);
+
+        // Set to 4K
+        const screenshotWidth = 3840;
+        const screenshotHeight = 2160;
+        renderer.setSize(screenshotWidth, screenshotHeight);
+        
+        const originalAspect = camera.aspect;
+        camera.aspect = screenshotWidth / screenshotHeight;
+        camera.updateProjectionMatrix();
+
+        // Render and capture
         renderer.render(scene, camera);
         const dataURL = renderer.domElement.toDataURL('image/png');
+        
+        // Restore original size
+        camera.aspect = originalAspect;
+        camera.updateProjectionMatrix();
+        renderer.setSize(originalSize.x, originalSize.y);
+        
+        // Trigger download
         const link = document.createElement('a');
-        link.download = 'product-customization.png';
+        link.download = 'product-customization-4k.png';
         link.href = dataURL;
         link.click();
       }
@@ -406,3 +429,5 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
