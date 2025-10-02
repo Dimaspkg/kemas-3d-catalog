@@ -187,78 +187,72 @@ export default function CustomizationPanel({
 
   return (
     <div className="flex flex-col h-full">
-        <div className="p-4 space-y-4 bg-background">
-            <div className="px-2 flex flex-col items-center justify-center gap-2">
-                 <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
-                <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
-            </div>
+        <div className="p-4 space-y-2 bg-background">
+            <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
+            <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
             <Separator />
         </div>
         <ScrollArea className="flex-1 bg-background">
-            <div className="p-4 pt-0 space-y-4">
-                 <div className="flex items-center justify-center gap-4 py-2">
-                    <Button variant="ghost" size="icon" onClick={handlePrevPart}>
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <div className="text-center">
-                        <p className="text-sm font-medium">{cleanPartName(currentPartName)}</p>
+            <div className="p-4 pt-2 space-y-6">
+                
+                {/* Part Selector */}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Part</p>
                         <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={handleNextPart}>
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center justify-between gap-2">
+                        <Button variant="outline" size="icon-sm" onClick={handlePrevPart}>
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <span className="text-sm text-center font-medium flex-1 truncate">{cleanPartName(currentPartName)}</span>
+                        <Button variant="outline" size="icon-sm" onClick={handleNextPart}>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
-              <div className="space-y-4 p-1">
-                  <div className="flex items-center justify-between gap-4 px-3">
-                      <p className="text-sm font-medium">Color</p>
-                      <ColorSwatch
+
+                {/* Color Selector */}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium">Color</p>
+                        <ColorSwatch
                           name={currentPartName}
                           value={state.colors[currentPartName]}
                           onChange={handleColorChange(currentPartName)}
-                      />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
-                        <div key={categoryName} className="space-y-2">
-                            <Label className="px-3 text-xs text-muted-foreground font-medium">{categoryName}</Label>
-                            <Carousel
-                                opts={{
-                                    align: "start",
-                                    dragFree: true,
-                                }}
-                                className="w-full"
-                            >
-                                <CarouselContent className="-ml-2">
-                                    {materialsInCategory.map((material) => (
-                                        <CarouselItem key={material.id} className="pl-2 basis-auto">
-                                            <div className="p-1">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className={cn(
-                                                        "h-auto py-2 px-4 whitespace-normal",
-                                                        state.materials[currentPartName] === material.id && "ring-2 ring-primary"
-                                                    )}
-                                                    onClick={() => handleMaterialChange(currentPartName, material.id)}
-                                                >
-                                                    {material.name}
-                                                </Button>
-                                            </div>
-                                        </CarouselItem>
-                                    ))}
-                                </CarouselContent>
-                                <CarouselPrevious className="hidden md:flex" />
-                                <CarouselNext className="hidden md:flex" />
-                            </Carousel>
-                        </div>
-                    ))}
-                  </div>
+                        />
+                    </div>
+                </div>
 
-              </div>
+                {/* Material Selector */}
+                <div className="space-y-4">
+                  <p className="text-sm font-medium">Materials</p>
+                  {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                      <div key={categoryName} className="space-y-2">
+                          <Label className="text-xs text-muted-foreground font-medium">{categoryName}</Label>
+                           <div className="flex flex-wrap gap-2">
+                              {materialsInCategory.map((material) => (
+                                  <Button
+                                      key={material.id}
+                                      variant="outline"
+                                      size="sm"
+                                      className={cn(
+                                          "h-auto py-1.5 px-3 text-xs",
+                                          state.materials[currentPartName] === material.id && "ring-2 ring-primary"
+                                      )}
+                                      onClick={() => handleMaterialChange(currentPartName, material.id)}
+                                  >
+                                      {material.name}
+                                  </Button>
+                              ))}
+                          </div>
+                      </div>
+                  ))}
+                </div>
+
             </div>
         </ScrollArea>
-        <div className="p-4 border-t bg-background">
+        <div className="p-4 border-t bg-background mt-auto">
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <Button onClick={onScreenshot} variant="outline" size="icon">
@@ -275,3 +269,4 @@ export default function CustomizationPanel({
     </div>
   );
 }
+
