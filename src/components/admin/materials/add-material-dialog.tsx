@@ -48,6 +48,9 @@ const materialFormSchema = z.object({
     iridescenceIOR: z.number().min(1).max(2.5),
     iridescenceThicknessMin: z.number().min(0).default(100),
     iridescenceThicknessMax: z.number().min(0).default(400),
+    sheen: z.number().min(0).max(1),
+    sheenColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color"),
+    sheenRoughness: z.number().min(0).max(1),
     baseColorMap: z.any().optional(),
     normalMap: z.any().optional(),
     roughnessMap: z.any().optional(),
@@ -69,7 +72,7 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
-        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1, iridescence: 0, iridescenceIOR: 1.3, iridescenceThicknessMin: 100, iridescenceThicknessMax: 400 },
+        defaultValues: { name: "", categories: [], metalness: 0, roughness: 0.5, opacity: 1, thickness: 0, ior: 1.5, roughnessTransmission: 0, envMapIntensity: 1, iridescence: 0, iridescenceIOR: 1.3, iridescenceThicknessMin: 100, iridescenceThicknessMax: 400, sheen: 0, sheenColor: "#ffffff", sheenRoughness: 1 },
     });
 
     useEffect(() => {
@@ -94,6 +97,8 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
     const envMapIntensityValue = form.watch('envMapIntensity');
     const iridescenceValue = form.watch('iridescence');
     const iridescenceIORValue = form.watch('iridescenceIOR');
+    const sheenValue = form.watch('sheen');
+    const sheenRoughnessValue = form.watch('sheenRoughness');
     
     const uploadTexture = async (file: File, userId: string): Promise<string> => {
         if (!file) return "";
@@ -142,6 +147,9 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                 iridescence: data.iridescence,
                 iridescenceIOR: data.iridescenceIOR,
                 iridescenceThicknessRange: [data.iridescenceThicknessMin, data.iridescenceThicknessMax],
+                sheen: data.sheen,
+                sheenColor: data.sheenColor,
+                sheenRoughness: data.sheenRoughness,
                 ...textureUrls,
                 createdAt: new Date(),
                 userId: user.uid,
@@ -453,6 +461,61 @@ export function AddMaterialDialog({ user }: AddMaterialDialogProps) {
                                         )}
                                     />
                                 </div>
+                                
+                                <h4 className="font-medium text-sm border-t pt-4">Sheen Properties (for fabric-like looks)</h4>
+                                <FormField
+                                    control={form.control}
+                                    name="sheen"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Sheen ({sheenValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Amount of sheen, 0 is off. Good for velvet-like materials.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="sheenColor"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Sheen Color</FormLabel>
+                                            <FormControl>
+                                                <Input type="color" {...field} className="h-10 p-1"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="sheenRoughness"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Sheen Roughness ({sheenRoughnessValue})</FormLabel>
+                                            <FormControl>
+                                                <Slider
+                                                    min={0}
+                                                    max={1}
+                                                    step={0.1}
+                                                    defaultValue={[field.value]}
+                                                    onValueChange={(value) => field.onChange(value[0])}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>Roughness of the sheen layer.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
 
                                 <h4 className="font-medium text-sm border-t pt-4">Texture Maps (Optional)</h4>

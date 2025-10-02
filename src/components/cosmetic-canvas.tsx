@@ -338,6 +338,13 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
               material.iridescenceThicknessRange = materialProps.iridescenceThicknessRange ?? [100, 400];
             }
 
+            // Handle sheen
+            material.sheen = materialProps.sheen ?? 0;
+            if (material.sheen > 0) {
+                material.sheenColor.set(materialProps.sheenColor ?? '#ffffff');
+                material.sheenRoughness = materialProps.sheenRoughness ?? 1;
+            }
+
             material.dithering = true;
             
             if (sceneRef.current?.environment) {

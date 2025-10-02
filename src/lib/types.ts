@@ -60,6 +60,9 @@ export interface Material {
   iridescence?: number;
   iridescenceIOR?: number;
   iridescenceThicknessRange?: [number, number];
+  sheen?: number;
+  sheenColor?: string;
+  sheenRoughness?: number;
   createdAt: any;
   baseColorMap?: string;
   normalMap?: string;
