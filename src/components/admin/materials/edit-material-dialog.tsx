@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { db, supabase } from '@/lib/firebase';
+import { db, supabase, auth } from '@/lib/firebase';
 import { doc, updateDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import {
     Dialog,
@@ -28,6 +28,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 
 interface MaterialCategory {
   id: string;
@@ -83,6 +84,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
     const { toast } = useToast();
     const [categories, setCategories] = useState<MaterialCategory[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
@@ -105,6 +107,13 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
             sheenRoughness: material.sheenRoughness ?? 1,
         },
     });
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         if (!open) return;
@@ -145,27 +154,13 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
 
 
     const onSubmit = async (data: MaterialFormValues) => {
-        if (!material.id) return;
+        if (!material.id || !user) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Material ID or user not found.' });
+            return;
+        };
         setIsSubmitting(true);
         try {
-             const textureUploads = {
-                baseColorMap: data.baseColorMapFile?.[0] ? uploadTexture(data.baseColorMapFile[0], "admin") : Promise.resolve(material.baseColorMap || undefined),
-                normalMap: data.normalMapFile?.[0] ? uploadTexture(data.normalMapFile[0], "admin") : Promise.resolve(material.normalMap || undefined),
-                roughnessMap: data.roughnessMapFile?.[0] ? uploadTexture(data.roughnessMapFile[0], "admin") : Promise.resolve(material.roughnessMap || undefined),
-                metalnessMap: data.metalnessMapFile?.[0] ? uploadTexture(data.metalnessMapFile[0], "admin") : Promise.resolve(material.metalnessMap || undefined),
-                aoMap: data.aoMapFile?.[0] ? uploadTexture(data.aoMapFile[0], "admin") : Promise.resolve(material.aoMap || undefined),
-            };
-
-            const textureUrls = await Promise.all(Object.values(textureUploads)).then(results => {
-                const keys = Object.keys(textureUploads);
-                return results.reduce((acc, url, index) => {
-                    acc[keys[index]] = url;
-                    return acc;
-                }, {} as { [key: string]: string | undefined });
-            });
-
-            const materialRef = doc(db, "materials", material.id);
-            await updateDoc(materialRef, { 
+            const updatedData: Partial<Material> = {
                 name: data.name,
                 categories: data.categories || [],
                 metalness: data.metalness,
@@ -181,20 +176,38 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 sheen: data.sheen,
                 sheenColor: data.sheenColor,
                 sheenRoughness: data.sheenRoughness,
-                ...textureUrls,
-             });
+            };
+
+            const textureFields: (keyof Material)[] = ['baseColorMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'];
+            const formFileFields: (keyof MaterialFormValues)[] = ['baseColorMapFile', 'normalMapFile', 'roughnessMapFile', 'metalnessMapFile', 'aoMapFile'];
+
+            for (let i = 0; i < textureFields.length; i++) {
+                const textureKey = textureFields[i];
+                const fileKey = formFileFields[i];
+                const file = data[fileKey]?.[0];
+
+                if (file) {
+                    updatedData[textureKey] = await uploadTexture(file, user.uid);
+                } else {
+                    updatedData[textureKey] = material[textureKey] || undefined;
+                }
+            }
+            
+            const materialRef = doc(db, "materials", material.id);
+            await updateDoc(materialRef, updatedData);
+
             toast({
                 title: "Success",
                 description: `Material updated to "${data.name}".`,
             });
             form.reset({ ...data });
             setOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error updating material: ", error);
             toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to update material.",
+                description: error.message || "Failed to update material.",
             });
         } finally {
             setIsSubmitting(false);
@@ -661,3 +674,5 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
         </Dialog>
     );
 }
+
+    
