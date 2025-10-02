@@ -195,8 +195,7 @@ export default function CustomizationPanel({
         <ScrollArea className="flex-1 bg-background">
             <div className="p-4 pt-2 space-y-6">
                 
-                {/* Part Selector */}
-                <div className="space-y-2">
+                <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium">Part</p>
                         <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
@@ -212,7 +211,6 @@ export default function CustomizationPanel({
                     </div>
                 </div>
 
-                {/* Color Selector */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium">Color</p>
@@ -224,7 +222,6 @@ export default function CustomizationPanel({
                     </div>
                 </div>
 
-                {/* Material Selector */}
                 <div className="space-y-4">
                   <p className="text-sm font-medium">Materials</p>
                   {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
@@ -269,4 +266,3 @@ export default function CustomizationPanel({
     </div>
   );
 }
-
