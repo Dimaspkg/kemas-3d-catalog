@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, Settings2 } from "lucide-react";
+import { Info, ChevronLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
@@ -74,7 +73,6 @@ export default function CanvasPage() {
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
   const isMobile = useIsMobile();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
@@ -181,12 +179,11 @@ export default function CanvasPage() {
 
   const parts = Object.keys(customization.colors);
   const currentPartName = parts[currentPartIndex];
-  const currentHexColor = customization.colors[currentPartName];
 
   return (
     <>
     <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row">
-        <main className="relative flex-1 flex items-center justify-center flex-grow md:flex-[0.8]">
+        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full md:flex-[0.8]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -230,33 +227,13 @@ export default function CanvasPage() {
                  </div>
               )}
             </div>
-
-            {/* Mobile customization trigger */}
-            {isMobile && !loading && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                  <SheetTrigger asChild>
-                    <Button size="lg" className="rounded-full shadow-lg">
-                      <Settings2 className="mr-2 h-5 w-5" />
-                      Customize
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="bottom" className="h-[75vh] flex flex-col p-0 border-t-2">
-                    {customizationPanelContent}
-                  </SheetContent>
-                </Sheet>
-              </div>
-            )}
         </main>
 
-        {/* Desktop customization panel */}
-        {!isMobile && (
-          <aside className="flex-shrink-0 bg-background border-l md:flex-[0.2] h-full overflow-y-auto">
-              <Suspense fallback={<CustomizationPanelSkeleton />}>
-                  {customizationPanelContent}
-              </Suspense>
-          </aside>
-        )}
+        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-background border-t md:border-t-0 md:border-l md:flex-[0.2] overflow-y-auto">
+            <Suspense fallback={<CustomizationPanelSkeleton />}>
+                {customizationPanelContent}
+            </Suspense>
+        </aside>
     </div>
 
     {activeHotspot && (
@@ -280,3 +257,5 @@ export default function CanvasPage() {
     </>
   );
 }
+
+    
