@@ -231,12 +231,6 @@ export default function CanvasPage() {
               )}
             </div>
 
-            {currentHexColor && (
-              <div className="absolute bottom-4 right-4 z-20 bg-background/50 backdrop-blur-sm border rounded-md px-2 py-1">
-                <p className="text-sm font-mono text-foreground">{currentHexColor}</p>
-              </div>
-            )}
-
             {/* Mobile customization trigger */}
             {isMobile && !loading && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
