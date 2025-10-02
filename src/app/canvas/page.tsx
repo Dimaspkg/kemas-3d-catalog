@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft } from "lucide-react";
+import { Info, ChevronLeft, Settings2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -71,13 +73,14 @@ export default function CanvasPage() {
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
+  const isMobile = useIsMobile();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
     const newInitialColors: Record<string, string> = {};
     const newInitialMaterials: { [key: string]: string } = {};
     
-    // Find default material or take the first one
     const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
@@ -132,7 +135,6 @@ export default function CanvasPage() {
         setMaterialCategories(categoriesData);
     });
     
-    // setLoading is handled by onModelLoad to avoid flicker
     if (!productId) {
         setLoading(false);
     }
@@ -176,8 +178,8 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:grid md:grid-cols-10">
-        <main className="relative flex-1 md:col-span-7 h-[60vh] md:h-full flex items-center justify-center">
+    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col">
+        <main className="relative flex-1 flex items-center justify-center flex-grow">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -196,8 +198,8 @@ export default function CanvasPage() {
             
             {isModelLoading && <Skeleton className="absolute inset-0 w-full h-full z-10" />}
 
-            {/* Mobile Exit Button */}
-            <div className="absolute top-4 left-4 md:hidden z-20">
+            {/* Back Button */}
+            <div className="absolute top-4 left-4 z-20">
                 <Button asChild variant="outline" size="icon">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
@@ -209,8 +211,8 @@ export default function CanvasPage() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1">
-                    <Label htmlFor="open-state-switch" className="text-base cursor-pointer">Open</Label>
+                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1 bg-background/50 backdrop-blur-sm border">
+                    <Label htmlFor="open-state-switch" className="text-base cursor-pointer hidden md:inline">Open</Label>
                     <Switch
                         id="open-state-switch"
                         checked={showOpenModel}
@@ -220,14 +222,35 @@ export default function CanvasPage() {
                  </div>
               )}
             </div>
-            
+
+            {/* Mobile customization trigger */}
+            {isMobile && !loading && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button size="lg" className="rounded-full shadow-lg">
+                      <Settings2 className="mr-2 h-5 w-5" />
+                      Customize
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="bottom" className="h-[75vh] flex flex-col p-0 border-t-2">
+                    {customizationPanelContent}
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
         </main>
 
-        <aside className="h-[40vh] md:h-full overflow-y-auto md:col-span-3 bg-muted">
-            <Suspense fallback={<CustomizationPanelSkeleton />}>
-                {customizationPanelContent}
-            </Suspense>
-        </aside>
+        {/* Desktop customization panel */}
+        {!isMobile && (
+          <div className="flex-shrink-0 bg-background border-t">
+              <aside className="h-full overflow-y-auto">
+                  <Suspense fallback={<CustomizationPanelSkeleton />}>
+                      {customizationPanelContent}
+                  </Suspense>
+              </aside>
+          </div>
+        )}
     </div>
 
     {activeHotspot && (

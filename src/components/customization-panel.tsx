@@ -52,7 +52,6 @@ const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (newV
 
     const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTextValue(e.target.value);
-        // Basic validation for hex color format
         if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
             onChange(e.target.value);
         }
