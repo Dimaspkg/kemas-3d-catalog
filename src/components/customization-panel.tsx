@@ -10,7 +10,7 @@ import type { Product, Material } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { LogOut, Camera, Send } from "lucide-react";
+import { Camera, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
@@ -93,7 +93,17 @@ export default function CustomizationPanel({
   onStateChange,
   onScreenshot
 }: CustomizationPanelProps) {
+  const [currentPartIndex, setCurrentPartIndex] = React.useState(0);
   const parts = Object.keys(state.colors);
+  const currentPartName = parts[currentPartIndex];
+
+  const handleNextPart = () => {
+    setCurrentPartIndex((prev) => (prev + 1) % parts.length);
+  };
+
+  const handlePrevPart = () => {
+    setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
+  };
 
   const handleColorChange =
     (part: string) =>
@@ -228,31 +238,31 @@ export default function CustomizationPanel({
   return (
     <div className="flex flex-col h-full">
         <div className="p-4 space-y-4 bg-background">
-            <div className="px-2 flex justify-between items-center">
-                 <div>
-                    <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
-                    <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
-                </div>
-                <Button asChild variant="ghost" size="icon" className="hidden md:inline-flex">
-                    <Link href={`/products/${product.id}`}>
-                        <LogOut className="h-5 w-5" />
-                        <span className="sr-only">Exit Customizer</span>
-                    </Link>
-                </Button>
+            <div className="px-2 flex flex-col items-center justify-center gap-2">
+                 <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
+                <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
             </div>
             <Separator />
         </div>
         <ScrollArea className="flex-1 bg-background">
             <div className="p-4 pt-0 space-y-2">
+                 <div className="flex items-center justify-center gap-4 py-2">
+                    <Button variant="ghost" size="icon" onClick={handlePrevPart}>
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="text-center">
+                        <p className="text-sm font-medium">{cleanPartName(currentPartName)}</p>
+                        <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={handleNextPart}>
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
               <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
                   {parts.map(part => (
+                    part === currentPartName &&
                       <AccordionItem value={part} key={part} className="bg-transparent rounded-lg border-0 mb-2">
-                          <AccordionTrigger className="px-4 text-sm md:text-base hover:no-underline">
-                              <span className="truncate" title={cleanPartName(part)}>
-                                  {cleanPartName(part)}
-                              </span>
-                          </AccordionTrigger>
-                          <AccordionContent>
+                          <AccordionContent className="border-t pt-4">
                               {renderPartControls(part)}
                           </AccordionContent>
                       </AccordionItem>

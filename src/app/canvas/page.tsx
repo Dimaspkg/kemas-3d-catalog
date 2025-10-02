@@ -176,6 +176,11 @@ export default function CanvasPage() {
     )
   );
 
+  const parts = Object.keys(customization.colors);
+  const [currentPartIndex, setCurrentPartIndex] = useState(0);
+  const currentPartName = parts[currentPartIndex];
+  const currentHexColor = customization.colors[currentPartName];
+
   return (
     <>
     <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row">
@@ -192,6 +197,7 @@ export default function CanvasPage() {
                   onModelLoad={handleModelLoad}
                   onLoadingChange={handleLoadingChange}
                   onHotspotClick={handleHotspotClick}
+                  activePart={currentPartName}
                 />
               </div>
             </Suspense>
@@ -222,6 +228,12 @@ export default function CanvasPage() {
                  </div>
               )}
             </div>
+
+            {currentHexColor && (
+              <div className="absolute bottom-4 right-4 z-20 bg-background/50 backdrop-blur-sm border rounded-md px-2 py-1">
+                <p className="text-sm font-mono text-foreground">{currentHexColor}</p>
+              </div>
+            )}
 
             {/* Mobile customization trigger */}
             {isMobile && !loading && (

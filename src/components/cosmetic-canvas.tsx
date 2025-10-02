@@ -18,6 +18,7 @@ type CosmeticCanvasProps = CustomizationState & {
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
     onLoadingChange: (isLoading: boolean) => void;
     onHotspotClick: (hotspot: Hotspot) => void;
+    activePart?: string;
 };
 
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
@@ -30,6 +31,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   onModelLoad,
   onLoadingChange,
   onHotspotClick,
+  activePart,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -42,6 +44,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const [hasCustomized, setHasCustomized] = useState(false);
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
+  const outlinePassRef = useRef<any>(); // Using any for outline pass to avoid full import
+  const composerRef = useRef<any>(); // Using any for effect composer
 
   useEffect(() => {
     onLoadingChange(isLoading);
