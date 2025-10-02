@@ -160,7 +160,7 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
         };
         setIsSubmitting(true);
         try {
-            const updatedData: Partial<Material> = {
+            const updatedData: { [key: string]: any } = {
                 name: data.name,
                 categories: data.categories || [],
                 metalness: data.metalness,
@@ -178,18 +178,21 @@ export function EditMaterialDialog({ material, trigger }: EditMaterialDialogProp
                 sheenRoughness: data.sheenRoughness,
             };
 
-            const textureFields: (keyof Material)[] = ['baseColorMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'];
-            const formFileFields: (keyof MaterialFormValues)[] = ['baseColorMapFile', 'normalMapFile', 'roughnessMapFile', 'metalnessMapFile', 'aoMapFile'];
+            const textureFields: { formKey: keyof MaterialFormValues; dbKey: keyof Material }[] = [
+                { formKey: 'baseColorMapFile', dbKey: 'baseColorMap' },
+                { formKey: 'normalMapFile', dbKey: 'normalMap' },
+                { formKey: 'roughnessMapFile', dbKey: 'roughnessMap' },
+                { formKey: 'metalnessMapFile', dbKey: 'metalnessMap' },
+                { formKey: 'aoMapFile', dbKey: 'aoMap' },
+            ];
 
-            for (let i = 0; i < textureFields.length; i++) {
-                const textureKey = textureFields[i];
-                const fileKey = formFileFields[i];
-                const file = data[fileKey]?.[0];
-
+            for (const { formKey, dbKey } of textureFields) {
+                const file = data[formKey]?.[0];
                 if (file) {
-                    updatedData[textureKey] = await uploadTexture(file, user.uid);
+                    updatedData[dbKey] = await uploadTexture(file, user.uid);
                 } else {
-                    updatedData[textureKey] = material[textureKey] || undefined;
+                    // Preserve existing value if no new file is uploaded
+                    updatedData[dbKey] = material[dbKey] || null;
                 }
             }
             
