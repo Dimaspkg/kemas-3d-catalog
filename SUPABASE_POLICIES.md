@@ -11,7 +11,11 @@ Jalankan perintah ini di **SQL Editor** pada dasbor Supabase Anda.
 Bucket ini digunakan untuk menyimpan logo situs.
 
 ```sql
--- 1. Aktifkan Row Level Security untuk objects di storage
+-- Hapus kebijakan lama (jika ada) untuk menghindari konflik
+DROP POLICY IF EXISTS "Public Read Access for Assets" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Write Access for Assets" ON storage.objects;
+
+-- 1. Aktifkan Row Level Security untuk objects di storage (jalankan sekali saja)
 ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- 2. Buat kebijakan untuk akses BACA publik
@@ -21,7 +25,7 @@ ON storage.objects FOR SELECT
 USING ( bucket_id = 'assets' );
 
 -- 3. Buat kebijakan untuk akses TULIS, PERBARUI, HAPUS oleh pengguna terotentikasi
--- Kebijakan ini hanya mengizinkan pengguna yang sudah login untuk mengunggah, mengubah, atau menghapus file.
+-- Kebijakan ini hanya mengizinkan pengguna yang sudah login (peran 'authenticated') untuk mengunggah, mengubah, atau menghapus file.
 CREATE POLICY "Authenticated Write Access for Assets"
 ON storage.objects FOR ALL
 USING ( bucket_id = 'assets' AND auth.role() = 'authenticated' )
@@ -36,6 +40,10 @@ WITH CHECK ( bucket_id = 'assets' AND auth.role() = 'authenticated' );
 Bucket ini digunakan untuk menyimpan gambar-gambar produk.
 
 ```sql
+-- Hapus kebijakan lama (jika ada) untuk menghindari konflik
+DROP POLICY IF EXISTS "Public Read Access for Product Images" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Write Access for Product Images" ON storage.objects;
+
 -- 1. Buat kebijakan untuk akses BACA publik
 CREATE POLICY "Public Read Access for Product Images"
 ON storage.objects FOR SELECT
@@ -55,6 +63,10 @@ WITH CHECK ( bucket_id = 'product-images' AND auth.role() = 'authenticated' );
 Bucket ini digunakan untuk menyimpan file model 3D (.glb).
 
 ```sql
+-- Hapus kebijakan lama (jika ada) untuk menghindari konflik
+DROP POLICY IF EXISTS "Public Read Access for Product Models" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Write Access for Product Models" ON storage.objects;
+
 -- 1. Buat kebijakan untuk akses BACA publik
 CREATE POLICY "Public Read Access for Product Models"
 ON storage.objects FOR SELECT
@@ -74,6 +86,10 @@ WITH CHECK ( bucket_id = 'product-models' AND auth.role() = 'authenticated' );
 Bucket ini digunakan untuk menyimpan file environment 3D (.hdr).
 
 ```sql
+-- Hapus kebijakan lama (jika ada) untuk menghindari konflik
+DROP POLICY IF EXISTS "Public Read Access for Environment Maps" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Write Access for Environment Maps" ON storage.objects;
+
 -- 1. Buat kebijakan untuk akses BACA publik
 CREATE POLICY "Public Read Access for Environment Maps"
 ON storage.objects FOR SELECT
