@@ -4,11 +4,9 @@
 import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "./ui/scroll-area";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cleanPartName } from "@/lib/utils";
 import type { Product, Material } from "@/lib/types";
 import { Separator } from "./ui/separator";
-import Link from "next/link";
 import { Button } from "./ui/button";
 import { Camera, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
@@ -36,6 +34,8 @@ interface CustomizationPanelProps {
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
   onScreenshot: () => void;
+  currentPartIndex: number;
+  onPartChange: (index: number) => void;
 }
 
 const ColorSwatch = ({ value, onChange, name }: { value: string, onChange: (newValue: string) => void, name: string }) => {
@@ -91,18 +91,19 @@ export default function CustomizationPanel({
   materialCategories,
   state,
   onStateChange,
-  onScreenshot
+  onScreenshot,
+  currentPartIndex,
+  onPartChange,
 }: CustomizationPanelProps) {
-  const [currentPartIndex, setCurrentPartIndex] = React.useState(0);
   const parts = Object.keys(state.colors);
   const currentPartName = parts[currentPartIndex];
 
   const handleNextPart = () => {
-    setCurrentPartIndex((prev) => (prev + 1) % parts.length);
+    onPartChange((currentPartIndex + 1) % parts.length);
   };
 
   const handlePrevPart = () => {
-    setCurrentPartIndex((prev) => (prev - 1 + parts.length) % parts.length);
+    onPartChange((currentPartIndex - 1 + parts.length) % parts.length);
   };
 
   const handleColorChange =
@@ -184,57 +185,6 @@ export default function CustomizationPanel({
     return sortedGrouped;
   }, [materials, materialCategories]);
 
-  const renderPartControls = (part: string) => (
-      <div className="space-y-4 p-1">
-          <div className="flex items-center justify-between gap-4 px-3">
-              <p className="text-sm font-medium">Color</p>
-              <ColorSwatch
-                  name={part}
-                  value={state.colors[part]}
-                  onChange={handleColorChange(part)}
-              />
-          </div>
-          
-          <div className="space-y-3">
-            {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
-                <div key={categoryName} className="space-y-2">
-                    <Label className="px-3 text-xs text-muted-foreground font-medium">{categoryName}</Label>
-                    <Carousel
-                        opts={{
-                            align: "start",
-                            dragFree: true,
-                        }}
-                        className="w-full"
-                    >
-                        <CarouselContent className="-ml-2">
-                            {materialsInCategory.map((material) => (
-                                <CarouselItem key={material.id} className="pl-2 basis-auto">
-                                    <div className="p-1">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className={cn(
-                                                "h-auto py-2 px-4 whitespace-normal",
-                                                state.materials[part] === material.id && "ring-2 ring-primary"
-                                            )}
-                                            onClick={() => handleMaterialChange(part, material.id)}
-                                        >
-                                            {material.name}
-                                        </Button>
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="hidden md:flex" />
-                        <CarouselNext className="hidden md:flex" />
-                    </Carousel>
-                </div>
-            ))}
-          </div>
-
-      </div>
-  )
-
   return (
     <div className="flex flex-col h-full">
         <div className="p-4 space-y-4 bg-background">
@@ -245,7 +195,7 @@ export default function CustomizationPanel({
             <Separator />
         </div>
         <ScrollArea className="flex-1 bg-background">
-            <div className="p-4 pt-0 space-y-2">
+            <div className="p-4 pt-0 space-y-4">
                  <div className="flex items-center justify-center gap-4 py-2">
                     <Button variant="ghost" size="icon" onClick={handlePrevPart}>
                         <ChevronLeft className="h-4 w-4" />
@@ -258,16 +208,54 @@ export default function CustomizationPanel({
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
-              <Accordion type="single" collapsible className="w-full" defaultValue={parts[0]}>
-                  {parts.map(part => (
-                    part === currentPartName &&
-                      <AccordionItem value={part} key={part} className="bg-transparent rounded-lg border-0 mb-2">
-                          <AccordionContent className="border-t pt-4">
-                              {renderPartControls(part)}
-                          </AccordionContent>
-                      </AccordionItem>
-                  ))}
-              </Accordion>
+              <div className="space-y-4 p-1">
+                  <div className="flex items-center justify-between gap-4 px-3">
+                      <p className="text-sm font-medium">Color</p>
+                      <ColorSwatch
+                          name={currentPartName}
+                          value={state.colors[currentPartName]}
+                          onChange={handleColorChange(currentPartName)}
+                      />
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                        <div key={categoryName} className="space-y-2">
+                            <Label className="px-3 text-xs text-muted-foreground font-medium">{categoryName}</Label>
+                            <Carousel
+                                opts={{
+                                    align: "start",
+                                    dragFree: true,
+                                }}
+                                className="w-full"
+                            >
+                                <CarouselContent className="-ml-2">
+                                    {materialsInCategory.map((material) => (
+                                        <CarouselItem key={material.id} className="pl-2 basis-auto">
+                                            <div className="p-1">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className={cn(
+                                                        "h-auto py-2 px-4 whitespace-normal",
+                                                        state.materials[currentPartName] === material.id && "ring-2 ring-primary"
+                                                    )}
+                                                    onClick={() => handleMaterialChange(currentPartName, material.id)}
+                                                >
+                                                    {material.name}
+                                                </Button>
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                <CarouselPrevious className="hidden md:flex" />
+                                <CarouselNext className="hidden md:flex" />
+                            </Carousel>
+                        </div>
+                    ))}
+                  </div>
+
+              </div>
             </div>
         </ScrollArea>
         <div className="p-4 border-t bg-background">

@@ -75,6 +75,7 @@ export default function CanvasPage() {
   const canvasRef = useRef<CanvasHandle>(null);
   const isMobile = useIsMobile();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [currentPartIndex, setCurrentPartIndex] = useState(0);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -172,12 +173,13 @@ export default function CanvasPage() {
         state={customization}
         onStateChange={setCustomization}
         onScreenshot={handleScreenshot}
+        currentPartIndex={currentPartIndex}
+        onPartChange={setCurrentPartIndex}
       />
     )
   );
 
   const parts = Object.keys(customization.colors);
-  const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const currentPartName = parts[currentPartIndex];
   const currentHexColor = customization.colors[currentPartName];
 
