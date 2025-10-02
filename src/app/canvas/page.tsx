@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, Send, Camera, Sparkles } from "lucide-react";
+import { Info, ChevronLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { SparklesIcon } from "@/components/icons/sparkles-icon";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
