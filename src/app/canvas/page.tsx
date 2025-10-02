@@ -41,7 +41,7 @@ const CustomizationPanel = dynamic(
 
 function CustomizationPanelSkeleton() {
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-6 h-full flex flex-col justify-center">
         <Skeleton className="h-8 w-1/3" />
         <div className="space-y-4">
             <Skeleton className="h-10 w-full" />
@@ -178,8 +178,8 @@ export default function CanvasPage() {
 
   return (
     <>
-    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col">
-        <main className="relative flex-1 flex items-center justify-center flex-grow">
+    <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row">
+        <main className="relative flex-1 flex items-center justify-center flex-grow md:flex-[0.8]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -243,13 +243,11 @@ export default function CanvasPage() {
 
         {/* Desktop customization panel */}
         {!isMobile && (
-          <div className="flex-shrink-0 bg-background border-t">
-              <aside className="h-full overflow-y-auto">
-                  <Suspense fallback={<CustomizationPanelSkeleton />}>
-                      {customizationPanelContent}
-                  </Suspense>
-              </aside>
-          </div>
+          <aside className="flex-shrink-0 bg-background border-l md:flex-[0.2] h-full overflow-y-auto">
+              <Suspense fallback={<CustomizationPanelSkeleton />}>
+                  {customizationPanelContent}
+              </Suspense>
+          </aside>
         )}
     </div>
 
