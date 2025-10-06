@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { db, supabase } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import {
     AlertDialog,

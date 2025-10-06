@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { db, supabase, auth } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { supabase } from '@/lib/supabase';
 import { doc, updateDoc, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import {
     Dialog,
