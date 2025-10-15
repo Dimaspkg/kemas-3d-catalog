@@ -167,11 +167,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       }
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       controls.dispose();
-      try {
-        currentMount.removeChild(renderer.domElement);
-      } catch (e) {
-      }
-      renderer.dispose();
+
+      if (renderer) renderer.dispose();
+      if (currentMount) currentMount.innerHTML = '';
       
        scene.traverse(object => {
         if (object instanceof THREE.Mesh) {
@@ -429,5 +427,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
+
+    
 
     
