@@ -265,10 +265,10 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/70 backdrop-blur-sm border-white/20 text-foreground">
+                 <Card className="bg-background/70 backdrop-blur-sm border-border/30 text-foreground">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
-                            <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-white/30 hover:bg-white/20">
+                            <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent">
                                 <Camera className="mr-2 h-4 w-4" />
                                 Screenshot
                             </Button>
@@ -279,7 +279,7 @@ export default function CanvasClient() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-background/70 backdrop-blur-sm border-white/20 text-foreground">
+                <Card className="bg-background/70 backdrop-blur-sm border-border/30 text-foreground">
                   <CardHeader>
                     <CardTitle className="text-xl">{product.name}</CardTitle>
                     <CardDescription className="text-foreground/80 pt-1">
@@ -318,12 +318,12 @@ export default function CanvasClient() {
                 </div>
               )}
               {parts.length > 1 && (
-                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border text-white">
-                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7 text-white hover:bg-white/20 hover:text-white">
+                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border text-foreground">
+                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7 text-foreground hover:bg-black/20 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <span className="text-xs text-center font-semibold flex-1 truncate px-1">{cleanPartName(currentPartName)}</span>
-                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7 text-white hover:bg-white/20 hover:text-white">
+                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7 text-foreground hover:bg-black/20 hover:text-white">
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
@@ -331,7 +331,7 @@ export default function CanvasClient() {
               {currentPartName && (
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-white hover:bg-white/20 hover:text-white">
+                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
                             <Gem className="mr-2 h-4 w-4"/>
                             Material
                         </Button>
