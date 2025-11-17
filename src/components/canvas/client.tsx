@@ -184,7 +184,7 @@ export default function CanvasClient() {
     <>
     <div 
       className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col md:flex-row"
-      style={{ background: 'radial-gradient(circle, #3a3a3a 0%, #111111 100%)' }}
+      style={{ background: '#333333' }}
     >
         <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full md:flex-[0.7]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
@@ -232,7 +232,7 @@ export default function CanvasClient() {
             </div>
         </main>
 
-        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-muted border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
+        <aside className="h-[40vh] md:h-full flex-shrink-0 border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
