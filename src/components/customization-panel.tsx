@@ -12,6 +12,7 @@ import { Camera, Send, ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export type CustomizationState = {
   colors: {
@@ -186,66 +187,70 @@ export default function CustomizationPanel({
   }, [materials, materialCategories]);
 
   return (
-    <div className="flex flex-col h-full">
-        <div className="p-4 space-y-2 bg-background">
+    <div className="flex flex-col h-full bg-muted/20">
+        <div className="p-4 pb-0 space-y-2">
             <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
             <Separator />
         </div>
-        <ScrollArea className="flex-1 bg-background">
-            <div className="p-4 pt-2 space-y-6">
+        <ScrollArea className="flex-1">
+            <div className="p-4 space-y-4">
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-base">Part</CardTitle>
+                            <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
+                        </div>
+                         <div className="flex items-center justify-between gap-2 pt-2">
+                            <Button variant="outline" size="icon-sm" onClick={handlePrevPart}>
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-sm text-center font-semibold flex-1 truncate">{cleanPartName(currentPartName)}</span>
+                            <Button variant="outline" size="icon-sm" onClick={handleNextPart}>
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">Color</p>
+                            <ColorSwatch
+                              name={currentPartName}
+                              value={state.colors[currentPartName]}
+                              onChange={handleColorChange(currentPartName)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
                 
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">Part</p>
-                        <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                        <Button variant="outline" size="icon-sm" onClick={handlePrevPart}>
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="text-sm text-center font-medium flex-1 truncate">{cleanPartName(currentPartName)}</span>
-                        <Button variant="outline" size="icon-sm" onClick={handleNextPart}>
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">Color</p>
-                        <ColorSwatch
-                          name={currentPartName}
-                          value={state.colors[currentPartName]}
-                          onChange={handleColorChange(currentPartName)}
-                        />
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                  <p className="text-sm font-medium">Materials</p>
-                  {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
-                      <div key={categoryName} className="space-y-2">
-                          <Label className="text-xs text-muted-foreground font-medium">{categoryName}</Label>
-                           <div className="flex flex-wrap gap-2">
-                              {materialsInCategory.map((material) => (
-                                  <Button
-                                      key={material.id}
-                                      variant="outline"
-                                      size="sm"
-                                      className={cn(
-                                          "h-auto py-1.5 px-3 text-xs",
-                                          state.materials[currentPartName] === material.id && "ring-2 ring-primary"
-                                      )}
-                                      onClick={() => handleMaterialChange(currentPartName, material.id)}
-                                  >
-                                      {material.name}
-                                  </Button>
-                              ))}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Material</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                         {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                          <div key={categoryName} className="space-y-3">
+                              <Label className="text-xs text-muted-foreground font-semibold">{categoryName}</Label>
+                               <div className="flex flex-wrap gap-2">
+                                  {materialsInCategory.map((material) => (
+                                      <Button
+                                          key={material.id}
+                                          variant="outline"
+                                          size="sm"
+                                          className={cn(
+                                              "h-auto py-1.5 px-3 text-xs",
+                                              state.materials[currentPartName] === material.id && "ring-2 ring-primary"
+                                          )}
+                                          onClick={() => handleMaterialChange(currentPartName, material.id)}
+                                      >
+                                          {material.name}
+                                      </Button>
+                                  ))}
+                              </div>
                           </div>
-                      </div>
-                  ))}
-                </div>
+                      ))}
+                    </CardContent>
+                </Card>
 
             </div>
         </ScrollArea>
