@@ -5,7 +5,6 @@ import { useState, Suspense, useEffect, useCallback, useRef, useMemo } from "rea
 import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
-import type { CustomizationState } from "@/components/customization-panel";
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
@@ -33,26 +32,14 @@ const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   loading: () => <Skeleton className="w-full h-full" />,
 });
 
-const CustomizationPanel = dynamic(
-  () => import("@/components/customization-panel"),
-  {
-    ssr: false,
-    loading: () => <CustomizationPanelSkeleton />,
-  }
-);
-
-function CustomizationPanelSkeleton() {
-  return (
-    <div className="p-8 space-y-6 h-full flex flex-col justify-center">
-        <Skeleton className="h-8 w-1/3" />
-        <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-        </div>
-    </div>
-  );
-}
+export type CustomizationState = {
+  colors: {
+    [key: string]: string;
+  };
+  materials: {
+    [key: string]: string; // Material ID
+  };
+};
 
 interface MaterialCategory {
   id: string;
@@ -235,26 +222,10 @@ export default function CanvasClient() {
         message += `\nMohon informasinya lebih lanjut. Terima kasih.`;
 
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
         
         window.open(whatsappUrl, '_blank');
     };
-
-  const customizationPanelContent = (
-    loading || !product || materials.length === 0 ? (
-      <CustomizationPanelSkeleton />
-    ) : (
-      <CustomizationPanel
-        product={product}
-        materials={materials}
-        materialCategories={materialCategories}
-        state={customization}
-        onStateChange={setCustomization}
-        currentPartIndex={currentPartIndex}
-        onPartChange={setCurrentPartIndex}
-      />
-    )
-  );
 
   return (
     <>
@@ -401,12 +372,6 @@ export default function CanvasClient() {
               )}
             </div>
         </main>
-
-        <aside className="h-[25vh] md:h-[30vh] flex-shrink-0 border-t bg-background">
-            <Suspense fallback={<CustomizationPanelSkeleton />}>
-                {customizationPanelContent}
-            </Suspense>
-        </aside>
     </div>
 
     {activeHotspot && (
@@ -430,5 +395,3 @@ export default function CanvasClient() {
     </>
   );
 }
-
-    
