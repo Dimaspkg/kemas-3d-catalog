@@ -73,7 +73,10 @@ export default function CanvasClient() {
     const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
-        newInitialColors[part] = initialColors[part] || '#5C5C5C';
+        // Use #5C5C5C as the default, ignoring the model's initial color unless it's something other than default white/black variants.
+        const modelColor = initialColors[part]?.toUpperCase();
+        const isDefaultShade = modelColor === '#FFFFFF' || modelColor === '#000000' || !modelColor;
+        newInitialColors[part] = isDefaultShade ? '#5C5C5C' : initialColors[part];
         newInitialMaterials[part] = defaultMaterial?.id || '';
     });
 
