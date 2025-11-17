@@ -20,6 +20,7 @@ type CosmeticCanvasProps = {
     onLoadingChange: (isLoading: boolean) => void;
     onHotspotClick: (hotspot: Hotspot) => void;
     activePart?: string;
+    theme: 'light' | 'dark';
 };
 
 const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
@@ -33,6 +34,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   onLoadingChange,
   onHotspotClick,
   activePart,
+  theme,
 }, ref) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -44,8 +46,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const [isLoading, setIsLoading] = useState(true);
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
-  const outlinePassRef = useRef<any>(); // Using any for outline pass to avoid full import
-  const composerRef = useRef<any>(); // Using any for effect composer
+  const ambientLightRef = useRef<THREE.AmbientLight | null>(null);
 
   useEffect(() => {
     onLoadingChange(isLoading);
@@ -104,7 +105,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    renderer.setClearColor(0x6E6E6E, 1);
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
@@ -131,6 +131,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
+    ambientLightRef.current = ambientLight;
+
 
     // Shadow catcher plane
     const planeGeometry = new THREE.PlaneGeometry(20, 20);
@@ -184,6 +186,18 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       });
     };
   }, [handleCanvasClick]);
+
+  useEffect(() => {
+    if (rendererRef.current && ambientLightRef.current) {
+        if (theme === 'dark') {
+            rendererRef.current.setClearColor(0x1a1a1a, 1);
+            ambientLightRef.current.intensity = 0.8;
+        } else {
+            rendererRef.current.setClearColor(0xEBEBEB, 1);
+            ambientLightRef.current.intensity = 0.5;
+        }
+    }
+  }, [theme]);
 
   useEffect(() => {
     const scene = sceneRef.current;

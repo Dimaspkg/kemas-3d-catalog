@@ -10,7 +10,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, Gem, Camera, Send, Layers } from "lucide-react";
+import { Info, ChevronLeft, Gem, Camera, Send, Layers, Sun, Moon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -64,6 +64,7 @@ export default function CanvasClient() {
   const canvasRef = useRef<CanvasHandle>(null);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const [isPartPopoverOpen, setIsPartPopoverOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -74,7 +75,6 @@ export default function CanvasClient() {
 
     uniquePartNames.forEach(part => {
         const modelColor = initialColors[part]?.toUpperCase();
-        // Set default color if model's color is white, black, or undefined.
         const isDefaultShade = !modelColor || modelColor === '#FFFFFF' || modelColor === '#000000';
         newInitialColors[part] = isDefaultShade ? '#5C5C5C' : initialColors[part];
         newInitialMaterials[part] = defaultMaterial?.id || '';
@@ -241,7 +241,8 @@ export default function CanvasClient() {
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
                   ref={canvasRef}
-                  {...customization} 
+                  {...customization}
+                  theme={theme}
                   materialsData={materials}
                   product={product}
                   modelURL={showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL}
@@ -297,6 +298,16 @@ export default function CanvasClient() {
 
             {/* Quick Controls Overlay */}
              <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20">
+                <Button 
+                    onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+                    variant="outline" 
+                    size="icon" 
+                    className="bg-background/10 backdrop-blur-sm border-border/30 hover:bg-accent text-foreground"
+                >
+                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" style={{display: theme === 'dark' ? 'none' : 'inline-block'}}/>
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" style={{display: theme === 'light' ? 'none' : 'inline-block'}}/>
+                    <span className="sr-only">Toggle theme</span>
+                </Button>
                {product?.modelURLOpen && (
                  <div>
                     <Switch
@@ -319,10 +330,10 @@ export default function CanvasClient() {
                             {cleanPartName(currentPartName)}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2">
-                        <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
-                        <ScrollArea className="h-60">
-                            <div className="flex flex-col gap-1 pr-2">
+                    <PopoverContent className="w-64 p-0">
+                         <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
+                         <ScrollArea className="h-60">
+                            <div className="flex flex-col gap-1 p-1">
                                 {parts.map(part => (
                                     <Button
                                         key={part}
