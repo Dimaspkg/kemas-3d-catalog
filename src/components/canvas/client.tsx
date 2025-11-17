@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cleanPartName } from "@/lib/utils";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -169,6 +170,14 @@ export default function CanvasClient() {
     }));
   };
 
+  const handleNextPart = () => {
+    setCurrentPartIndex((currentPartIndex + 1) % parts.length);
+  };
+
+  const handlePrevPart = () => {
+    setCurrentPartIndex((currentPartIndex - 1 + parts.length) % parts.length);
+  };
+
   const customizationPanelContent = (
     loading || !product || materials.length === 0 ? (
       <CustomizationPanelSkeleton />
@@ -250,7 +259,7 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="relative flex items-center bg-background/50 backdrop-blur-sm border rounded-full p-1">
+                <div className="relative flex items-center bg-background/50 backdrop-blur-sm border rounded-full">
                     <input
                         id="canvas-color-picker"
                         type="color"
@@ -265,6 +274,17 @@ export default function CanvasClient() {
                     >
                         <span className="sr-only">Change color</span>
                     </label>
+                </div>
+              )}
+              {parts.length > 1 && (
+                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border">
+                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7">
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-xs text-center font-semibold flex-1 truncate px-1">{cleanPartName(currentPartName)}</span>
+                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7">
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
                 </div>
               )}
             </div>
