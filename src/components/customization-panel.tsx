@@ -189,7 +189,7 @@ export default function CustomizationPanel({
   return (
     <div className="flex flex-col h-full space-y-4">
         <div className="p-4 pb-0">
-            <Card className="bg-card/50 backdrop-blur-sm">
+            <Card>
                 <CardHeader>
                     <CardTitle className="text-xl md:text-2xl">{product.name}</CardTitle>
                     <CardDescription>Customize your product</CardDescription>
@@ -198,7 +198,7 @@ export default function CustomizationPanel({
         </div>
         <ScrollArea className="flex-1 px-4 bg-black">
             <div className="space-y-4">
-                <Card className="bg-card/50 backdrop-blur-sm">
+                <Card>
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-base">Part</CardTitle>
@@ -226,7 +226,7 @@ export default function CustomizationPanel({
                     </CardContent>
                 </Card>
                 
-                <Card className="bg-card/50 backdrop-blur-sm">
+                <Card>
                     <CardHeader>
                         <CardTitle className="text-base">Material</CardTitle>
                     </CardHeader>
@@ -257,24 +257,22 @@ export default function CustomizationPanel({
 
             </div>
         </ScrollArea>
-        <div className="p-4 pt-0 mt-auto">
-            <Card className="bg-transparent border-none shadow-none">
-                <CardContent className="p-0">
-                    <div className="flex items-center justify-between gap-4">
-                        <div>
-                            <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
-                                <Camera className="h-5 w-5" />
-                                <span className="sr-only">Screenshot</span>
-                            </Button>
-                        </div>
-                        <Button onClick={handleInquiry} className="flex-grow">
-                            <Send className="mr-2 h-4 w-4" />
-                            Tanya Produk
+        <Card className="m-4 mt-auto">
+            <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
+                            <Camera className="h-5 w-5" />
+                            <span className="sr-only">Screenshot</span>
                         </Button>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
+                    <Button onClick={handleInquiry} className="flex-grow">
+                        <Send className="mr-2 h-4 w-4" />
+                        Tanya Produk
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
     </div>
   );
 }
