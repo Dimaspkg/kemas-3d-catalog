@@ -320,9 +320,9 @@ export default function CanvasClient() {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-64 p-2">
-                        <ScrollArea className="max-h-60">
-                            <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
-                            <div className="flex flex-col gap-1">
+                        <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
+                        <ScrollArea className="h-60">
+                            <div className="flex flex-col gap-1 pr-2">
                                 {parts.map(part => (
                                     <Button
                                         key={part}
@@ -419,3 +419,5 @@ export default function CanvasClient() {
     </>
   );
 }
+
+    
