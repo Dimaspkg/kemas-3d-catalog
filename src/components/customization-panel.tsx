@@ -187,7 +187,7 @@ export default function CustomizationPanel({
   }, [materials, materialCategories]);
 
   return (
-    <div className="flex flex-col h-full bg-muted/20">
+    <div className="flex flex-col h-full bg-gradient-to-b from-card to-transparent">
         <div className="p-4 pb-0 space-y-2">
             <h2 className="text-xl md:text-2xl font-bold">{product.name}</h2>
             <p className="text-xs md:text-sm text-muted-foreground">Customize your product</p>
@@ -195,7 +195,7 @@ export default function CustomizationPanel({
         </div>
         <ScrollArea className="flex-1">
             <div className="p-4 space-y-4">
-                <Card>
+                <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-base">Part</CardTitle>
@@ -223,7 +223,7 @@ export default function CustomizationPanel({
                     </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
                         <CardTitle className="text-base">Material</CardTitle>
                     </CardHeader>
