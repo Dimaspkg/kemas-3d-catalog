@@ -164,12 +164,12 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
       window.removeEventListener("resize", handleResize);
       if (currentMount) {
         currentMount.removeEventListener('click', handleCanvasClick);
+        currentMount.innerHTML = '';
       }
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       controls.dispose();
 
       if (renderer) renderer.dispose();
-      if (currentMount) currentMount.innerHTML = '';
       
        scene.traverse(object => {
         if (object instanceof THREE.Mesh) {
@@ -269,9 +269,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const scene = sceneRef.current;
     if (!scene) return;
 
-    if (!environmentURL) {
-      scene.background = new THREE.Color(0x222222);
-    }
+    scene.background = new THREE.Color(0x222222);
     scene.environment = null;
 
     if (environmentURL) {
@@ -279,7 +277,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         loader.load(environmentURL, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
-            scene.background = texture;
         }, undefined, (error) => {
             console.error('An error occurred while loading the environment:', error);
             scene.environment = null;
