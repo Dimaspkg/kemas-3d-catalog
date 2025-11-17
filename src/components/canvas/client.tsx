@@ -240,7 +240,7 @@ export default function CanvasClient() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center text-foreground rounded-full px-3 py-1 bg-background/50 backdrop-blur-sm border">
+                 <div>
                     <Switch
                         id="open-state-switch"
                         checked={showOpenModel}
