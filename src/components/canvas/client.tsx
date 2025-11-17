@@ -268,7 +268,7 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/80 backdrop-blur-sm border-border/30">
+                 <Card className="bg-background/90 backdrop-blur-sm border-border/30">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
                             <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent text-foreground">
@@ -375,16 +375,17 @@ export default function CanvasClient() {
                     </PopoverContent>
                 </Popover>
                 <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer">
-                    <label htmlFor="canvas-color-picker" className="block w-full h-full">
-                        <span className="sr-only">Change color</span>
-                    </label>
                     <input
                         id="canvas-color-picker"
                         type="color"
-                        value={customization.colors[currentPartName]}
+                        value={customization.colors[currentPartName] || '#5C5C5C'}
                         onChange={(e) => handleColorChange(currentPartName, e.target.value)}
                         className="w-full h-full p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute inset-0 opacity-0"
                     />
+                    <div className="w-full h-full rounded-full" style={{ backgroundColor: customization.colors[currentPartName] || '#5C5C5C' }}></div>
+                     <label htmlFor="canvas-color-picker" className="absolute inset-0 w-full h-full cursor-pointer">
+                        <span className="sr-only">Change color</span>
+                    </label>
                 </div>
                 </>
               )}
@@ -413,5 +414,7 @@ export default function CanvasClient() {
     </>
   );
 }
+
+    
 
     
