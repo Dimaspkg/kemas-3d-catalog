@@ -417,7 +417,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   return (
     <div 
         className="w-full h-full relative"
-        style={{ background: 'radial-gradient(circle, #4a4a4a 0%, #222222 100%)' }}
     >
         <div 
             ref={mountRef} 
