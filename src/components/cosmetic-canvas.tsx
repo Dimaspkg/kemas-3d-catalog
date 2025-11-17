@@ -104,7 +104,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    renderer.setClearColor(0xEBEBEB, 1);
+    renderer.setClearColor(0x6E6E6E, 1);
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
@@ -231,7 +231,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (!partNames.includes(partName)) {
                     partNames.push(partName);
                     if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${child.material.color.getHexString()}`;
+                        initialColors[partName] = `#${'' + child.material.color.getHexString()}`;
                     }
                 }
             }
