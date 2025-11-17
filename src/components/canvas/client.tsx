@@ -159,7 +159,15 @@ export default function CanvasClient() {
     setActiveHotspot(hotspot);
   }, []);
 
-  const currentModelURL = showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL;
+  const parts = Object.keys(customization.colors);
+  const currentPartName = parts[currentPartIndex];
+
+  const handleColorChange = (part: string, newValue: string) => {
+    setCustomization((prev) => ({
+      ...prev,
+      colors: { ...prev.colors, [part]: newValue },
+    }));
+  };
 
   const customizationPanelContent = (
     loading || !product || materials.length === 0 ? (
@@ -178,9 +186,6 @@ export default function CanvasClient() {
     )
   );
 
-  const parts = Object.keys(customization.colors);
-  const currentPartName = parts[currentPartIndex];
-
   return (
     <>
     <div 
@@ -195,7 +200,7 @@ export default function CanvasClient() {
                   {...customization} 
                   materialsData={materials}
                   product={product}
-                  modelURL={currentModelURL}
+                  modelURL={showOpenModel && product?.modelURLOpen ? product.modelURLOpen : product?.modelURL}
                   environmentURL={environment?.fileURL}
                   onModelLoad={handleModelLoad}
                   onLoadingChange={handleLoadingChange}
@@ -233,7 +238,7 @@ export default function CanvasClient() {
 
 
             {/* Common UI Elements */}
-             <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+             <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20">
                {product?.modelURLOpen && (
                  <div className="flex items-center text-foreground rounded-full px-3 py-1 bg-background/50 backdrop-blur-sm border">
                     <Switch
@@ -243,6 +248,26 @@ export default function CanvasClient() {
                         aria-label="Toggle open/closed model view"
                     />
                  </div>
+              )}
+              {currentPartName && (
+                <div className="flex items-center text-foreground rounded-full p-1 bg-background/50 backdrop-blur-sm border">
+                    <div className="relative flex items-center">
+                        <input
+                            id="canvas-color-picker"
+                            type="color"
+                            value={customization.colors[currentPartName]}
+                            onChange={(e) => handleColorChange(currentPartName, e.target.value)}
+                            className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                        />
+                        <label
+                            htmlFor="canvas-color-picker"
+                            className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
+                            style={{ backgroundColor: customization.colors[currentPartName] }}
+                        >
+                            <span className="sr-only">Change color</span>
+                        </label>
+                    </div>
+                </div>
               )}
             </div>
         </main>
