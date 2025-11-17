@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, Suspense, useEffect, useCallback, useRef } from "react";
+import { useState, Suspense, useEffect, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -185,7 +185,7 @@ export default function CanvasClient() {
     setCurrentPartIndex((currentPartIndex - 1 + parts.length) % parts.length);
   };
   
-  const groupedMaterials = React.useMemo(() => {
+  const groupedMaterials = useMemo(() => {
     const grouped: { [category: string]: Material[] } = {};
     const uncategorized: Material[] = [];
 
