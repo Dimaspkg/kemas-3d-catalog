@@ -312,7 +312,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
             material.color.set(partColor);
             material.metalness = materialProps.metalness;
             material.roughness = materialProps.roughness;
-            material.envMapIntensity = materialProps.envMapIntensity ?? 1;
+            material.envMapIntensity = materialProps.envMapIntensity ?? 1.5;
 
             // Handle transparency
             if (isTransparent) {
