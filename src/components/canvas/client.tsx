@@ -231,7 +231,6 @@ export default function CanvasClient() {
     <>
     <div 
       className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col"
-      style={{ background: '#333333' }}
     >
         <main className="relative flex-1 flex items-center justify-center flex-grow">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
@@ -305,8 +304,8 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="relative h-8 w-8">
-                    <label htmlFor="canvas-color-picker" className="block w-full h-full rounded-full border-2 border-white shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                <div className="relative h-8 w-8 rounded-full border-2 border-white shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                    <label htmlFor="canvas-color-picker" className="block w-full h-full">
                         <span className="sr-only">Change color</span>
                     </label>
                     <input
@@ -319,12 +318,12 @@ export default function CanvasClient() {
                 </div>
               )}
               {parts.length > 1 && (
-                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border">
-                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7">
+                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border text-white">
+                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7 text-white hover:bg-white/20 hover:text-white">
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <span className="text-xs text-center font-semibold flex-1 truncate px-1">{cleanPartName(currentPartName)}</span>
-                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7">
+                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7 text-white hover:bg-white/20 hover:text-white">
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
@@ -332,7 +331,7 @@ export default function CanvasClient() {
               {currentPartName && (
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="rounded-full h-9">
+                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-white hover:bg-white/20 hover:text-white">
                             <Gem className="mr-2 h-4 w-4"/>
                             Material
                         </Button>
