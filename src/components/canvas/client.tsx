@@ -24,6 +24,7 @@ import {
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -215,6 +216,21 @@ export default function CanvasClient() {
                     </Link>
                 </Button>
             </div>
+
+             {/* Product Info Overlay */}
+            {product && (
+              <div className="absolute bottom-4 left-4 z-20 max-w-sm">
+                <Card className="bg-background/70 backdrop-blur-sm border-white/20 text-foreground">
+                  <CardHeader>
+                    <CardTitle className="text-xl">{product.name}</CardTitle>
+                    <CardDescription className="text-foreground/80 pt-1">
+                      Sesuaikan setiap bagian dari produk ini.
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </div>
+            )}
+
 
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
