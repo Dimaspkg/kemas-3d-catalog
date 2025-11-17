@@ -7,12 +7,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import type { CustomizationState } from "@/components/customization-panel";
 import type { CanvasHandle, Product, Hotspot, Material } from "@/lib/types";
 
-type CosmeticCanvasProps = CustomizationState & { 
-    product?: Product | null;
+type CosmeticCanvasProps = { 
+    colors: { [key: string]: string; };
+    materials: { [key: string]: string; };
     materialsData: Material[];
+    product?: Product | null;
     modelURL?: string;
     environmentURL?: string;
     onModelLoad: (partNames: string[], initialColors: Record<string, string>) => void;
@@ -103,8 +104,8 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     );
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-    renderer.setClearColor(0x000000, 0); // Transparent background
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setClearColor(0xfafafa, 1);
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
