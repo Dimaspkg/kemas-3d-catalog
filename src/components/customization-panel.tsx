@@ -257,7 +257,7 @@ export default function CustomizationPanel({
         <div className="p-4 border-t bg-[#333333] mt-auto">
             <div className="flex items-center justify-between gap-4">
                 <div>
-                    <Button onClick={onScreenshot} variant="outline" size="icon">
+                    <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
                         <Camera className="h-5 w-5" />
                         <span className="sr-only">Screenshot</span>
                     </Button>
