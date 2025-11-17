@@ -34,7 +34,6 @@ interface CustomizationPanelProps {
   materialCategories: MaterialCategory[];
   state: CustomizationState;
   onStateChange: React.Dispatch<React.SetStateAction<CustomizationState>>;
-  onScreenshot: () => void;
   currentPartIndex: number;
   onPartChange: (index: number) => void;
 }
@@ -92,7 +91,6 @@ export default function CustomizationPanel({
   materialCategories,
   state,
   onStateChange,
-  onScreenshot,
   currentPartIndex,
   onPartChange,
 }: CustomizationPanelProps) {
@@ -124,28 +122,6 @@ export default function CustomizationPanel({
       }));
     };
 
-    const handleInquiry = () => {
-        const whatsAppNumber = "6282340211624";
-        let message = `Halo, saya tertarik dengan produk kustom:\n\n`;
-        message += `*Produk:* ${product.name}\n`;
-        message += `*Kustomisasi:*\n`;
-
-        const materialMap = new Map(materials.map(m => [m.id, m.name]));
-
-        parts.forEach(part => {
-            const color = state.colors[part];
-            const materialId = state.materials[part];
-            const materialName = materialMap.get(materialId) || 'Unknown';
-            message += `- ${cleanPartName(part)}: Warna ${color}, Material ${materialName}\n`;
-        });
-
-        message += `\nMohon informasinya lebih lanjut. Terima kasih.`;
-
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
-        
-        window.open(whatsappUrl, '_blank');
-    };
 
   if (parts.length === 0) {
     return (
@@ -248,26 +224,6 @@ export default function CustomizationPanel({
                 </Card>
             </div>
         </ScrollArea>
-        
-        {/* Action Buttons at the bottom */}
-        <div className="p-4 pt-0 mt-auto">
-             <Card className="border-t">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between gap-4">
-                        <div>
-                            <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
-                                <Camera className="h-5 w-5" />
-                                <span className="sr-only">Screenshot</span>
-                            </Button>
-                        </div>
-                        <Button onClick={handleInquiry} className="flex-grow">
-                            <Send className="mr-2 h-4 w-4" />
-                            Tanya Produk
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
     </div>
   );
 }

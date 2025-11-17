@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, ChevronRight, Gem } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight, Gem, Camera, Send } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -24,7 +24,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cleanPartName } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -216,6 +216,30 @@ export default function CanvasClient() {
     return sortedGrouped;
   }, [materials, materialCategories]);
 
+    const handleInquiry = () => {
+        if (!product) return;
+        const whatsAppNumber = "6282340211624";
+        let message = `Halo, saya tertarik dengan produk kustom:\n\n`;
+        message += `*Produk:* ${product.name}\n`;
+        message += `*Kustomisasi:*\n`;
+
+        const materialMap = new Map(materials.map(m => [m.id, m.name]));
+
+        parts.forEach(part => {
+            const color = customization.colors[part];
+            const materialId = customization.materials[part];
+            const materialName = materialMap.get(materialId) || 'Unknown';
+            message += `- ${cleanPartName(part)}: Warna ${color}, Material ${materialName}\n`;
+        });
+
+        message += `\nMohon informasinya lebih lanjut. Terima kasih.`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
+        
+        window.open(whatsappUrl, '_blank');
+    };
+
   const customizationPanelContent = (
     loading || !product || materials.length === 0 ? (
       <CustomizationPanelSkeleton />
@@ -226,7 +250,6 @@ export default function CanvasClient() {
         materialCategories={materialCategories}
         state={customization}
         onStateChange={setCustomization}
-        onScreenshot={handleScreenshot}
         currentPartIndex={currentPartIndex}
         onPartChange={setCurrentPartIndex}
       />
@@ -269,9 +292,23 @@ export default function CanvasClient() {
                 </Button>
             </div>
 
-             {/* Product Info Overlay */}
+             {/* Product Info & Actions Overlay */}
             {product && (
-              <div className="absolute bottom-4 left-4 z-20 max-w-sm">
+              <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
+                 <Card className="bg-background/70 backdrop-blur-sm border-white/20 text-foreground">
+                    <CardContent className="p-2">
+                        <div className="flex items-center justify-between gap-2">
+                            <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-white/30 hover:bg-white/20">
+                                <Camera className="mr-2 h-4 w-4" />
+                                Screenshot
+                            </Button>
+                            <Button onClick={handleInquiry} className="flex-1">
+                                <Send className="mr-2 h-4 w-4" />
+                                Tanya Produk
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
                 <Card className="bg-background/70 backdrop-blur-sm border-white/20 text-foreground">
                   <CardHeader>
                     <CardTitle className="text-xl">{product.name}</CardTitle>
@@ -297,7 +334,7 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="relative flex items-center">
+                <div className="relative">
                     <input
                         id="canvas-color-picker"
                         type="color"
