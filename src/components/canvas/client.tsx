@@ -183,7 +183,7 @@ export default function CanvasClient() {
   return (
     <>
     <div className="h-screen w-full bg-background text-foreground font-body overflow-hidden flex flex-col md:flex-row">
-        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full md:flex-[0.8]">
+        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full md:flex-[0.7]">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -229,7 +229,7 @@ export default function CanvasClient() {
             </div>
         </main>
 
-        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-background border-t md:border-t-0 md:border-l md:flex-[0.2] overflow-y-auto">
+        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-background border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
