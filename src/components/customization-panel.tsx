@@ -196,7 +196,7 @@ export default function CustomizationPanel({
                 </CardHeader>
             </Card>
         </div>
-        <ScrollArea className="flex-1 px-4">
+        <ScrollArea className="flex-1 px-4 bg-black">
             <div className="space-y-4">
                 <Card className="bg-card/50 backdrop-blur-sm">
                     <CardHeader>
@@ -257,19 +257,23 @@ export default function CustomizationPanel({
 
             </div>
         </ScrollArea>
-        <div className="p-4 border-t bg-[#333333] mt-auto">
-            <div className="flex items-center justify-between gap-4">
-                <div>
-                    <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
-                        <Camera className="h-5 w-5" />
-                        <span className="sr-only">Screenshot</span>
-                    </Button>
-                </div>
-                 <Button onClick={handleInquiry} className="flex-grow">
-                    <Send className="mr-2 h-4 w-4" />
-                    Tanya Produk
-                </Button>
-            </div>
+        <div className="p-4 pt-0 mt-auto">
+            <Card className="bg-transparent border-none shadow-none">
+                <CardContent className="p-0">
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
+                                <Camera className="h-5 w-5" />
+                                <span className="sr-only">Screenshot</span>
+                            </Button>
+                        </div>
+                        <Button onClick={handleInquiry} className="flex-grow">
+                            <Send className="mr-2 h-4 w-4" />
+                            Tanya Produk
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     </div>
   );
