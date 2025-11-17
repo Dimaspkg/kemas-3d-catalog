@@ -184,10 +184,10 @@ export default function CanvasClient() {
   return (
     <>
     <div 
-      className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col md:flex-row"
+      className="h-screen w-full text-foreground font-body overflow-hidden flex md:flex-row flex-col"
       style={{ background: '#333333' }}
     >
-        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full md:flex-[0.7]">
+        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -235,8 +235,7 @@ export default function CanvasClient() {
             {/* Common UI Elements */}
              <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
                {product?.modelURLOpen && (
-                 <div className="flex items-center gap-3 text-foreground rounded-full px-3 py-1 bg-background/50 backdrop-blur-sm border">
-                    <Label htmlFor="open-state-switch" className="text-base cursor-pointer hidden md:inline">Open</Label>
+                 <div className="flex items-center text-foreground rounded-full px-3 py-1 bg-background/50 backdrop-blur-sm border">
                     <Switch
                         id="open-state-switch"
                         checked={showOpenModel}
@@ -248,7 +247,7 @@ export default function CanvasClient() {
             </div>
         </main>
 
-        <aside className="h-[40vh] md:h-full flex-shrink-0 border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
+        <aside className="h-[40vh] md:h-full flex-shrink-0 border-t md:border-t-0 md:border-l md:w-[400px] overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
