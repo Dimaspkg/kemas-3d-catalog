@@ -172,7 +172,6 @@ export default function CanvasClient() {
     if (partIndex !== -1) {
         setCurrentPartIndex(partIndex);
     }
-    // Close popover if it was open, might need a ref if we want to do this programmatically
   };
   
   const groupedMaterials = useMemo(() => {
@@ -257,7 +256,7 @@ export default function CanvasClient() {
 
             {/* Back Button */}
             <div className="absolute top-4 left-4 z-20">
-                <Button asChild variant="outline" size="icon" className="bg-background/90 backdrop-blur-sm border-border/30 hover:bg-accent text-foreground">
+                <Button asChild variant="outline" size="icon" className="bg-background/10 backdrop-blur-sm border-border/30 hover:bg-accent text-foreground">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
                         <span className="sr-only">Exit Customizer</span>
@@ -268,7 +267,7 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/90 backdrop-blur-sm border-border/30">
+                 <Card className="bg-background/10 backdrop-blur-sm border-border/30">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
                             <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent text-foreground">
@@ -282,7 +281,7 @@ export default function CanvasClient() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-background/90 backdrop-blur-sm border-border/30 text-foreground">
+                <Card className="bg-background/10 backdrop-blur-sm border-border/30 text-foreground">
                   <CardHeader>
                     <CardTitle className="text-xl">{product.name}</CardTitle>
                     <CardDescription className="text-foreground/80 pt-1">
@@ -312,7 +311,7 @@ export default function CanvasClient() {
                          <Button 
                             variant="outline" 
                             size="sm" 
-                            className="rounded-full h-9 bg-background/90 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
+                            className="rounded-full h-9 bg-background/10 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
                         >
                             <Layers className="mr-2 h-4 w-4"/>
                             {cleanPartName(currentPartName)}
@@ -341,7 +340,7 @@ export default function CanvasClient() {
                 <>
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/90 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
+                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/10 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
                             <Gem className="mr-2 h-4 w-4"/>
                             Material
                         </Button>
@@ -414,7 +413,3 @@ export default function CanvasClient() {
     </>
   );
 }
-
-    
-
-    
