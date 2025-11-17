@@ -259,7 +259,7 @@ export default function CanvasClient() {
 
             {/* Back Button */}
             <div className="absolute top-4 left-4 z-20">
-                <Button asChild variant="outline" size="icon" className="bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border-border/30 hover:bg-accent">
+                <Button asChild variant="outline" size="icon" className="bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border-border/30 hover:bg-accent">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
                         <span className="sr-only">Exit Customizer</span>
@@ -270,7 +270,7 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border-border/30">
+                 <Card className="bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border-border/30">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
                             <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent text-foreground">
@@ -284,7 +284,7 @@ export default function CanvasClient() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border-border/30">
+                <Card className="bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border-border/30">
                   <CardHeader>
                     <CardTitle className="text-xl">{product.name}</CardTitle>
                     <CardDescription className="text-foreground/80 dark:text-white/80 pt-1">
@@ -302,7 +302,7 @@ export default function CanvasClient() {
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
                     variant="outline" 
                     size="icon" 
-                    className="bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border-border/30 hover:bg-accent"
+                    className="bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border-border/30 hover:bg-accent"
                 >
                     <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                     <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -324,13 +324,13 @@ export default function CanvasClient() {
                          <Button 
                             variant="outline" 
                             size="sm" 
-                            className="rounded-full h-9 bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
+                            className="rounded-full h-9 bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
                         >
                             <Layers className="mr-2 h-4 w-4"/>
                             {cleanPartName(currentPartName)}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-0 bg-background/80 dark:bg-black/90 dark:text-white backdrop-blur-sm">
+                    <PopoverContent className="w-64 p-0 bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm">
                          <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
                          <ScrollArea className="h-60">
                             <div className="flex flex-col gap-1 p-1">
@@ -357,12 +357,12 @@ export default function CanvasClient() {
                 <>
                 <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/70 dark:bg-black/90 dark:text-white backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
+                        <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
                             <Gem className="mr-2 h-4 w-4"/>
                             Material
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2 bg-background/80 dark:bg-black/90 dark:text-white backdrop-blur-sm">
+                    <PopoverContent className="w-64 p-2 bg-background/[.02] dark:bg-black/[.02] dark:text-white backdrop-blur-sm">
                          <ScrollArea className="h-72">
                             <div className="space-y-4">
                                 {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
