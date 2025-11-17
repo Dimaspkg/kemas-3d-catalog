@@ -268,7 +268,7 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/70 backdrop-blur-sm border-border/30">
+                 <Card className="bg-background/80 backdrop-blur-sm border-border/30">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
                             <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent text-foreground">
@@ -282,7 +282,7 @@ export default function CanvasClient() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-background/70 backdrop-blur-sm border-border/30 text-foreground">
+                <Card className="bg-background/80 backdrop-blur-sm border-border/30 text-foreground">
                   <CardHeader>
                     <CardTitle className="text-xl">{product.name}</CardTitle>
                     <CardDescription className="text-foreground/80 pt-1">
@@ -318,7 +318,7 @@ export default function CanvasClient() {
                             {cleanPartName(currentPartName)}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2 bg-popover/80 backdrop-blur-lg">
+                    <PopoverContent className="w-64 p-2">
                         <ScrollArea className="max-h-60">
                             <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
                             <div className="flex flex-col gap-1">
@@ -346,7 +346,7 @@ export default function CanvasClient() {
                             Material
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2 bg-popover/80 backdrop-blur-lg">
+                    <PopoverContent className="w-64 p-2">
                          <ScrollArea className="h-72">
                             <div className="space-y-4">
                                 {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
@@ -374,7 +374,7 @@ export default function CanvasClient() {
                         </ScrollArea>
                     </PopoverContent>
                 </Popover>
-                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer">
                     <label htmlFor="canvas-color-picker" className="block w-full h-full">
                         <span className="sr-only">Change color</span>
                     </label>
@@ -413,3 +413,5 @@ export default function CanvasClient() {
     </>
   );
 }
+
+    
