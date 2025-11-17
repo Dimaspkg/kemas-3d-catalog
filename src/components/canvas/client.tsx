@@ -229,7 +229,7 @@ export default function CanvasClient() {
             </div>
         </main>
 
-        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-background border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
+        <aside className="h-[40vh] md:h-full flex-shrink-0 bg-background/50 backdrop-blur-sm border-t md:border-t-0 md:border-l md:flex-[0.3] overflow-y-auto">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
