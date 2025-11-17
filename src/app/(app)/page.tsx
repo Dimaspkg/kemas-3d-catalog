@@ -59,14 +59,14 @@ export default function LandingPage() {
                  <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[10px_10px] [mask-image:linear-gradient(0deg,transparent,black)]"></div>
                 <div className="container mx-auto relative">
                     <h1 className="text-4xl md:text-6xl font-headline font-bold tracking-tight mb-4">
-                        Wujudkan Kemasan Impian Anda
+                        Kustomisasi Kemasan Anda
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-8">
-                        Jelajahi, kustomisasi, dan visualisasikan kemasan kosmetik Anda secara real-time dengan teknologi 3D interaktif kami.
+                        Visualisasikan kemasan kosmetik Anda secara langsung dengan pratinjau 3D interaktif.
                     </p>
                     <Button asChild size="lg" className="rounded-full py-7 px-8 text-base">
                         <Link href="/products">
-                            Mulai Kustomisasi
+                            Lihat Produk
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
@@ -79,18 +79,18 @@ export default function LandingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <FeatureCard 
                             icon={Lightbulb}
-                            title="Inovasi Desain"
-                            description="Teknologi terdepan untuk menciptakan kemasan yang unik dan fungsional."
+                            title="Desain Fungsional"
+                            description="Pilihan kemasan yang dirancang untuk fungsi dan estetika."
                         />
                         <FeatureCard 
                             icon={Pipette}
-                            title="Kustomisasi Tanpa Batas"
-                            description="Pilih material, warna, dan finishing untuk menciptakan identitas brand Anda."
+                            title="Opsi Kustomisasi"
+                            description="Ubah material, warna, dan finishing sesuai kebutuhan brand Anda."
                         />
                         <FeatureCard 
                             icon={Award}
-                            title="Kualitas Terjamin"
-                            description="Diproduksi dengan standar tertinggi untuk hasil akhir yang premium dan presisi."
+                            title="Standar Kualitas"
+                            description="Diproduksi dengan presisi untuk memastikan hasil akhir yang premium."
                         />
                     </div>
                 </div>
@@ -100,8 +100,8 @@ export default function LandingPage() {
             <section className="py-20 px-4 bg-background">
                 <div className="container mx-auto">
                     <div className="text-center mb-12">
-                         <h2 className="text-3xl md:text-4xl font-headline font-bold">Produk Unggulan</h2>
-                         <p className="text-muted-foreground mt-2">Lihat beberapa desain populer kami.</p>
+                         <h2 className="text-3xl md:text-4xl font-headline font-bold">Produk Pilihan</h2>
+                         <p className="text-muted-foreground mt-2">Jelajahi beberapa desain yang tersedia.</p>
                     </div>
                     {loading ? (
                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -148,10 +148,10 @@ export default function LandingPage() {
              <section className="py-20 px-4 bg-secondary/30">
                 <div className="container mx-auto text-center">
                     <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">
-                        Siap Menciptakan Sesuatu yang Luar Biasa?
+                        Siap Memulai?
                     </h2>
                     <p className="max-w-xl mx-auto text-muted-foreground mb-8">
-                        Jelajahi katalog lengkap kami dan temukan kemasan yang sempurna untuk produk Anda.
+                        Jelajahi katalog lengkap kami dan temukan kemasan yang sesuai untuk produk Anda.
                     </p>
                     <Button asChild size="lg" variant="default" className="rounded-full py-7 px-8 text-base">
                         <Link href="/products">
