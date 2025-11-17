@@ -11,7 +11,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight, Gem } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -21,11 +21,12 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cleanPartName } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const CosmeticCanvas = dynamic(() => import("@/components/cosmetic-canvas"), {
   ssr: false,
@@ -74,7 +75,6 @@ export default function CanvasClient() {
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
-  const isMobile = useIsMobile();
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
@@ -169,6 +169,13 @@ export default function CanvasClient() {
       colors: { ...prev.colors, [part]: newValue },
     }));
   };
+  
+  const handleMaterialChange = (part: string, materialId: string) => {
+      setCustomization((prev) => ({
+        ...prev,
+        materials: { ...prev.materials, [part]: materialId },
+      }));
+    };
 
   const handleNextPart = () => {
     setCurrentPartIndex((currentPartIndex + 1) % parts.length);
@@ -177,6 +184,37 @@ export default function CanvasClient() {
   const handlePrevPart = () => {
     setCurrentPartIndex((currentPartIndex - 1 + parts.length) % parts.length);
   };
+  
+  const groupedMaterials = React.useMemo(() => {
+    const grouped: { [category: string]: Material[] } = {};
+    const uncategorized: Material[] = [];
+
+    materials.forEach(material => {
+        if (material.categories && material.categories.length > 0) {
+            material.categories.forEach(catName => {
+                if (!grouped[catName]) {
+                    grouped[catName] = [];
+                }
+                grouped[catName].push(material);
+            });
+        } else {
+            uncategorized.push(material);
+        }
+    });
+
+    const sortedGrouped: { [category: string]: Material[] } = {};
+    materialCategories.forEach(cat => {
+        if (grouped[cat.name]) {
+            sortedGrouped[cat.name] = grouped[cat.name];
+        }
+    });
+    
+    if (uncategorized.length > 0) {
+        sortedGrouped['Others'] = uncategorized;
+    }
+
+    return sortedGrouped;
+  }, [materials, materialCategories]);
 
   const customizationPanelContent = (
     loading || !product || materials.length === 0 ? (
@@ -198,10 +236,10 @@ export default function CanvasClient() {
   return (
     <>
     <div 
-      className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col md:flex-row"
+      className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col"
       style={{ background: '#333333' }}
     >
-        <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full">
+        <main className="relative flex-1 flex items-center justify-center flex-grow">
             <Suspense fallback={<Skeleton className="w-full h-full" />}>
               <div className="relative w-full h-full">
                 <CosmeticCanvas 
@@ -246,7 +284,7 @@ export default function CanvasClient() {
             )}
 
 
-            {/* Common UI Elements */}
+            {/* Quick Controls Overlay */}
              <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20">
                {product?.modelURLOpen && (
                  <div>
@@ -259,7 +297,7 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="relative flex items-center bg-background/50 backdrop-blur-sm border rounded-full">
+                <div className="relative flex items-center">
                     <input
                         id="canvas-color-picker"
                         type="color"
@@ -287,10 +325,47 @@ export default function CanvasClient() {
                     </Button>
                 </div>
               )}
+              {currentPartName && (
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="rounded-full h-9">
+                            <Gem className="mr-2 h-4 w-4"/>
+                            Material
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-2">
+                         <ScrollArea className="h-72">
+                            <div className="space-y-4">
+                                {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                                    <div key={categoryName} className="space-y-2">
+                                        <p className="text-xs font-semibold text-muted-foreground px-2">{categoryName}</p>
+                                        <div className="flex flex-col gap-1">
+                                            {materialsInCategory.map((material) => (
+                                                <Button
+                                                    key={material.id}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className={cn(
+                                                        "w-full justify-start text-xs",
+                                                        customization.materials[currentPartName] === material.id && "bg-accent"
+                                                    )}
+                                                    onClick={() => handleMaterialChange(currentPartName, material.id)}
+                                                >
+                                                    {material.name}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </PopoverContent>
+                </Popover>
+              )}
             </div>
         </main>
 
-        <aside className="h-[40vh] md:h-full flex-shrink-0 border-t md:border-t-0 md:border-l md:w-[400px] overflow-y-auto">
+        <aside className="h-[25vh] md:h-[30vh] flex-shrink-0 border-t bg-background">
             <Suspense fallback={<CustomizationPanelSkeleton />}>
                 {customizationPanelContent}
             </Suspense>
@@ -318,3 +393,5 @@ export default function CanvasClient() {
     </>
   );
 }
+
+    
