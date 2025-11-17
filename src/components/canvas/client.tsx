@@ -73,9 +73,9 @@ export default function CanvasClient() {
     const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
-        // Use #5C5C5C as the default, ignoring the model's initial color unless it's something other than default white/black variants.
         const modelColor = initialColors[part]?.toUpperCase();
-        const isDefaultShade = modelColor === '#FFFFFF' || modelColor === '#000000' || !modelColor;
+        // Set default color if model's color is white, black, or undefined.
+        const isDefaultShade = !modelColor || modelColor === '#FFFFFF' || modelColor === '#000000';
         newInitialColors[part] = isDefaultShade ? '#5C5C5C' : initialColors[part];
         newInitialMaterials[part] = defaultMaterial?.id || '';
     });
@@ -327,7 +327,7 @@ export default function CanvasClient() {
                             Material
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2">
+                    <PopoverContent className="w-64 p-2 bg-popover/80 backdrop-blur-lg">
                          <ScrollArea className="h-72">
                             <div className="space-y-4">
                                 {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (

@@ -42,7 +42,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   const modelRef = useRef<THREE.Group | null>(null);
   const hotspotsRef = useRef<THREE.Group>(new THREE.Group());
   const [isLoading, setIsLoading] = useState(true);
-  const [hasCustomized, setHasCustomized] = useState(false);
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
   const outlinePassRef = useRef<any>(); // Using any for outline pass to avoid full import
@@ -200,7 +199,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         hotspotsRef.current = new THREE.Group();
     }
     
-    setHasCustomized(false);
     if (!modelURL) {
       setIsLoading(false);
       return;
@@ -233,7 +231,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
                 if (!partNames.includes(partName)) {
                     partNames.push(partName);
                     if (child.material instanceof THREE.MeshStandardMaterial) {
-                        initialColors[partName] = `#${'#' + child.material.color.getHexString()}`;
+                        initialColors[partName] = `#${child.material.color.getHexString()}`;
                     }
                 }
             }
@@ -286,7 +284,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }, [environmentURL]);
 
   useEffect(() => {
-    if (!hasCustomized) return;
     if (!modelRef.current || !colors || !materialKeys || !materialsData) return;
 
     const materialsMap = new Map(materialsData.map(m => [m.id, m]));
@@ -363,18 +360,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         }
       }
     });
-  }, [colors, materialKeys, hasCustomized, materialsData]);
-
-  useEffect(() => {
-    if (Object.keys(colors).length > 0 || Object.keys(materialKeys).length > 0) {
-      if(!hasCustomized) {
-        const isCustomized = Object.entries(colors).some(([key, value]) => value !== '#000000') || Object.entries(materialKeys).some(([key, value]) => value !== '');
-        if(isCustomized) {
-          setHasCustomized(true);
-        }
-      }
-    }
-  }, [colors, materialKeys, hasCustomized]);
+  }, [colors, materialKeys, materialsData]);
 
   useImperativeHandle(ref, () => ({
     takeScreenshot: () => {
