@@ -63,6 +63,7 @@ export default function CanvasClient() {
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
+  const [isPartPopoverOpen, setIsPartPopoverOpen] = useState(false);
 
   const handleModelLoad = useCallback((partNames: string[], initialColors: Record<string, string>) => {
     const uniquePartNames = [...new Set(partNames)];
@@ -172,6 +173,7 @@ export default function CanvasClient() {
     if (partIndex !== -1) {
         setCurrentPartIndex(partIndex);
     }
+    setIsPartPopoverOpen(false); // Close popover on selection
   };
   
   const groupedMaterials = useMemo(() => {
@@ -306,7 +308,7 @@ export default function CanvasClient() {
                  </div>
               )}
               {parts.length > 1 && (
-                 <Popover>
+                 <Popover open={isPartPopoverOpen} onOpenChange={setIsPartPopoverOpen}>
                     <PopoverTrigger asChild>
                          <Button 
                             variant="outline" 
