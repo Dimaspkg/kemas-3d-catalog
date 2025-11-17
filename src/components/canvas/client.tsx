@@ -328,9 +328,13 @@ export default function CanvasClient() {
                                         key={part}
                                         variant={currentPartName === part ? "secondary" : "ghost"}
                                         onClick={() => handlePartSelect(part)}
-                                        className="justify-start text-xs"
+                                        className="justify-start text-xs flex items-center gap-2"
                                     >
-                                        {cleanPartName(part)}
+                                        <div 
+                                            className="w-4 h-4 rounded-full border" 
+                                            style={{ backgroundColor: customization.colors[part] }} 
+                                        />
+                                        <span>{cleanPartName(part)}</span>
                                     </Button>
                                 ))}
                             </div>
