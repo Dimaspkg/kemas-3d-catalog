@@ -73,7 +73,7 @@ export default function CanvasClient() {
     const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
-        newInitialColors[part] = initialColors[part] || '#EBEBEB';
+        newInitialColors[part] = initialColors[part] || '#5C5C5C';
         newInitialMaterials[part] = defaultMaterial?.id || '';
     });
 
@@ -316,6 +316,7 @@ export default function CanvasClient() {
                 </Button>
               )}
               {currentPartName && (
+                <>
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground">
@@ -351,9 +352,7 @@ export default function CanvasClient() {
                         </ScrollArea>
                     </PopoverContent>
                 </Popover>
-              )}
-              {currentPartName && (
-                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer">
+                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
                     <label htmlFor="canvas-color-picker" className="block w-full h-full">
                         <span className="sr-only">Change color</span>
                     </label>
@@ -365,6 +364,7 @@ export default function CanvasClient() {
                         className="w-full h-full p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute inset-0 opacity-0"
                     />
                 </div>
+                </>
               )}
             </div>
         </main>
