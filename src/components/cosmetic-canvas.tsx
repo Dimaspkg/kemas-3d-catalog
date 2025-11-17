@@ -93,7 +93,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     if (!currentMount) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xF8F8F8);
+    scene.background = new THREE.Color(0x222222);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -269,7 +269,9 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const scene = sceneRef.current;
     if (!scene) return;
 
-    scene.background = new THREE.Color(0xF8F8F8);
+    if (!environmentURL) {
+      scene.background = new THREE.Color(0x222222);
+    }
     scene.environment = null;
 
     if (environmentURL) {
@@ -277,6 +279,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
         loader.load(environmentURL, (texture) => {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.environment = texture;
+            scene.background = texture;
         }, undefined, (error) => {
             console.error('An error occurred while loading the environment:', error);
             scene.environment = null;
@@ -427,7 +430,3 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
 CosmeticCanvas.displayName = 'CosmeticCanvas';
 
 export default CosmeticCanvas;
-
-    
-
-    
