@@ -187,92 +187,102 @@ export default function CustomizationPanel({
   }, [materials, materialCategories]);
 
   return (
-    <div className="flex flex-col h-full space-y-4">
-        <div className="p-4 pb-0">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl md:text-2xl">{product.name}</CardTitle>
-                    <CardDescription>Customize your product</CardDescription>
-                </CardHeader>
-            </Card>
-        </div>
-        <ScrollArea className="flex-1 px-4 bg-black">
-            <div className="space-y-4">
-                <Card>
+    <div className="flex flex-col h-full">
+        <div className="flex-1 flex overflow-hidden">
+            {/* Left Column for Product Info */}
+            <div className="w-1/3 p-4 border-r flex flex-col">
+                 <Card className="flex-shrink-0">
                     <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-base">Part</CardTitle>
-                            <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
-                        </div>
-                         <div className="flex items-center justify-between gap-2 pt-2">
-                            <Button variant="outline" size="icon-sm" onClick={handlePrevPart}>
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm text-center font-semibold flex-1 truncate">{cleanPartName(currentPartName)}</span>
-                            <Button variant="outline" size="icon-sm" onClick={handleNextPart}>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
+                        <CardTitle className="text-xl md:text-2xl">{product.name}</CardTitle>
+                        <CardDescription>Customize your product</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">Color</p>
-                            <ColorSwatch
-                              name={currentPartName}
-                              value={state.colors[currentPartName]}
-                              onChange={handleColorChange(currentPartName)}
-                            />
-                        </div>
-                    </CardContent>
                 </Card>
-                
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Material</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                         {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
-                          <div key={categoryName} className="space-y-3">
-                              <Label className="text-xs text-muted-foreground font-semibold">{categoryName}</Label>
-                               <div className="flex flex-wrap gap-2">
-                                  {materialsInCategory.map((material) => (
-                                      <Button
-                                          key={material.id}
-                                          variant="outline"
-                                          size="sm"
-                                          className={cn(
-                                              "h-auto py-1.5 px-3 text-xs",
-                                              state.materials[currentPartName] === material.id && "ring-2 ring-primary"
-                                          )}
-                                          onClick={() => handleMaterialChange(currentPartName, material.id)}
-                                      >
-                                          {material.name}
-                                      </Button>
-                                  ))}
-                              </div>
-                          </div>
-                      ))}
-                    </CardContent>
-                </Card>
-
             </div>
-        </ScrollArea>
-        <Card className="m-4 mt-auto">
-            <CardContent className="p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
-                            <Camera className="h-5 w-5" />
-                            <span className="sr-only">Screenshot</span>
+
+            {/* Right Column for Customization */}
+            <div className="w-2/3 flex flex-col">
+                <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base">Part</CardTitle>
+                                    <p className="text-xs text-muted-foreground">{currentPartIndex + 1}/{parts.length}</p>
+                                </div>
+                                <div className="flex items-center justify-between gap-2 pt-2">
+                                    <Button variant="outline" size="icon-sm" onClick={handlePrevPart}>
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <span className="text-sm text-center font-semibold flex-1 truncate">{cleanPartName(currentPartName)}</span>
+                                    <Button variant="outline" size="icon-sm" onClick={handleNextPart}>
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium">Color</p>
+                                    <ColorSwatch
+                                    name={currentPartName}
+                                    value={state.colors[currentPartName]}
+                                    onChange={handleColorChange(currentPartName)}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base">Material</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {Object.entries(groupedMaterials).map(([categoryName, materialsInCategory]) => (
+                                <div key={categoryName} className="space-y-3">
+                                    <Label className="text-xs text-muted-foreground font-semibold">{categoryName}</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {materialsInCategory.map((material) => (
+                                            <Button
+                                                key={material.id}
+                                                variant="outline"
+                                                size="sm"
+                                                className={cn(
+                                                    "h-auto py-1.5 px-3 text-xs",
+                                                    state.materials[currentPartName] === material.id && "ring-2 ring-primary"
+                                                )}
+                                                onClick={() => handleMaterialChange(currentPartName, material.id)}
+                                            >
+                                                {material.name}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </ScrollArea>
+            </div>
+        </div>
+        
+        {/* Action Buttons at the bottom */}
+        <div className="p-4 pt-0 mt-auto border-t">
+            <Card>
+                <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <Button onClick={onScreenshot} size="icon" className="bg-[#333333] border border-input hover:bg-accent/10">
+                                <Camera className="h-5 w-5" />
+                                <span className="sr-only">Screenshot</span>
+                            </Button>
+                        </div>
+                        <Button onClick={handleInquiry} className="flex-grow">
+                            <Send className="mr-2 h-4 w-4" />
+                            Tanya Produk
                         </Button>
                     </div>
-                    <Button onClick={handleInquiry} className="flex-grow">
-                        <Send className="mr-2 h-4 w-4" />
-                        Tanya Produk
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }
