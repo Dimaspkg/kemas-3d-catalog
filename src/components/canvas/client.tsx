@@ -73,7 +73,7 @@ export default function CanvasClient() {
     const defaultMaterial = materials.find(m => m.name.toLowerCase() === 'glossy') || materials[0];
 
     uniquePartNames.forEach(part => {
-        newInitialColors[part] = initialColors[part] || '#000000';
+        newInitialColors[part] = initialColors[part] || '#EBEBEB';
         newInitialMaterials[part] = defaultMaterial?.id || '';
     });
 
@@ -223,7 +223,7 @@ export default function CanvasClient() {
         message += `\nMohon informasinya lebih lanjut. Terima kasih.`;
 
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+        const whatsappUrl = `https://wa.me/${whatsAppNumber}?text=${encodedMessage}`;
         
         window.open(whatsappUrl, '_blank');
     };
@@ -255,7 +255,7 @@ export default function CanvasClient() {
 
             {/* Back Button */}
             <div className="absolute top-4 left-4 z-20">
-                <Button asChild variant="outline" size="icon">
+                <Button asChild variant="outline" size="icon" className="bg-background/50 backdrop-blur-sm border-border/30 hover:bg-accent text-foreground">
                     <Link href={product ? `/products/${product.id}` : '/'}>
                         <ChevronLeft className="h-5 w-5" />
                         <span className="sr-only">Exit Customizer</span>
@@ -353,7 +353,7 @@ export default function CanvasClient() {
                 </Popover>
               )}
               {currentPartName && (
-                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer">
                     <label htmlFor="canvas-color-picker" className="block w-full h-full">
                         <span className="sr-only">Change color</span>
                     </label>
@@ -416,5 +416,3 @@ export default function CanvasClient() {
     </>
   );
 }
-
-    
