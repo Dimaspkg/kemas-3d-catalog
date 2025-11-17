@@ -303,20 +303,6 @@ export default function CanvasClient() {
                     />
                  </div>
               )}
-              {currentPartName && (
-                <div className="relative h-8 w-8 rounded-full border-2 border-white shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
-                    <label htmlFor="canvas-color-picker" className="block w-full h-full">
-                        <span className="sr-only">Change color</span>
-                    </label>
-                    <input
-                        id="canvas-color-picker"
-                        type="color"
-                        value={customization.colors[currentPartName]}
-                        onChange={(e) => handleColorChange(currentPartName, e.target.value)}
-                        className="w-full h-full p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute inset-0 opacity-0"
-                    />
-                </div>
-              )}
               {parts.length > 1 && (
                 <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border text-foreground">
                     <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7 text-foreground hover:bg-black/20 hover:text-white">
@@ -364,6 +350,20 @@ export default function CanvasClient() {
                         </ScrollArea>
                     </PopoverContent>
                 </Popover>
+              )}
+              {currentPartName && (
+                <div className="relative h-8 w-8 rounded-full border-2 border-foreground shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                    <label htmlFor="canvas-color-picker" className="block w-full h-full">
+                        <span className="sr-only">Change color</span>
+                    </label>
+                    <input
+                        id="canvas-color-picker"
+                        type="color"
+                        value={customization.colors[currentPartName]}
+                        onChange={(e) => handleColorChange(currentPartName, e.target.value)}
+                        className="w-full h-full p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute inset-0 opacity-0"
+                    />
+                </div>
               )}
             </div>
         </main>
