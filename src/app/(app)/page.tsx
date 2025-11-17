@@ -12,21 +12,6 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function FeatureCard({ icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
-    const Icon = icon;
-    return (
-        <div className="text-center p-6 border border-border/20 rounded-lg bg-background/50 backdrop-blur-sm">
-            <div className="flex justify-center mb-4">
-                <div className="p-3 bg-secondary rounded-full">
-                    <Icon className="h-6 w-6 text-primary" />
-                </div>
-            </div>
-            <h3 className="text-xl font-headline mb-2">{title}</h3>
-            <p className="text-muted-foreground">{description}</p>
-        </div>
-    );
-}
-
 function ProductCardSkeleton() {
     return (
         <div className="space-y-4">
@@ -62,7 +47,7 @@ export default function LandingPage() {
                         Kustomisasi Kemasan Anda
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground mb-8">
-                        Visualisasikan kemasan kosmetik Anda secara langsung dengan pratinjau 3D interaktif.
+                        Visualisasikan kemasan kosmetik Anda secara langsung dengan pratinjau 3D interaktif. Ubah material, warna, dan finishing untuk menciptakan desain yang sempurna bagi merek Anda.
                     </p>
                     <Button asChild size="lg" className="rounded-full py-7 px-8 text-base">
                         <Link href="/products">
@@ -73,36 +58,9 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section className="py-20 px-4">
-                <div className="container mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <FeatureCard 
-                            icon={Lightbulb}
-                            title="Desain Fungsional"
-                            description="Pilihan kemasan yang dirancang untuk fungsi dan estetika."
-                        />
-                        <FeatureCard 
-                            icon={Pipette}
-                            title="Opsi Kustomisasi"
-                            description="Ubah material, warna, dan finishing sesuai kebutuhan brand Anda."
-                        />
-                        <FeatureCard 
-                            icon={Award}
-                            title="Standar Kualitas"
-                            description="Diproduksi dengan presisi untuk memastikan hasil akhir yang premium."
-                        />
-                    </div>
-                </div>
-            </section>
-
             {/* Featured Products Section */}
             <section className="py-20 px-4 bg-background">
                 <div className="container mx-auto">
-                    <div className="text-center mb-12">
-                         <h2 className="text-3xl md:text-4xl font-headline font-bold">Produk Pilihan</h2>
-                         <p className="text-muted-foreground mt-2">Jelajahi beberapa desain yang tersedia.</p>
-                    </div>
                     {loading ? (
                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             <ProductCardSkeleton />
