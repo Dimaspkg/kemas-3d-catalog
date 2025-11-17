@@ -254,7 +254,7 @@ export default function CustomizationPanel({
 
             </div>
         </ScrollArea>
-        <div className="p-4 border-t bg-background mt-auto">
+        <div className="p-4 border-t bg-[#333333] mt-auto">
             <div className="flex items-center justify-between gap-4">
                 <div>
                     <Button onClick={onScreenshot} variant="outline" size="icon">
