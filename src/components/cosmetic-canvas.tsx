@@ -93,7 +93,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     if (!currentMount) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -105,6 +104,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setClearColor(0x000000, 0); // Transparent background
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
@@ -139,6 +139,7 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     shadowPlane.rotation.x = -Math.PI / 2;
     shadowPlane.position.y = -5; // Adjust this based on your model's position
     shadowPlane.name = "shadowPlane";
+    shadowPlane.receiveShadow = true;
     scene.add(shadowPlane);
 
     let animationFrameId: number;
@@ -269,7 +270,6 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
     const scene = sceneRef.current;
     if (!scene) return;
 
-    scene.background = new THREE.Color(0x222222);
     scene.environment = null;
 
     if (environmentURL) {
@@ -415,7 +415,10 @@ const CosmeticCanvas = forwardRef<CanvasHandle, CosmeticCanvasProps>(({
   }));
 
   return (
-    <div className="w-full h-full relative">
+    <div 
+        className="w-full h-full relative"
+        style={{ background: 'radial-gradient(circle, #4a4a4a 0%, #222222 100%)' }}
+    >
         <div 
             ref={mountRef} 
             className="w-full h-full"
