@@ -189,7 +189,7 @@ export default function CanvasClient() {
   return (
     <>
     <div 
-      className="h-screen w-full text-foreground font-body overflow-hidden flex md:flex-row flex-col"
+      className="h-screen w-full text-foreground font-body overflow-hidden flex flex-col md:flex-row"
       style={{ background: '#333333' }}
     >
         <main className="relative flex-1 flex items-center justify-center flex-grow h-[60vh] md:h-full">
@@ -250,23 +250,21 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="flex items-center text-foreground rounded-full p-1 bg-background/50 backdrop-blur-sm border">
-                    <div className="relative flex items-center">
-                        <input
-                            id="canvas-color-picker"
-                            type="color"
-                            value={customization.colors[currentPartName]}
-                            onChange={(e) => handleColorChange(currentPartName, e.target.value)}
-                            className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
-                        />
-                        <label
-                            htmlFor="canvas-color-picker"
-                            className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
-                            style={{ backgroundColor: customization.colors[currentPartName] }}
-                        >
-                            <span className="sr-only">Change color</span>
-                        </label>
-                    </div>
+                <div className="relative flex items-center bg-background/50 backdrop-blur-sm border rounded-full p-1">
+                    <input
+                        id="canvas-color-picker"
+                        type="color"
+                        value={customization.colors[currentPartName]}
+                        onChange={(e) => handleColorChange(currentPartName, e.target.value)}
+                        className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                    />
+                    <label
+                        htmlFor="canvas-color-picker"
+                        className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
+                        style={{ backgroundColor: customization.colors[currentPartName] }}
+                    >
+                        <span className="sr-only">Change color</span>
+                    </label>
                 </div>
               )}
             </div>
