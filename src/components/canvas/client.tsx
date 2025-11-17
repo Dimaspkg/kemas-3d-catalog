@@ -305,21 +305,17 @@ export default function CanvasClient() {
                  </div>
               )}
               {currentPartName && (
-                <div className="relative">
+                <div className="relative h-8 w-8">
+                    <label htmlFor="canvas-color-picker" className="block w-full h-full rounded-full border-2 border-white shadow-sm cursor-pointer" style={{ backgroundColor: customization.colors[currentPartName] }}>
+                        <span className="sr-only">Change color</span>
+                    </label>
                     <input
                         id="canvas-color-picker"
                         type="color"
                         value={customization.colors[currentPartName]}
                         onChange={(e) => handleColorChange(currentPartName, e.target.value)}
-                        className="w-8 h-8 p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute opacity-0 z-10"
+                        className="w-full h-full p-0 border-none appearance-none cursor-pointer bg-transparent rounded-full absolute inset-0 opacity-0"
                     />
-                    <label
-                        htmlFor="canvas-color-picker"
-                        className="w-8 h-8 rounded-full border-2 border-white shadow-sm cursor-pointer ring-1 ring-gray-300"
-                        style={{ backgroundColor: customization.colors[currentPartName] }}
-                    >
-                        <span className="sr-only">Change color</span>
-                    </label>
                 </div>
               )}
               {parts.length > 1 && (
