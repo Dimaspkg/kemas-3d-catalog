@@ -10,7 +10,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, ChevronRight, Gem, Camera, Send, Layers } from "lucide-react";
+import { Info, ChevronLeft, Gem, Camera, Send, Layers } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -59,7 +59,6 @@ export default function CanvasClient() {
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
-  const [isPartSelectorOpen, setIsPartSelectorOpen] = useState(false);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
@@ -173,7 +172,7 @@ export default function CanvasClient() {
     if (partIndex !== -1) {
         setCurrentPartIndex(partIndex);
     }
-    setIsPartSelectorOpen(false);
+    // Close popover if it was open, might need a ref if we want to do this programmatically
   };
   
   const groupedMaterials = useMemo(() => {
@@ -308,15 +307,35 @@ export default function CanvasClient() {
                  </div>
               )}
               {parts.length > 1 && (
-                <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
-                    onClick={() => setIsPartSelectorOpen(true)}
-                >
-                    <Layers className="mr-2 h-4 w-4"/>
-                    {cleanPartName(currentPartName)}
-                </Button>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                         <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
+                        >
+                            <Layers className="mr-2 h-4 w-4"/>
+                            {cleanPartName(currentPartName)}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-2 bg-popover/80 backdrop-blur-lg">
+                        <ScrollArea className="max-h-60">
+                            <p className="text-xs font-semibold text-muted-foreground p-2">Select Part</p>
+                            <div className="flex flex-col gap-1">
+                                {parts.map(part => (
+                                    <Button
+                                        key={part}
+                                        variant={currentPartName === part ? "secondary" : "ghost"}
+                                        onClick={() => handlePartSelect(part)}
+                                        className="justify-start text-xs"
+                                    >
+                                        {cleanPartName(part)}
+                                    </Button>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </PopoverContent>
+                </Popover>
               )}
               {currentPartName && (
                 <>
@@ -391,31 +410,6 @@ export default function CanvasClient() {
         </AlertDialogContent>
       </AlertDialog>
     )}
-    
-    <AlertDialog open={isPartSelectorOpen} onOpenChange={setIsPartSelectorOpen}>
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>Select a Part</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Choose a part of the product to customize.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <ScrollArea className="max-h-60 -mx-6 px-6">
-                <div className="flex flex-col gap-2 py-4">
-                    {parts.map(part => (
-                        <Button
-                            key={part}
-                            variant={currentPartName === part ? "secondary" : "ghost"}
-                            onClick={() => handlePartSelect(part)}
-                            className="justify-start"
-                        >
-                            {cleanPartName(part)}
-                        </Button>
-                    ))}
-                </div>
-            </ScrollArea>
-        </AlertDialogContent>
-    </AlertDialog>
     </>
   );
 }
