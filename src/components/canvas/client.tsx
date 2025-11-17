@@ -10,7 +10,7 @@ import { db } from "@/lib/firebase";
 import type { Product, Environment, CanvasHandle, Hotspot, Material } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Info, ChevronLeft, ChevronRight, Gem, Camera, Send } from "lucide-react";
+import { Info, ChevronLeft, ChevronRight, Gem, Camera, Send, Layers } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -59,6 +59,7 @@ export default function CanvasClient() {
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [showOpenModel, setShowOpenModel] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
+  const [isPartSelectorOpen, setIsPartSelectorOpen] = useState(false);
   const searchParams = useSearchParams();
   const productId = searchParams.get('productId');
   const canvasRef = useRef<CanvasHandle>(null);
@@ -164,12 +165,12 @@ export default function CanvasClient() {
       }));
     };
 
-  const handleNextPart = () => {
-    setCurrentPartIndex((currentPartIndex + 1) % parts.length);
-  };
-
-  const handlePrevPart = () => {
-    setCurrentPartIndex((currentPartIndex - 1 + parts.length) % parts.length);
+  const handlePartSelect = (partName: string) => {
+    const partIndex = parts.indexOf(partName);
+    if (partIndex !== -1) {
+        setCurrentPartIndex(partIndex);
+    }
+    setIsPartSelectorOpen(false);
   };
   
   const groupedMaterials = useMemo(() => {
@@ -265,10 +266,10 @@ export default function CanvasClient() {
              {/* Product Info & Actions Overlay */}
             {product && (
               <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-2 max-w-sm">
-                 <Card className="bg-background/70 backdrop-blur-sm border-border/30 text-foreground">
+                 <Card className="bg-background/70 backdrop-blur-sm border-border/30">
                     <CardContent className="p-2">
                         <div className="flex items-center justify-between gap-2">
-                            <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent">
+                            <Button onClick={handleScreenshot} size="sm" variant="outline" className="flex-1 bg-transparent border-input hover:bg-accent text-foreground">
                                 <Camera className="mr-2 h-4 w-4" />
                                 Screenshot
                             </Button>
@@ -304,15 +305,15 @@ export default function CanvasClient() {
                  </div>
               )}
               {parts.length > 1 && (
-                <div className="flex items-center justify-between gap-2 p-1 rounded-full bg-background/50 backdrop-blur-sm border text-foreground">
-                    <Button variant="ghost" size="icon-sm" onClick={handlePrevPart} className="rounded-full h-7 w-7 text-foreground hover:bg-black/20 hover:text-white">
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-xs text-center font-semibold flex-1 truncate px-1">{cleanPartName(currentPartName)}</span>
-                    <Button variant="ghost" size="icon-sm" onClick={handleNextPart} className="rounded-full h-7 w-7 text-foreground hover:bg-black/20 hover:text-white">
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-full h-9 bg-background/50 backdrop-blur-sm border text-foreground hover:bg-accent hover:text-accent-foreground"
+                    onClick={() => setIsPartSelectorOpen(true)}
+                >
+                    <Layers className="mr-2 h-4 w-4"/>
+                    {cleanPartName(currentPartName)}
+                </Button>
               )}
               {currentPartName && (
                 <Popover>
@@ -387,6 +388,33 @@ export default function CanvasClient() {
         </AlertDialogContent>
       </AlertDialog>
     )}
+    
+    <AlertDialog open={isPartSelectorOpen} onOpenChange={setIsPartSelectorOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Select a Part</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Choose a part of the product to customize.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <ScrollArea className="max-h-60 -mx-6 px-6">
+                <div className="flex flex-col gap-2 py-4">
+                    {parts.map(part => (
+                        <Button
+                            key={part}
+                            variant={currentPartName === part ? "secondary" : "ghost"}
+                            onClick={() => handlePartSelect(part)}
+                            className="justify-start"
+                        >
+                            {cleanPartName(part)}
+                        </Button>
+                    ))}
+                </div>
+            </ScrollArea>
+        </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 }
+
+    
