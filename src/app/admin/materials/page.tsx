@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Square, CheckSquare, Droplets, Gem, Palette, Wind, Sparkles } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Gem } from "lucide-react";
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +22,6 @@ import { DeleteMaterialDialog } from '@/components/admin/materials/delete-materi
 import { Badge } from '@/components/ui/badge';
 import { MaterialCategoriesDialog } from '@/components/admin/materials/categories/material-categories-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 function MaterialCardSkeleton() {
@@ -48,15 +47,6 @@ function MaterialCardSkeleton() {
                  <Skeleton className="h-8 w-8 rounded-full" />
             </CardFooter>
         </Card>
-    )
-}
-
-function TextureIndicator({ label, present }: { label: string, present: boolean }) {
-    return (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {present ? <CheckSquare className="h-4 w-4 text-green-500" /> : <Square className="h-4 w-4" />}
-            <span>{label}</span>
-        </div>
     )
 }
 
@@ -113,7 +103,6 @@ export default function MaterialManagementPage() {
                 {[...Array(4)].map((_, i) => <MaterialCardSkeleton key={i} />)}
             </div>
         ) : materials.length > 0 ? (
-          <TooltipProvider>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {materials.map((material, index) => (
                     <Card key={material.id} className="relative flex flex-col hover:shadow-md transition-shadow">
@@ -151,26 +140,6 @@ export default function MaterialManagementPage() {
                                 <InfoBadge label="R" value={material.roughness} />
                                 {(material.opacity !== undefined && material.opacity < 1) && <InfoBadge label="O" value={material.opacity} />}
                             </div>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Tooltip>
-                                  <TooltipTrigger>
-                                    <Palette className={`h-4 w-4 ${material.baseColorMap ? 'text-primary' : ''}`} />
-                                  </TooltipTrigger>
-                                  <TooltipContent>Base Color Map</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                  <TooltipTrigger>
-                                    <Wind className={`h-4 w-4 ${material.normalMap ? 'text-primary' : ''}`} />
-                                  </TooltipTrigger>
-                                  <TooltipContent>Normal Map</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                  <TooltipTrigger>
-                                    <Sparkles className={`h-4 w-4 ${material.roughnessMap ? 'text-primary' : ''}`} />
-                                  </TooltipTrigger>
-                                  <TooltipContent>Roughness Map</TooltipContent>
-                              </Tooltip>
-                            </div>
                         </CardContent>
                         <CardFooter className="justify-end">
                              <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
@@ -178,7 +147,6 @@ export default function MaterialManagementPage() {
                     </Card>
                 ))}
             </div>
-          </TooltipProvider>
         ) : (
             <div className="text-center py-20 border-2 border-dashed rounded-lg col-span-full">
                 <Gem className="mx-auto h-12 w-12 text-muted-foreground" />
