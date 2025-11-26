@@ -102,18 +102,12 @@ export default function AdminLayout({
               </SidebarFooter>
             </Sidebar>
             <SidebarInset>
-              <header className="flex h-12 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-md md:h-14 md:px-6">
-                <div className="flex items-center gap-2">
-                  <SidebarTrigger className="md:hidden" />
-                  <Separator orientation="vertical" className="mx-2 h-6 md:hidden" />
-                  <div className="hidden text-sm font-medium md:block">
-                     <span className="text-muted-foreground">Admin /</span> {pathname.split('/').pop() || 'Dashboard'}
-                  </div>
+                <div className="p-4 md:p-6 lg:p-8">
+                    <SidebarTrigger className="absolute left-4 top-4 md:left-6 md:top-6" />
+                    <div className="mt-12">
+                        {children}
+                    </div>
                 </div>
-              </header>
-              <main className="flex-1 p-4 md:p-6 lg:p-8">
-                {children}
-              </main>
             </SidebarInset>
          </SidebarProvider>
          <Toaster />
