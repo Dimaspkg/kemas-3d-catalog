@@ -22,6 +22,7 @@ import { DeleteMaterialDialog } from '@/components/admin/materials/delete-materi
 import { Badge } from '@/components/ui/badge';
 import { MaterialCategoriesDialog } from '@/components/admin/materials/categories/material-categories-dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 
 function MaterialCardSkeleton() {
@@ -85,17 +86,20 @@ export default function MaterialManagementPage() {
 
   return (
     <div className="space-y-6">
-        <div className="flex justify-between items-center">
-            <div>
-                <h2 className="text-2xl font-bold tracking-tight">Material Management</h2>
-                <p className="text-muted-foreground">
-                    Manage the materials available for product customization.
-                </p>
+        <div>
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Material Management</h2>
+                    <p className="text-muted-foreground">
+                        Manage the materials available for product customization.
+                    </p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <MaterialCategoriesDialog />
+                    {user && <AddMaterialDialog user={user} />}
+                </div>
             </div>
-            <div className="flex items-center gap-2">
-                <MaterialCategoriesDialog />
-                {user && <AddMaterialDialog user={user} />}
-            </div>
+            <Separator />
         </div>
 
         {loading ? (
