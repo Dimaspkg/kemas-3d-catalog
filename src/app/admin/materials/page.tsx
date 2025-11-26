@@ -117,10 +117,12 @@ export default function MaterialManagementPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {materials.map((material, index) => (
                     <Card key={material.id} className="relative flex flex-col hover:shadow-md transition-shadow">
-                        <Badge variant="outline" className="absolute top-2 left-2">{index + 1}</Badge>
-                        <CardHeader className="pt-8">
+                        <CardHeader>
                             <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg leading-tight pr-8">{material.name}</CardTitle>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-muted-foreground font-mono text-sm">{index + 1}</span>
+                                    <CardTitle className="text-lg leading-tight">{material.name}</CardTitle>
+                                </div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0 absolute top-2 right-2">
