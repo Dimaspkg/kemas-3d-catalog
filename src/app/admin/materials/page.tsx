@@ -108,7 +108,12 @@ export default function MaterialManagementPage() {
                     <Card key={material.id} className="relative flex flex-col hover:shadow-md transition-shadow">
                         <CardHeader>
                             <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg leading-tight">{material.name}</CardTitle>
+                                <div className="flex items-center gap-3 pr-8">
+                                    <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted border shrink-0">
+                                        <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
+                                    </div>
+                                    <CardTitle className="text-lg leading-tight">{material.name}</CardTitle>
+                                </div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0 absolute top-2 right-2">
@@ -130,7 +135,7 @@ export default function MaterialManagementPage() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div className="flex flex-wrap gap-1 pt-2">
+                             <div className="flex flex-wrap gap-1 pt-2">
                                 {material.categories?.map(cat => <Badge key={cat} variant="secondary">{cat}</Badge>)}
                             </div>
                         </CardHeader>
@@ -141,10 +146,8 @@ export default function MaterialManagementPage() {
                                 {(material.opacity !== undefined && material.opacity < 1) && <InfoBadge label="O" value={material.opacity} />}
                             </div>
                         </CardContent>
-                        <CardFooter className="justify-end">
-                            <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted border">
-                                <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
-                            </div>
+                        <CardFooter>
+                           
                         </CardFooter>
                     </Card>
                 ))}
