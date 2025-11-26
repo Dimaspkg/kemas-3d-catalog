@@ -115,37 +115,32 @@ export default function AdminLayout({
   }, [router]);
   
   return (
-     <html lang="en" suppressHydrationWarning>
-      <body className="font-body antialiased">
-        <div className="min-h-screen w-full">
-            <div className="flex flex-col">
-                <main className="flex-1 p-4 md:p-8">
-                    <div className="absolute top-4 left-4 z-10">
-                      <Sheet>
-                          <SheetTrigger asChild>
-                              <Button
-                              variant="outline"
-                              size="icon"
-                              className="shrink-0"
-                              >
-                              <Menu className="h-5 w-5" />
-                              <span className="sr-only">Toggle navigation menu</span>
-                              </Button>
-                          </SheetTrigger>
-                           <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
-                              <SheetHeader className="sr-only">
-                              <SheetTitle>Admin Menu</SheetTitle>
-                              </SheetHeader>
-                              <NavMenu />
-                          </SheetContent>
-                      </Sheet>
-                    </div>
-                    {children}
-                </main>
-            </div>
+    <div className="min-h-screen w-full">
+        <div className="flex flex-col">
+            <main className="flex-1 p-4 md:p-8">
+                <div className="absolute top-4 left-4 z-10">
+                  <Sheet>
+                      <SheetTrigger asChild>
+                          <Button
+                          variant="outline"
+                          size="icon"
+                          className="shrink-0"
+                          >
+                          <Menu className="h-5 w-5" />
+                          <span className="sr-only">Toggle navigation menu</span>
+                          </Button>
+                      </SheetTrigger>
+                       <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
+                          <SheetHeader className="sr-only">
+                          <SheetTitle>Admin Menu</SheetTitle>
+                          </SheetHeader>
+                          <NavMenu />
+                      </SheetContent>
+                  </Sheet>
+                </div>
+                {children}
+            </main>
         </div>
-        <Toaster />
-      </body>
-    </html>
+    </div>
   );
 }
