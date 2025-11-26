@@ -44,7 +44,7 @@ export default function AdminLayout({
          <SidebarProvider>
             <Sidebar variant="floating" collapsible="icon">
               <SidebarHeader className="items-start">
-                  <HeaderLogo logoUrl={null} />
+                  <HeaderLogo logoUrl={null} className="transition-all duration-200 group-data-[state=collapsed]:w-10" />
               </SidebarHeader>
               <SidebarContent className="p-2">
                 <SidebarMenu>
