@@ -142,7 +142,9 @@ export default function MaterialManagementPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="justify-end">
-                             <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
+                            <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted border">
+                                <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
+                            </div>
                         </CardFooter>
                     </Card>
                 ))}
