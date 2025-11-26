@@ -213,7 +213,7 @@ export default function ProductsPage() {
                     {filteredProducts.map((product) => (
                         <div key={product.id} className="group">
                              <Link href={`/products/${product.id}`} className="block">
-                                <Card className="overflow-hidden rounded-lg border-none shadow-none">
+                                <Card className="overflow-hidden rounded-lg">
                                     <CardContent className="p-0">
                                         <div className="relative aspect-square w-full bg-white">
                                             {product.imageURLs && product.imageURLs.length > 0 ? (
