@@ -46,7 +46,7 @@ export default function AdminLayout({
               <SidebarHeader>
                   <HeaderLogo logoUrl={null} />
               </SidebarHeader>
-              <SidebarContent>
+              <SidebarContent className="p-2">
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={pathname === '/admin'}>
@@ -90,7 +90,7 @@ export default function AdminLayout({
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarContent>
-              <SidebarFooter>
+              <SidebarFooter className="p-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton onClick={handleLogout}>
