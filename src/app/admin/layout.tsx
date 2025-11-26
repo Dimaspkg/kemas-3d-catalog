@@ -43,7 +43,7 @@ export default function AdminLayout({
        <body className="font-body antialiased">
          <SidebarProvider>
             <Sidebar variant="floating" collapsible="icon">
-              <SidebarHeader>
+              <SidebarHeader className="items-start">
                   <HeaderLogo logoUrl={null} />
               </SidebarHeader>
               <SidebarContent className="p-2">
