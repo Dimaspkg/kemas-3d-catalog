@@ -1,4 +1,3 @@
-
 import { Suspense } from 'react';
 import CanvasClient from '@/components/canvas/client';
 import { Skeleton } from '@/components/ui/skeleton';
