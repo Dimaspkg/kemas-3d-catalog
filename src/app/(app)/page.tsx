@@ -55,7 +55,7 @@ export default function LandingPage() {
                                     <Link href={`/products/${product.id}`} className="block">
                                        <Card className="overflow-hidden rounded-lg">
                                            <CardContent className="p-0">
-                                               <div className="relative aspect-square w-full bg-white">
+                                               <div className="relative aspect-square w-full bg-muted">
                                                    {product.imageURLs && product.imageURLs.length > 0 ? (
                                                        <Image 
                                                            src={product.imageURLs[0]}
