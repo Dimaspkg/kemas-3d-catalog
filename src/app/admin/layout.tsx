@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -46,6 +45,7 @@ export default function AdminLayout({
               <SidebarHeader className="items-start">
                   <HeaderLogo logoUrl={null} className="transition-all duration-200 group-data-[state=collapsed]:w-10" />
               </SidebarHeader>
+              <Separator />
               <SidebarContent className="p-2">
                 <SidebarMenu>
                   <SidebarMenuItem>
