@@ -119,10 +119,7 @@ export default function MaterialManagementPage() {
                     <Card key={material.id} className="relative flex flex-col hover:shadow-md transition-shadow">
                         <CardHeader>
                             <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-muted-foreground font-mono text-sm">{index + 1}</span>
-                                    <CardTitle className="text-lg leading-tight">{material.name}</CardTitle>
-                                </div>
+                                <CardTitle className="text-lg leading-tight">{material.name}</CardTitle>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0 absolute top-2 right-2">
@@ -175,6 +172,9 @@ export default function MaterialManagementPage() {
                               </Tooltip>
                             </div>
                         </CardContent>
+                        <CardFooter className="justify-end">
+                             <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
+                        </CardFooter>
                     </Card>
                 ))}
             </div>
