@@ -97,7 +97,7 @@ export default function ProductDetailPage() {
                         <div key={index} className="relative aspect-square w-full shrink-0 snap-start">
                             <Image
                                 src={url}
-                                alt={`${product.name} image ${index + 1}`}
+                                alt={`${'' + product.name} image ${'' + (index + 1)}`}
                                 fill
                                 className="object-cover rounded-lg"
                                 priority={index === 0}
