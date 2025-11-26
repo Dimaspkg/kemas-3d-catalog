@@ -10,6 +10,9 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
+import '../globals.css';
+
 
 function NavMenu({ className }: { className?: string }) {
     const pathname = usePathname();
@@ -110,33 +113,38 @@ export default function AdminLayout({
   }, [router]);
   
   return (
-    <div className="min-h-screen w-full">
-        <div className="flex flex-col">
-            <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button
-                        variant="outline"
-                        size="icon"
-                        className="shrink-0"
-                        >
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Toggle navigation menu</span>
-                        </Button>
-                    </SheetTrigger>
-                     <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
-                        <SheetHeader className="sr-only">
-                        <SheetTitle>Admin Menu</SheetTitle>
-                        </SheetHeader>
-                        <NavMenu />
-                    </SheetContent>
-                </Sheet>
-                <h1 className="text-xl font-semibold">Admin Panel</h1>
-            </header>
-            <main className="flex-1 p-4 md:p-8">
-                {children}
-            </main>
+     <html lang="en" suppressHydrationWarning>
+      <body className="font-body antialiased">
+        <div className="min-h-screen w-full">
+            <div className="flex flex-col">
+                <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button
+                            variant="outline"
+                            size="icon"
+                            className="shrink-0"
+                            >
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Toggle navigation menu</span>
+                            </Button>
+                        </SheetTrigger>
+                         <SheetContent side="left" className="flex flex-col p-0 w-full max-w-xs">
+                            <SheetHeader className="sr-only">
+                            <SheetTitle>Admin Menu</SheetTitle>
+                            </SheetHeader>
+                            <NavMenu />
+                        </SheetContent>
+                    </Sheet>
+                    <h1 className="text-xl font-semibold">Admin Panel</h1>
+                </header>
+                <main className="flex-1 p-4 md:p-8">
+                    {children}
+                </main>
+            </div>
         </div>
-    </div>
+        <Toaster />
+      </body>
+    </html>
   );
 }
