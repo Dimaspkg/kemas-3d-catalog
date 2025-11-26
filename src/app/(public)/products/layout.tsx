@@ -8,5 +8,3 @@ export default function ProductsLayout({
     <div className="py-8 px-4">{children}</div>
   );
 }
-
-
