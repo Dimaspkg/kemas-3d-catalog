@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
-    const decodedToken = await auth().verifyIdToken(idToken);
+    await auth().verifyIdToken(idToken);
     const sessionCookie = await auth().createSessionCookie(idToken, { expiresIn });
     
-    cookies().set('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: true });
+    cookies().set('session', sessionCookie, { maxAge: expiresIn, httpOnly: true, secure: process.env.NODE_ENV === 'production' });
     
     return NextResponse.json({ status: 'success' }, { status: 200 });
   } catch (error) {
